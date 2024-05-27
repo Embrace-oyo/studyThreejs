@@ -23,6 +23,11 @@ const shaderStudyRouter = [
         path: '/shaderStudy/page_5',
         name: 'shader_顶点着色器',
         component: () => import('@/views/shaderStudy/page_5.vue')
+    },
+    {
+        path: '/shaderStudy/page_6',
+        name: 'shader_光照模型',
+        component: () => import('@/views/shaderStudy/page_6.vue')
     }
 ]
 
