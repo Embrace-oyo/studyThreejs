@@ -80,6 +80,11 @@ const router = createRouter({
             path: '/pepyaka',
             name: 'pepyaka',
             component: () => import('@/views/pepyaka.vue')
+        },
+        {
+            path: '/rain',
+            name: '雨滴',
+            component: () => import('@/views/rain.vue')
         }
     ]
 })
