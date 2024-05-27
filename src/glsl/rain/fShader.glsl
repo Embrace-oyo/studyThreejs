@@ -5,10 +5,8 @@ uniform float iTime;
 uniform float iGlobalTime;
 uniform sampler2D iChannel0;
 
-
-#define S(a, b, t) smoothstep(a, b, t)
 //#define HAS_HEART
-#define USE_POST_PROCESSING
+#define USE_POST_PROCESSING;
 
 
 vec3 N13(float p) {
@@ -24,7 +22,7 @@ float N(float t) {
 
 
 float Saw(float b, float t) {
-    return S(0., b, t)*S(1., b, t);
+    return smoothstep(0.0, b, t) * smoothstep(1.0, b, t);
 }
 
 float staticRain (vec2 uv, float t){
@@ -36,11 +34,12 @@ float staticRain (vec2 uv, float t){
     vec2 p = (n.xy-.5)*.7;
     float d = length(uv - p);
     float fade = Saw(.025, fract(t+n.z));
-    float c = S(.3, 0., d)*fract(n.z*10.)*fade;
+    float c = smoothstep(0.3, 0., d) * fract(n.z*10.)*fade;
     return c;
 }
 
 vec2 layer (vec2 uv, float t) {
+    uv.x *= iResolution.x / iResolution.y;
     uv.y += t * 0.75;
     vec2 a = vec2(6., 1.);
     vec2 grid = a*2.;
@@ -64,20 +63,20 @@ vec2 layer (vec2 uv, float t) {
     vec2 p = vec2(x, y);
     float d = length((st-p)*a.yx);
 
-    float mainDrop = S(.4, .0, d);
+    float mainDrop = smoothstep(.4, .0, d);
     float r = sqrt(smoothstep(1., y, st.y));
     float cd = abs(st.x-x);
-    float trail = S(.23*r, .15*r*r, cd);
-    float trailFront = S(-.02, .02, st.y-y);
+    float trail = smoothstep(.23*r, .15*r*r, cd);
+    float trailFront = smoothstep(-.02, .02, st.y-y);
     trail *= trailFront*r*r;
 
     y = uv.y;
 
-    float trail2 = S(.2*r, .0, cd);
+    float trail2 = smoothstep(.2*r, .0, cd);
     float droplets = max(0., (sin(y*(1.-y)*120.)-st.y))*trail2*trailFront*n.z;
     y = fract(y*10.)+(st.y-.5);
     float dd = length(st-vec2(x, y));
-    droplets = S(.3, 0., dd);
+    droplets = smoothstep(.3, 0., dd);
     float m = mainDrop+droplets*r*trailFront;
 
     return vec2(m, trail);
@@ -88,7 +87,6 @@ void main() {
 
     vec2 uv = v_uv;
     vec2 UV = v_uv;
-    UV.x *= iResolution.x / iResolution.y;
 
 
     vec3 M = iMouse.xyz;
@@ -104,9 +102,9 @@ void main() {
     float story = 0.;
     float heart = 0.;
 
-    float staticDrops = S(-.5, 1., rainAmount)*2.;
-    float layer1 = S(.25, .75, rainAmount);
-    float layer2 = S(.0, .5, rainAmount);
+    float staticDrops = smoothstep(-.5, 1., rainAmount)*2.;
+    float layer1 = smoothstep(.25, .75, rainAmount);
+    float layer2 = smoothstep(.0, .5, rainAmount);
 
     // staticRain
     float s = staticRain(uv, t) * staticDrops;
@@ -117,34 +115,38 @@ void main() {
     // layer2
     vec2 layerTwo = layer(uv * 1.85, t) * layer2;
 
-    // total
-    float e = s+layerOne.x+layerTwo.x;
-    e = S(.3, 1., e);
+    // combination
+    float e = s + layerOne.x + layerTwo.x;
+
+    e = smoothstep(.3, 1., e);
+
     vec2 c = vec2(e, max(layerOne.y*layer1, layerOne.y*layer2));
 
 
 
     vec2 n = vec2(dFdx(c.x), dFdy(c.x));
 
-    float focus = mix(maxBlur-c.y, minBlur, S(.1, .2, c.x));
+    float focus = mix(maxBlur-c.y, minBlur, smoothstep(.1, .2, c.x));
+
     vec3 col = textureLod(iChannel0, UV+n, focus).rgb;
 
 
-    t = (T+3.)*.5;// make time sync with first lightnoing
+    // make time sync with first lightnoing
+    t = (T+3.)*.5;
     float colFade = sin(t*.2)*.5+.5+story;
-    col *= mix(vec3(1.), vec3(.8, .9, 1.3), colFade);// subtle color shift
-    float fade = S(0., 10., T);// fade in at the start
-    float lightning = sin(t*sin(t*10.));// lighting flicker
-    lightning *= pow(max(0., sin(t+sin(t))), 10.);// lightning flash
-    col *= 1.+lightning*fade*mix(1., .1, story*story);// composite lightning
-    col *= 1.-dot(UV-=.5, UV);// vignette
+    // subtle color shift
+    col *= mix(vec3(1.), vec3(.8, .9, 1.3), colFade);
+    // fade in at the start
+    float fade = smoothstep(0.0, 0.1, T);
+    // lighting flicker
+    float lightning = sin(t*sin(t*10.));
+    // lightning flash
+    lightning *= pow(max(0., sin(t+sin(t))), 10.);
+    // composite lightning
+    col *= 1.+lightning*fade*mix(1., .1, story*story);
+    // vignette
+    col *= 1.-dot(UV-=.5, UV);
     col *= fade;
-
-
-
-
-
-
 
 
 

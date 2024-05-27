@@ -85,6 +85,11 @@ const router = createRouter({
             path: '/rain',
             name: '雨滴',
             component: () => import('@/views/rain.vue')
+        },
+        {
+            path: '/water',
+            name: '水面',
+            component: () => import('@/views/water.vue')
         }
     ]
 })
