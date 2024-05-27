@@ -7,8 +7,10 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            redirect: '/perlinBall',
+            redirect: '/page_1',
         },
+        ...shaderStudyRouter,
+        ...webglRouter,
         {
             path: '/perlinBall',
             name: '柏林噪音球',
@@ -78,9 +80,7 @@ const router = createRouter({
             path: '/pepyaka',
             name: 'pepyaka',
             component: () => import('@/views/pepyaka.vue')
-        },
-        ...webglRouter,
-        ...shaderStudyRouter
+        }
     ]
 })
 
