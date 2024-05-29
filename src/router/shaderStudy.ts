@@ -28,6 +28,16 @@ const shaderStudyRouter = [
         path: '/shaderStudy/page_6',
         name: 'shader_光照模型',
         component: () => import('@/views/shaderStudy/page_6.vue')
+    },
+    {
+        path: '/shaderStudy/page_7',
+        name: 'shader_光线步进',
+        component: () => import('@/views/shaderStudy/page_7.vue')
+    },
+    {
+        path: '/shaderStudy/page_8',
+        name: 'shader_图片特效',
+        component: () => import('@/views/shaderStudy/page_8.vue')
     }
 ]
 

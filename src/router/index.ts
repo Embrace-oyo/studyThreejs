@@ -90,6 +90,11 @@ const router = createRouter({
             path: '/water',
             name: '水面',
             component: () => import('@/views/water.vue')
+        },
+        {
+            path: '/galaxyShader',
+            name: '宇宙银河',
+            component: () => import('@/views/GalaxyofUniverses.vue')
         }
     ]
 })
