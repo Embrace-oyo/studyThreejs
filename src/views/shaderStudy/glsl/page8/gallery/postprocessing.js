@@ -4,8 +4,8 @@
  * @description
  * @created 2024/5/30 17:55:43
  */
-import Component from "@/views/shaderStudy/glsl/page8/init/component.js";
-import CustomEffect from "@/views/shaderStudy/glsl/page8/init/customEffect.js";
+import Component from "@/util/common/component.js";
+import CustomEffect from "@/util/common/customEffect.js";
 import postprocessingFragmentShader from "@/views/shaderStudy/glsl/page8/shaders/postprocessing/frag.glsl";
 
 export default class Postprocessing extends Component {

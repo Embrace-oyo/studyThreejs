@@ -59,10 +59,10 @@ onMounted(() => {
       height: 100vh;
 
       .title {
-        margin: 10px 0;
+        margin: 10px 0 0 0;
         padding-bottom: 10px;
         text-align: center;
-        font-size: 25px;
+        font-size: 18px;
         font-weight: bold;
         border-bottom: 1px solid #E8E8E8;
       }
@@ -85,7 +85,7 @@ onMounted(() => {
             padding: 10px 0;
             flex-wrap: wrap;
             cursor: pointer;
-            font-size: 20px;
+            font-size: 16px;
           }
         }
 

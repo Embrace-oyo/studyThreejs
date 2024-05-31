@@ -134,8 +134,7 @@ float fbm(vec3 p){
     return value;
 }
 
-float remap(float a, float b, float c, float d, float t)
-{
+float remap(float a, float b, float c, float d, float t){
     return clamp((t-a)/(b-a), 0., 1.)*(d-c)+c;
 }
 

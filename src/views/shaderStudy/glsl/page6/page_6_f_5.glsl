@@ -13,6 +13,7 @@ void main() {
     vec3 objectColor=vec3(1.);
     vec3 lightColor=vec3(.875, .286, .333);
     vec3 normal = normalize(v_normal);
+
     // ambient
     float ambIntensity=.2;
     vec3 ambient=lightColor*ambIntensity;

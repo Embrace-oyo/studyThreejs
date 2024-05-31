@@ -3,7 +3,7 @@ uniform vec3 iResolution;
 uniform vec4 iMouse;
 uniform sampler2D uTexture;
 uniform vec2 uMediaSize;
-
+uniform float uOpacity;
 varying vec2 vUv;
 
 vec2 cover(vec2 s, vec2 i, vec2 uv){
@@ -20,5 +20,5 @@ void main(){
     uv = cover(iResolution.xy, uMediaSize, uv);
     vec4 tex=texture(uTexture, uv);
     vec3 color=tex.rgb;
-    gl_FragColor=vec4(color, 1.);
+    gl_FragColor=vec4(color, uOpacity);
 }

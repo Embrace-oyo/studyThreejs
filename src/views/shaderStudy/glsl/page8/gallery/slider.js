@@ -5,9 +5,9 @@
  * @created 2024/5/30 15:35:18
  */
 
-import Component from "@/views/shaderStudy/glsl/page8/init/component.js";
-import {WheelScroller} from "@/views/shaderStudy/glsl/page8/init/scroller.js";
-import DragDetecter from "@/views/shaderStudy/glsl/page8/init/drag.js";
+import Component from "@/util/common/component.js";
+import {WheelScroller} from "@/util/common/scroller.js";
+import DragDetecter from "@/util/common/drag.js";
 import {InfiniteGallery} from "@/views/shaderStudy/glsl/page8/gallery/gallery.js";
 import vert from '@/views/shaderStudy/glsl/page8/shaders/vert.glsl'
 import frag from '@/views/shaderStudy/glsl/page8/shaders/frag.glsl'
@@ -36,8 +36,17 @@ export default class Slider extends Component {
                 uVelocity: {
                     value: 0,
                 },
+                uOpacity: {
+                    value: 1
+                },
+                uProgress:{
+                    value: 0
+                },
                 ...params
-            }
+            },
+            materialParams: {
+                transparent: true,
+            },
         });
 
         this.ws = new WheelScroller();

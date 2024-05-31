@@ -8,8 +8,8 @@
 import * as THREE from "three";
 import {Maku, MakuGroup, Scroller} from "maku.js";
 import imagesLoaded from "imagesloaded";
-import Component from "@/views/shaderStudy/glsl/page8/init/component";
-import UniformInjector from "@/views/shaderStudy/glsl/page8/init/uniformInjector";
+import Component from "@/util/common/component";
+import UniformInjector from "@/util/common/uniformInjector";
 
 
 const defaultVertexShader = /* glsl */ `

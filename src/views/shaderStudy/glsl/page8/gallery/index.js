@@ -4,9 +4,9 @@
  * @description
  * @created 2024/5/30 15:25:49
  */
-import Base from "@/views/shaderStudy/glsl/page8/init/base";
-import Debug from "@/views/shaderStudy/glsl/page8/init/debug";
-import ScreenCamera from '@/views/shaderStudy/glsl/page8/init/screenCamera'
+import Base from "@/util/common/base";
+import Debug from "@/util/common/debug";
+import ScreenCamera from '@/util/common/screenCamera'
 import World from '@/views/shaderStudy/glsl/page8/gallery/world'
 import Postprocessing from '@/views/shaderStudy/glsl/page8/gallery/postprocessing'
 

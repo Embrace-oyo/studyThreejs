@@ -38,6 +38,11 @@ const shaderStudyRouter = [
         path: '/shaderStudy/page_8',
         name: 'shader_图片特效',
         component: () => import('@/views/shaderStudy/page_8.vue')
+    },
+    {
+        path: '/shaderStudy/page_9',
+        name: 'shader_3D图形特效',
+        component: () => import('@/views/shaderStudy/page_9.vue')
     }
 ]
 

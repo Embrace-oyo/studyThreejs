@@ -7,7 +7,7 @@ const router = createRouter({
     routes: [
         {
             path: '/',
-            redirect: '/page_1',
+            redirect: '/shaderStudy/page_1',
         },
         ...shaderStudyRouter,
         ...webglRouter,
