@@ -41,7 +41,10 @@ class Base {
         this.camera.position.z = 1;
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer({
+            powerPreference: "high-performance",
             antialias: true,
+            stencil: false,
+            depth: false,
             alpha: true,
             ...gl
         });

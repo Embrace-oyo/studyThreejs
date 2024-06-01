@@ -3,7 +3,7 @@ uniform vec3 iResolution;
 uniform vec4 iMouse;
 uniform float uDistort;
 uniform float uFrequency;
-uniform sampler2D uAudioData;
+uniform float uAudioData;
 varying vec2 vUv;
 varying float vNoise;
 varying vec3 vNormal;
@@ -11,26 +11,20 @@ varying vec3 vWorldPosition;
 const float PI = 3.1415926;
 
 #include "/node_modules/lygia/generative/cnoise.glsl"
+#include "/node_modules/lygia/generative/pnoise.glsl"
 #include "/node_modules/lygia/generative/fbm.glsl"
+#include "/node_modules/lygia/generative/curl.glsl"
 
 
 vec3 distort(vec3 p){
-    //    float offset = cnoise(p/uFrequency+iTime*0.5);
-    /* float f = texture2D(uAudioData, vec2(uv.x, 0.0)).r;
-     float offset = fbm(p/uFrequency+f*0.5);
-     float t = (p.y + offset) * PI * 12.0;
-     float noise = (sin(t) * p.x + cos(t) * p.z) * 2.0;*/
-    float t = (p.y + 1.0) * PI * 12.0;
-    float n = (sin(t) * p.x + cos(t) * p.z) * 2.0;
-    float f = texture2D(uAudioData, vec2(uv.x, 0.0)).r;
-    float noise = fbm(p + t + n + f);
-    noise *= uDistort;
+//    vec3 noise = curl(p) * PI * uDistort / uFrequency * (uAudioData * 0.3);
+    float noise = cnoise(p) * PI * uDistort / uFrequency * (uAudioData * 0.3);
     vNoise = noise;
-    p+=noise*normal*.01;
+    p += noise * normal * 0.01;
     return p;
 }
 
-#include "/src/views/shaderStudy/glsl/page9/shaders/fixNormal.glsl"
+    #include "/src/views/shaderStudy/glsl/page9/shaders/fixNormal.glsl"
 
 
 void main(){
