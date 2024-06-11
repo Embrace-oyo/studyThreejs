@@ -30,10 +30,12 @@ class Base {
         const {
             gl = {},
             autoAdaptMobile = false,
+            offset = 0,
             callbackFn = () => {
             }
         } = config;
         this.container = document.getElementById(id);
+        this.offset = offset;
         this.width = this.container.offsetWidth || window.innerWidth;
         this.height = this.container.offsetHeight || window.innerHeight;
         this.aspect = this.width / this.height;

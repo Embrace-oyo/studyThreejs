@@ -53,8 +53,9 @@ export default class UniformInjector extends Component {
         uniforms.iTime.value = t;
         const delta = this.base.clock.deltaTime;
         uniforms.iTimeDelta.value = delta;
-        uniforms.iResolution.value = new THREE.Vector3(window.innerWidth, window.innerHeight, 1);
-        const {x, y} = this.base.iMouse.mouse;
+        uniforms.iResolution.value = new THREE.Vector3(this.base.width, this.base.height, 1);
+        // const {x, y} = this.base.iMouse.mouse;
+        const {x, y} = this.base.iMouse.mouseDOM;
         uniforms.iMouse.value = new THREE.Vector4(x, y, 0, 0);
         uniforms.iDate.value = new THREE.Vector4(new Date().getFullYear(), new Date().getMonth() + 1, new Date().getDate(), new Date().getHours());
         uniforms.iChannelTime.value = [t, t, t, t];

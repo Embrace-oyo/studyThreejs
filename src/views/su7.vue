@@ -15,14 +15,14 @@ nft demo2.vue
   </div>
 </template>
 
-<script lang="ts" setup>
+<script setup>
 import ModelClass from '@/util/modelClass'
 import {onMounted, ref} from "vue";
 
 const isLoad = ref(false)
 const number = ref(0)
 
-const progressCallback = (xhr: any) => {
+const progressCallback = (any) => {
   isLoad.value = true
   // const progress = Math.floor((xhr.loaded / xhr.total) * 100)
   // if (progress >= 100) isLoad.value = true
