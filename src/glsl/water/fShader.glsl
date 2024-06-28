@@ -1,8 +1,6 @@
 varying vec2 v_uv;
 uniform vec2 iResolution;
-uniform vec4 iMouse;
 uniform float iTime;
-uniform float iGlobalTime;
 uniform sampler2D iChannel0;
 
 #define TAU 6.28318530718

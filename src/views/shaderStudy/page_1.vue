@@ -399,17 +399,11 @@ const material18 = new THREE.ShaderMaterial({
     varying vec2 vUv;
     uniform float uTime;
     void main() {
-        float a = fract(vUv.x * 3.0);
-        float b = step(0.5, a);
-        vec3 c = vec3(smoothstep(0.2, 0.8, b));
-        float x = fract(vUv.y * 3.0);
-        float y = step(0.5, x);
-        vec3 z = vec3(y);
-        vec3 col = vec3(abs(c - z));
-        // vec3 mask1 = vec3(smoothstep(0.2, 0.8, step(0.5, fract(vUv.x * 3.0))));
-        // vec3 mask2 = vec3(step(0.5, fract(vUv.y * 3.0)));
-        // vec3 color = abs(mask1 - mask2);
-        gl_FragColor = vec4(col, 1.0);
+        vec2 uv = vUv;
+        vec2 size = vec2(6.0);
+        uv = floor(uv * size) / size;
+        float p = length(uv) - 0.1;
+        gl_FragColor = vec4(vec3(p), 1.0);
     }
   `,
   uniforms: {

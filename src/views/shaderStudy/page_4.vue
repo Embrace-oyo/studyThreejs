@@ -21,6 +21,7 @@ import concave from '@/views/shaderStudy/glsl/page4/page_4_concave.glsl'
 import pixel from '@/views/shaderStudy/glsl/page4/page_4_pixel.glsl'
 import vignette from '@/views/shaderStudy/glsl/page4/page_4_vignette.glsl'
 import bw from '@/views/shaderStudy/glsl/page4/page_4_bw.glsl'
+import blur from '@/views/shaderStudy/glsl/page4/page_4_blur.glsl'
 
 let dom, renderer, scene, camera, control, clock, axesHelper, geometry, material, mesh;
 const iMouse = new THREE.Vector4();
@@ -101,6 +102,7 @@ const gui = () => {
     '像素': pixel,
     '晕影': vignette,
     '黑白': bw,
+    '高斯模糊': blur,
   }).name('滤镜处理').onChange(value => {
     const newMaterial = new THREE.ShaderMaterial().copy(material);
     newMaterial.fragmentShader = value;

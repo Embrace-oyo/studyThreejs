@@ -31,7 +31,6 @@ const go = (item, index) => {
 
 onMounted(() => {
   setTimeout(() => {
-    console.log(route.fullPath)
     list.map((x, index) => {
       if (route.fullPath === x.path) menuIndex.value = index
     })
