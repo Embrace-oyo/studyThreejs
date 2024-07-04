@@ -3,8 +3,17 @@
     <div class="left">
       <div class="title">目录</div>
       <div class="list">
-        <div class="itemBox" :class="{active:menuIndex === index }" v-for="(item, index) of list" :key="index">
-          <div class="item" @click="go(item, index)">{{ item.name }}</div>
+        <div class="itemBox" :class="{open:menuIndex === index }" v-for="(item, index) of list" :key="index">
+          <div class="item" @click.stop="toggle(item, index)">
+            <div class="itemTitle"> {{ item.name }}</div>
+            <div class="childList">
+              <div class="child" :class="{active: childIndex === i}" v-for="(child, i) of item.children" :key="i"
+                   @click.stop="go(child, i)">- {{
+                  child.name
+                }}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -14,27 +23,42 @@
   </div>
 </template>
 <script setup>
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {useRouter, useRoute} from "vue-router";
 import routerList from '@/router/index'
+import {onBeforeMount} from "@vue/runtime-core";
 
 const list = routerList.options.routes.slice(1, routerList.options.routes.length)
 const router = useRouter()
 const route = useRoute()
 const menuIndex = ref(0)
-const go = (item, index) => {
+const childIndex = ref(0)
+
+const toggle = (item, index) => {
+  if (menuIndex.value === index) return
   menuIndex.value = index
+  sessionStorage.setItem('menuIndex', index)
+  childIndex.value = 0
   router.push({
-    path: item.path
+    path: item.children[0].path
+  })
+}
+const go = (child, index) => {
+  if (childIndex.value === index) return
+  childIndex.value = index
+  sessionStorage.setItem('childIndex', index)
+  router.push({
+    path: child.path
   })
 }
 
-onMounted(() => {
-  setTimeout(() => {
-    list.map((x, index) => {
-      if (route.fullPath === x.path) menuIndex.value = index
-    })
-  }, 100)
+watch(route, (val) => {
+  // console.log(val)
+})
+
+onBeforeMount(() => {
+  menuIndex.value = Number(sessionStorage.getItem('menuIndex') || 0)
+  childIndex.value = Number(sessionStorage.getItem('childIndex') || 0)
 })
 </script>
 <style lang="less">
@@ -56,7 +80,7 @@ onMounted(() => {
     .left {
       width: 200px;
       height: 100vh;
-
+      border-right: 1px solid #ccc;
       .title {
         margin: 10px 0 0 0;
         padding-bottom: 10px;
@@ -83,14 +107,55 @@ onMounted(() => {
             text-align: left;
             padding: 10px 0;
             flex-wrap: wrap;
-            cursor: pointer;
-            font-size: 16px;
+
+            .itemTitle {
+              width: 100%;
+              padding: 10px 0;
+              cursor: pointer;
+              font-size: 24px;
+              color: #232323;
+
+            }
+
+            .childList {
+              margin-top: 10px;
+              width: 100%;
+              overflow: hidden;
+              height: 0;
+              transition: all 0.3s linear;
+
+              .child {
+                font-size: 12px;
+                margin: 10px 0;
+                padding: 14px 0;
+                color: #858585;
+                text-indent: 10px;
+                cursor: pointer;
+
+                &:hover {
+                  text-decoration: underline;
+                  font-weight: bold;
+                  color: #000000;
+                }
+              }
+
+              .active {
+                text-decoration: underline;
+                font-weight: bold;
+                color: #000000;
+              }
+            }
+
           }
         }
 
-        .active {
-          text-decoration: underline;
-          font-weight: bold;
+        .open {
+          .item {
+            .childList {
+              height: auto;
+              transition: all 0.3s linear;
+            }
+          }
         }
       }
     }

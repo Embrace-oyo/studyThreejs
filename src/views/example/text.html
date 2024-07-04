@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rounded Corner Shader Example</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+    // Setup scene
+    const scene = new THREE.Scene();
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10);
+    camera.position.z = 1;
+
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
+
+    // Vertex Shader
+    const vertexShader = `#version 300 es
+    in vec3 position;
+    in vec2 uv;
+    out vec2 v_uv;
+    void main() {
+        v_uv = uv;
+        gl_Position = vec4(position, 1.0);
+    }`;
+
+    // Fragment Shader
+    const fragmentShader = `#version 300 es
+    precision highp float;
+    uniform vec3 u_bgColor;
+    uniform vec2 u_domWH;
+    uniform float u_globalRadius;
+    in vec2 v_uv;
+    out vec4 outColor;
+
+    float linearStep(float edge0, float edge1, float x) {
+        return clamp((x - edge0) / (edge1 - edge0), 0.0, 1.0);
+    }
+
+    float sdRoundedBox(in vec2 p, in vec2 b, in float r) {
+        vec2 q = abs(p) - b + r;
+        return min(max(q.x, q.y), 0.0) + length(max(q, 0.0)) - r;
+    }
+
+    float getRoundedCornerMask(vec2 uv, vec2 size, float radius, float ratio) {
+        vec2 halfSize = size * 0.5;
+        float maxDist = length(halfSize);
+        float minSize = min(halfSize.x, halfSize.y);
+        float maxSize = max(halfSize.x, halfSize.y);
+        float t = ratio * maxDist;
+        radius = mix(minSize * linearStep(0.0, minSize, t), radius, linearStep(maxSize, maxDist, t));
+        halfSize = min(halfSize, vec2(t));
+        float d = sdRoundedBox((uv - 0.5) * size, halfSize, radius);
+        return smoothstep(0.0, 0.0 - fwidth(d), d);
+    }
+
+    void main() {
+        float mask = 1.0 - getRoundedCornerMask(v_uv, u_domWH, u_globalRadius, 1.0);
+        outColor.rgb = u_bgColor;
+        outColor.a = mask;
+    }`;
+
+    // Shader material
+    const uniforms = {
+        u_bgColor: { value: new THREE.Color(0.5, 0.5, 0.5) },
+        u_domWH: { value: new THREE.Vector2(1.0, 1.0) },
+        u_globalRadius: { value: 0.1 }
+    };
+
+    const material = new THREE.ShaderMaterial({
+        uniforms: uniforms,
+        vertexShader: vertexShader,
+        fragmentShader: fragmentShader
+    });
+
+    // Quad geometry
+    const geometry = new THREE.PlaneGeometry(1, 1);
+
+    // Mesh
+    const quad = new THREE.Mesh(geometry, material);
+    scene.add(quad);
+
+    // Render loop
+    function animate() {
+        requestAnimationFrame(animate);
+        renderer.render(scene, camera);
+    }
+    animate();
+
+    // Resize event listener
+    window.addEventListener('resize', () => {
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+    });
+
+</script>
+</body>
+</html>

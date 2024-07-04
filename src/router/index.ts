@@ -9,8 +9,18 @@ const router = createRouter({
             path: '/',
             redirect: '/shaderStudy/page_1',
         },
-        ...shaderStudyRouter,
-        ...exampleRouter,
+        {
+            path: '/shaderStudy',
+            name: 'shader学习',
+            children: [...shaderStudyRouter]
+        },
+        {
+            path: '/example',
+            name: '例子',
+            children: [...exampleRouter]
+        },
+        // ...shaderStudyRouter,
+        // ...exampleRouter,
     ]
 })
 

@@ -40,7 +40,7 @@ class Base {
         this.height = this.container.offsetHeight || window.innerHeight;
         this.aspect = this.width / this.height;
         this.camera = new THREE.PerspectiveCamera(70, this.aspect, 0.01, 100);
-        this.camera.position.z = 1;
+        this.camera.position.z = 5;
         this.scene = new THREE.Scene();
         this.renderer = new THREE.WebGLRenderer({
             powerPreference: "high-performance",

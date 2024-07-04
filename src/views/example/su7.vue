@@ -16,12 +16,12 @@ nft demo2.vue
 </template>
 
 <script setup>
-import ModelClass from '@/util/modelClass'
-import {onMounted, ref} from "vue";
+import ModelClass from '@/views/example/common/su7/js/modelClass'
+import {onMounted, onUnmounted, ref} from "vue";
 
 const isLoad = ref(false)
 const number = ref(0)
-
+let model = null
 const progressCallback = (any) => {
   isLoad.value = true
   // const progress = Math.floor((xhr.loaded / xhr.total) * 100)
@@ -30,20 +30,19 @@ const progressCallback = (any) => {
 }
 onMounted(() => {
 
-  const model = new ModelClass({
+  model = new ModelClass({
     parent: document.getElementById('demoBox'),
     canvas: document.getElementById('demo2'),
     modelUrl: './model/sm_car.gltf',
-    // modelUrl: 'https://mylink.oss-accelerate.aliyuncs.com/meta/nftTest/20240409172309_7862_92048092_s.glb',
-    // modelUrl: 'https://threejs.org/examples/models/gltf/RobotExpressive/RobotExpressive.glb',
-    // modelUrl: 'https://threejs.org/examples/models/gltf/Xbot.glb',
-    // modelUrl: 'https://threejs.org/examples/models/gltf/LittlestTokyo.glb',
-    // modelUrl: 'https://threejs.org/examples/models/fbx/Samba%20Dancing.fbx',
-    // modelUrl: 'https://threejs.org/examples/models/obj/male02/male02.obj',
     progressCallback,
   })
 
+})
 
+onUnmounted(() => {
+  model.destroy()
+  model = null
+  console.log('销毁')
 })
 </script>
 
@@ -56,7 +55,7 @@ onMounted(() => {
   bottom: 0;
 
   .loadingBox {
-    position: fixed;
+    position: absolute;
     left: 0;
     top: 0;
     right: 0;
