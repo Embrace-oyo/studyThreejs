@@ -48,6 +48,7 @@ class Base {
             stencil: false,
             depth: false,
             alpha: true,
+            premultipliedAlpha: false,
             ...gl
         });
         this.renderer.setSize(this.width, this.height);

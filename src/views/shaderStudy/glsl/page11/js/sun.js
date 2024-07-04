@@ -7,8 +7,8 @@
 import * as THREE from "three";
 import Base from '@/util/common/base'
 import Debug from "@/util/common/debug";
-import Component from "@/util/common/Component";
-import OrbitControls from "@/util/common/OrbitControls";
+import Component from "@/util/common/component";
+import OrbitControls from "@/util/common/orbitControls";
 import UniformInjector from "@/util/common/uniformInjector";
 import vert from "@/views/shaderStudy/glsl/page11/shader/vert.glsl";
 import frag from "@/views/shaderStudy/glsl/page11/shader/frag.glsl";
