@@ -5,170 +5,312 @@
  * @created 2024/7/2 11:39:14
  */
 import * as THREE from "three";
-import Base from "@/util/common/base.js";
-import Blur from "@/views/example/common/trail/js/blur"
+import {
+    Properties,
+    Settings,
+    Browser,
+    Support,
+    ShaderHelper,
+    TaskManager, TextureHelper, GlPositionOffset, UI,
+    Preloader
+} from "@/views/example/common/trail/js/properties"
+import {Input, ScrollManager} from "@/views/example/common/trail/js/input"
 import FboHelper from "@/views/example/common/trail/js/fboHelper"
-import ScreenPaint from "@/views/example/common/trail/js/screenPaint.js";
-import ScreenPaintDistortion from "@/views/example/common/trail/js/screenPaintDistortion.js";
-import Postprocessing from "@/views/example/common/trail/js/postprocessing.js";
-import BlueNoise from "@/views/example/common/trail/js/blueNoise.js";
-import Visuals from "@/views/example/common/trail/js/Visuals.js";
-import CameraControls from "@/views/example/common/trail/js/cameraControls.js";
+import Postprocessing from "@/views/example/common/trail/js/postprocessing"
+import BlueNoise from "@/views/example/common/trail/js/blueNoise"
+import Blur from "@/views/example/common/trail/js/blur"
+import CameraControls from "@/views/example/common/trail/js/cameraControls"
+import Visuals from "@/views/example/common/trail/js/visuals"
+import ScreenPaint from "@/views/example/common/trail/js/screenPaint"
+import {ScreenPaintDistortion, Smaa, Bloom, Final, Fsr, PreUfx, PostUfx} from "@/views/example/common/trail/js/pass.js"
+import textureBicubicShader from '@/views/example/common/trail/glsl/textureBicubicShader.glsl'
 
 export default class Trail {
-    constructor(el, config = {}) {
-        this.properties = {
-            cameraDirection: new THREE.Vector3(0, 0, 1),
-            defaultCameraPosition: new THREE.Vector3(0, 0, 5),
-            defaultLookAtPosition: new THREE.Vector3(0, 0, 0),
-            autoScrollSpeed: 0,
-            cameraNear: .1,
-            cameraFar: 200,
-            clearAlpha: 1,
-            cameraFov: 45,
-            cameraUsePhysical: !1,
-            cameraFilmGauge: 35,
-            cameraFocalLength: 35,
-            cameraDollyZoomFovOffset: 0,
-            screenPaintOffsetRatio: 1,
-            cameraViewportOffsetX: 0,
-            cameraViewportOffsetY: 0,
-            cameraDistance: 5,
-            cameraLookStrength: 0,
-            cameraLookEaseDamp: .1,
-            cameraShakePositionStrength: 0,
-            cameraShakePositionSpeed: .15,
-            cameraShakeRotationStrength: 0,
-            cameraShakeRotationSpeed: .3,
-            bloomAmount: 0,
-            bloomRadius: 0,
-            bloomThreshold: 0,
-            bloomSmoothWidth: 0,
-            bloomSaturation: 1,
-            bloomHighPassMultiplier: 1,
-            haloWidth: .6,
-            haloRGBShift: .02,
-            haloStrength: 0,
-            haloMaskInner: .3,
-            haloMaskOuter: .5,
-            useFinal: !1,
-            vignetteFrom: 2,
-            vignetteTo: 5,
-            vignetteColorHex: "#000000",
-            saturation: 1,
-            contrast: 0,
-            brightness: 1,
-            tintColorHex: "#000000",
-            tintOpacity: 0,
-            screenPaintNeedsMouseDown: !1,
-            screenPaintMinRadius: 0,
-            screenPaintMaxRadius: 100,
-            screenPaintRadiusDistanceRange: 100,
-            screenPaintPushStrength: 25,
-            screenPaintVelocityDissipation: .975,
-            screenPaintWeight1Dissipation: .95,
-            screenPaintWeight2Dissipation: .8,
-            screenPaintUseNoise: !0,
-            screenPaintCurlScale: .02,
-            screenPaintCurlStrength: 3,
-            screenPaintDistortionAmount: 3,
-            screenPaintDistortionRGBShift: .5,
-            screenPaintDistortionColorMultiplier: 10,
-            screenPaintDistortionMultiplier: 5,
-            upscalerAmount: 1,
-            upscalerSharpness: 1,
-        }
-        this.RENDER_TARGET_FLOAT_TYPE = THREE.HalfFloatType;
-        this.DATA_FLOAT_TYPE = THREE.FloatType;
+    constructor() {
         this.canvas = document.getElementById('canvas')
-        this.width = this.canvas.offsetWidth;
-        this.height = this.canvas.offsetHeight;
-        this.gl = this.canvas.getContext("webgl2", {
-            antialias: !1,
-            alpha: !1,
-            xrCompatible: !1,
-            powerPreference: "high-performance"
-        })
-        this.renderer = new THREE.WebGLRenderer({
-            canvas: document.getElementById('canvas'),
-            context: this.gl,
-            premultipliedAlpha: false
-        })
-        this.scene = new THREE.Scene()
-        this.camera = new THREE.PerspectiveCamera(45, 1, .1, 200)
-        this.scene.add(this.camera)
 
-        const geometry = new THREE.SphereGeometry(1.5, 32, 16);
-        const material = new THREE.MeshBasicMaterial({color: 0x3a3a3a});
-        const sphere = new THREE.Mesh(geometry, material);
-        this.scene.add(sphere);
+        function preventZoom(a) {
+            a.preventDefault()
+            document.body.style.zoom = 1
+        }
 
-
-        this.mouseXY = new THREE.Vector2
-        this.mousePixelXY = new THREE.Vector2
-        this.prevMousePixelXY = new THREE.Vector2
-        this.canvas.addEventListener('mousemove', (e) => {
-            this.mouseXY.set(e.offsetX / this.width * 2 - 1, 1 - e.offsetY / this.height * 2)
-            this.mousePixelXY.set(e.offsetX, e.offsetY)
-            this.prevMousePixelXY.copy(this.mousePixelXY)
-        })
-        this.run()
-
-
+        window.addEventListener("wheel", a => a.preventDefault(), {passive: !1});
+        document.addEventListener("gesturestart", a => preventZoom(a));
+        document.addEventListener("gesturechange", a => preventZoom(a));
+        document.addEventListener("gestureend", a => preventZoom(a));
+        this.browser = new Browser()
+        this.settings = new Settings()
+        this.input = new Input(this)
+        this.scrollManager = new ScrollManager(this)
+        this.properties = new Properties()
+        this.support = new Support(this)
+        this.shaderHelper = new ShaderHelper()
+        this.fboHelper = new FboHelper(this)
+        this.taskManager = new TaskManager(this)
+        this.textureHelper = new TextureHelper(this)
+        this.blueNoise = new BlueNoise(this)
+        this.blur = new Blur(this)
+        this.glPositionOffset = new GlPositionOffset(this)
+        this.screenPaint = new ScreenPaint(this)
+        this.cameraControls = new CameraControls(this)
+        this.visuals = new Visuals(this)
+        this.ui = new UI(this)
+        this.preloader = new Preloader(this)
+        this.dateTime = performance.now()
+        this._needsResize = !1
+        this.preRun()
     }
 
+    appInitEngine() {
+        this.properties.canvas = document.getElementById("canvas")
+        this.properties.isSupported = this.support.isSupported()
+        if (this.properties.isSupported) {
+            this.properties.renderer = new THREE.WebGLRenderer({
+                canvas: this.properties.canvas,
+                context: this.properties.gl,
+                premultipliedAlpha: !1
+            })
+            this.properties.scene = new THREE.Scene
+            this.properties.camera = new THREE.PerspectiveCamera(45, 1, .1, 200)
+            this.properties.scene.add(this.properties.camera)
+            this.properties.sharedUniforms.u_resolution.value = this.properties.resolution = new THREE.Vector2
+            this.properties.sharedUniforms.u_viewportResolution.value = this.properties.viewportResolution = new THREE.Vector2
+            this.properties.sharedUniforms.u_bgColor.value = this.properties.bgColor = new THREE.Color
+            this.shaderHelper.addChunk("textureBicubic", textureBicubicShader)
+            this.fboHelper.init(this.properties.renderer, this.settings.RENDER_TARGET_FLOAT_TYPE)
+            this.textureHelper.init()
+            this.properties.postprocessing = new Postprocessing(this)
+            this.properties.postprocessing.init()
+            this.blueNoise.preInit()
+            this.glPositionOffset.init()
+
+            this.properties.smaa = new Smaa(this)
+            this.properties.smaa.init()
+            this.properties.smaa.setTextures(this.properties.loader.add("https://lusion.dev/assets/textures/smaa-area.png", {weight: 32}).content, this.properties.loader.add("https://lusion.dev/assets/textures/smaa-search.png", {weight: .1}).content)
+            this.properties.postprocessing.queue.push(this.properties.smaa);
+
+            let e = !this.browser.isMobile || this.settings.USE_HD;
+            this.properties.bloom = new Bloom(this)
+            this.properties.bloom.init({
+                USE_CONVOLUTION: e,
+                USE_HD: e
+            })
+            this.properties.postprocessing.queue.push(this.properties.bloom)
+
+            this.screenPaint.init()
+            this.properties.screenPaintDistortion = new ScreenPaintDistortion(this)
+            this.properties.screenPaintDistortion.init({screenPaint: this.screenPaint})
+            this.properties.postprocessing.queue.push(this.properties.screenPaintDistortion)
+
+            this.properties.final = new Final(this)
+            this.properties.final.init()
+            this.properties.postprocessing.queue.push(this.properties.final)
+            if (this.settings.UP_SCALE > 1) {
+                this.properties.upscaler = new Fsr(this)
+                this.properties.upscaler.init()
+                this.properties.postprocessing.queue.push(this.properties.upscaler)
+            }
+            this.preUfx = new PreUfx(this);
+            this.preUfx.init()
+            this.properties.postprocessing.queue.push(this.preUfx)
+            this.postUfx = new PostUfx(this)
+            this.postUfx.init()
+            this.properties.postprocessing.queue.push(this.postUfx)
+        }
+    }
+
+
+    appPreInit() {
+        if (!this.settings.WEBGL_OFF) {
+            this.cameraControls.preInit()
+            this.visuals.preInit()
+        }
+    }
+
+    appInit() {
+        if (!this.settings.WEBGL_OFF) {
+            this.properties.smaa && this.properties.smaa.updateTextures()
+            this.cameraControls.init()
+            this.visuals.init()
+        }
+    }
+
+    appStart() {
+        this.visuals.start()
+    }
+
+    appPreUpdate(e = 0) {
+        this.visuals.deactivateAll()
+    }
+
+    appUpdate(e = 0) {
+        if (!this.settings.WEBGL_OFF) {
+            this.properties.time = this.properties.sharedUniforms.u_time.value += e
+            this.properties.deltaTime = this.properties.sharedUniforms.u_deltaTime.value = e
+            this.visuals.syncProperties(e)
+            this.blueNoise.update(e)
+            this.screenPaint.update(e)
+            this.cameraControls.update(e)
+            this.visuals.update(e)
+            this.properties.renderer.setClearColor(this.properties.bgColor, this.properties.clearAlpha)
+            this.properties.bgColor.setStyle(this.properties.bgColorHex)
+            this.properties.bloom.amount = this.properties.bloomAmount
+            this.properties.bloom.radius = this.properties.bloomRadius
+            this.properties.bloom.threshold = this.properties.bloomThreshold
+            this.properties.bloom.smoothWidth = this.properties.bloomSmoothWidth
+            this.properties.bloom.haloWidth = this.properties.haloWidth
+            this.properties.bloom.haloRGBShift = this.properties.haloRGBShift
+            this.properties.bloom.haloStrength = this.properties.haloStrength
+            this.properties.bloom.haloMaskInner = this.properties.haloMaskInner
+            this.properties.bloom.haloMaskOuter = this.properties.haloMaskOuter
+            this.properties.bloom.saturation = this.properties.bloomSaturation
+            this.properties.bloom.highPassMultiplier = this.properties.bloomHighPassMultiplier * (this.properties.bloom.USE_CONVOLUTION ? 1 : 1.5)
+            this.properties.final.isActive = this.properties.useFinal
+            this.properties.final.vignetteFrom = this.properties.vignetteFrom
+            this.properties.final.vignetteTo = this.properties.vignetteTo
+            this.properties.final.vignetteColor.setStyle(this.properties.vignetteColorHex)
+            this.properties.final.saturation = this.properties.saturation
+            this.properties.final.contrast = this.properties.contrast
+            this.properties.final.brightness = this.properties.brightness
+            this.properties.final.tintColor.setStyle(this.properties.tintColorHex)
+            this.properties.final.tintOpacity = this.properties.tintOpacity
+            this.properties.final.bgColor.setStyle(this.properties.bgColorHex)
+            this.properties.final.opacity = this.properties.opacity
+            this.screenPaint.needsMouseDown = this.properties.screenPaintNeedsMouseDown
+            this.screenPaint.minRadius = 0
+            this.screenPaint.maxRadius = Math.max(40, this.properties.viewportWidth / 20)
+            this.screenPaint.radiusDistanceRange = this.properties.screenPaintRadiusDistanceRange
+            this.screenPaint.pushStrength = this.properties.screenPaintPushStrength
+            this.screenPaint.velocityDissipation = this.properties.screenPaintVelocityDissipation
+            this.screenPaint.weight1Dissipation = this.properties.screenPaintWeight1Dissipation
+            this.screenPaint.weight2Dissipation = this.properties.screenPaintWeight2Dissipation
+            this.screenPaint.useNoise = this.properties.screenPaintUseNoise
+            this.screenPaint.curlScale = this.properties.screenPaintCurlScale
+            this.screenPaint.curlStrength = this.properties.screenPaintCurlStrength
+            this.properties.screenPaintDistortion.amount = this.properties.screenPaintDistortionAmount
+            this.properties.screenPaintDistortion.rgbShift = this.properties.screenPaintDistortionRGBShift
+            this.properties.screenPaintDistortion.colorMultiplier = this.properties.screenPaintDistortionColorMultiplier
+            this.properties.screenPaintDistortion.multiplier = this.properties.screenPaintDistortionMultiplier
+            this.properties.upscaler && (this.properties.upscaler.sharpness = this.properties.upscalerSharpness)
+            this.properties.postprocessing.render(this.visuals.currentStage3D, this.properties.camera, !0)
+            window.__debugTexture && this.fboHelper.debugTo(window.__debugTexture)
+        }
+    }
+
+    appResize(e, t) {
+        if (!this.settings.WEBGL_OFF) {
+            this.properties.renderer.setSize(e, t)
+            this.properties.canvas.style.width = `${this.properties.viewportWidth}px`
+            this.properties.canvas.style.height = `${this.properties.viewportHeight}px`
+            this.properties.camera.aspect = this.properties.width / this.properties.height
+            this.properties.sharedUniforms.u_aspect.value = this.properties.camera.aspect
+            this.properties.camera.updateProjectionMatrix()
+            this.properties.postprocessing.setSize(this.properties.width, this.properties.height)
+            this.screenPaint.resize(this.properties.width, this.properties.height)
+            this.visuals.resize(this.properties.width, this.properties.height)
+        }
+    }
+
+    preRun() {
+        for (const [a, e] of Object.entries(this.settings.CROSS_ORIGINS)) {
+            this.properties.loader.setCrossOrigin(a, e)
+        }
+        this.run()
+    }
 
     run() {
-        this.cameraControls = new CameraControls(this)
-        this.cameraControls.preInit()
-        this.visuals = new Visuals(this)
-        this.blur = new Blur(this)
-        this.fboHelper = new FboHelper(this)
-        this.fboHelper.init(this.renderer, this.RENDER_TARGET_FLOAT_TYPE)
-        this.postprocessing = new Postprocessing(this)
-        this.postprocessing.init()
-        this.blueNoise = new BlueNoise();
-        this.blueNoise.preInit()
-        this.screenPaint = new ScreenPaint(this)
-        this.screenPaint.init()
-        this.screenPaintDistortion = new ScreenPaintDistortion(this)
-        this.screenPaintDistortion.init({screenPaint: this.screenPaint})
-        this.postprocessing.queue.push(this.screenPaintDistortion)
-        this.dateTime = performance.now()
-        this.animation()
+        let a = this.properties.viewportWidth = this.canvas.offsetWidth
+        let e = this.properties.viewportHeight = this.canvas.offsetHeight;
+        this.properties.viewportResolution = new THREE.Vector2(a, e)
+        this.properties.width = a
+        this.properties.height = e
+        this.appInitEngine()
+        this.ui.preInit()
+        this.input.preInit()
+        this.scrollManager.init()
+        this.appPreInit()
+        window.addEventListener("resize", () => {
+            this.onResize()
+        })
+        this._onResize()
+        this.loop()
+        this.ui.preload(() => {
+            this.init()
+        }, () => {
+            this.start()
+        })
     }
 
-    animation(e = 0) {
-        let a = performance.now()
-        e = (a - this.dateTime) / 1e3;
+    init() {
+        this.input.init()
+        this.ui.init()
+        this.appInit()
+        this.properties.hasInitialized = !0
+    }
+
+    start() {
+        this.ui.start()
+        this.appStart()
+        this._onResize(!0)
+        this.properties.hasStarted = !0
+        this.scrollManager.isActive = !0
+        if (this.settings.JUMP_SECTION !== "") {
+            this.scrollManager.scrollTo(this.settings.JUMP_SECTION, this.settings.JUMP_OFFSET, !0)
+        }
+    }
+
+    update(a) {
+        this.scrollManager.autoScrollSpeed = this.properties.autoScrollSpeed
+        window.__AUTO_SCROLL__ && (this.scrollManager.autoScrollSpeed = window.__AUTO_SCROLL__)
+        this.taskManager.update()
+        this.properties.reset()
+        this.appPreUpdate(a)
+        this.input.update(a)
+        this.scrollManager.update(a)
+        this.ui.update(a)
+        this.appUpdate(a)
+        this.input.postUpdate(a)
+    }
+
+    loop() {
+        window.requestAnimationFrame(() => {
+            this.loop()
+        });
+        let a = performance.now(), e = (a - this.dateTime) / 1e3;
         this.dateTime = a
         e = Math.min(e, 1 / 20)
-        requestAnimationFrame(() => {
-            this.animation(e)
-        })
-
-        this.visuals.syncProperties(e)
-        this.blueNoise.update(e)
-        this.screenPaint.update(e)
-        this.cameraControls.update(e)
-        this.visuals.update(e)
-        this.screenPaint.needsMouseDown = this.properties.screenPaintNeedsMouseDown
-        this.screenPaint.minRadius = 0
-        this.screenPaint.maxRadius = Math.max(40, this.width / 20)
-        this.screenPaint.radiusDistanceRange = this.properties.screenPaintRadiusDistanceRange
-        this.screenPaint.pushStrength = this.properties.screenPaintPushStrength
-        this.screenPaint.velocityDissipation = this.properties.screenPaintVelocityDissipation
-        this.screenPaint.weight1Dissipation = this.properties.screenPaintWeight1Dissipation
-        this.screenPaint.weight2Dissipation = this.properties.screenPaintWeight2Dissipation
-        this.screenPaint.useNoise = this.properties.screenPaintUseNoise
-        this.screenPaint.curlScale = this.properties.screenPaintCurlScale
-        this.screenPaint.curlStrength = this.properties.screenPaintCurlStrength
-        this.screenPaintDistortion.amount = this.properties.screenPaintDistortionAmount
-        this.screenPaintDistortion.rgbShift = this.properties.screenPaintDistortionRGBShift
-        this.screenPaintDistortion.colorMultiplier = this.properties.screenPaintDistortionColorMultiplier
-        this.screenPaintDistortion.multiplier = this.properties.screenPaintDistortionMultiplier
-        this.postprocessing.render(this.visuals.currentStage3D, this.camera, !0)
+        this._needsResize && this._onResize()
+        this.properties.hasStarted && (this.properties.startTime += e)
+        this.update(e)
+        this._needsResize = !1
     }
 
+    onResize() {
+        this._needsResize = !0
+    }
 
+    _onResize(a) {
+        let e = this.properties.viewportWidth = window.innerWidth
+        let t = this.properties.viewportHeight = window.innerHeight;
+        this.properties.viewportResolution.set(e, window.innerHeight)
+        this.properties.useMobileLayout = e <= this.settings.MOBILE_WIDTH
+        document.documentElement.style.setProperty("--vh", t * .01 + "px");
+        let r = e * this.settings.DPR
+        let n = t * this.settings.DPR;
+        if (this.settings.USE_PIXEL_LIMIT === !0 && r * n > this.settings.MAX_PIXEL_COUNT) {
+            let o = r / n;
+            n = Math.sqrt(this.settings.MAX_PIXEL_COUNT / o)
+            r = Math.ceil(n * o)
+            n = Math.ceil(n)
+        }
+        this.properties.width = r
+        this.properties.height = n
+        this.properties.webglDPR = this.properties.width / e
+        this.properties.resolution.set(this.properties.width, this.properties.height)
+        a || this.input.resize()
+        this.scrollManager.resize(e, t)
+        this.ui.resize(e, t, a)
+        this.appResize(Math.ceil(r * this.properties.upscalerAmount), Math.ceil(n * this.properties.upscalerAmount))
+        this.scrollManager.resize(e, t)
+    }
 }
