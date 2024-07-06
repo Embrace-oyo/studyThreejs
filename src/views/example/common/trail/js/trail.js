@@ -11,7 +11,7 @@ import {
     Browser,
     Support,
     ShaderHelper,
-    TaskManager, TextureHelper, GlPositionOffset, UI,
+    TaskManager, TextureHelper, UI,
     Preloader
 } from "@/views/example/common/trail/js/properties"
 import {Input, ScrollManager} from "@/views/example/common/trail/js/input"
@@ -50,7 +50,6 @@ export default class Trail {
         this.textureHelper = new TextureHelper(this)
         this.blueNoise = new BlueNoise(this)
         this.blur = new Blur(this)
-        this.glPositionOffset = new GlPositionOffset(this)
         this.screenPaint = new ScreenPaint(this)
         this.cameraControls = new CameraControls(this)
         this.visuals = new Visuals(this)
@@ -82,7 +81,6 @@ export default class Trail {
             this.properties.postprocessing = new Postprocessing(this)
             this.properties.postprocessing.init()
             this.blueNoise.preInit()
-            this.glPositionOffset.init()
 
             this.properties.smaa = new Smaa(this)
             this.properties.smaa.init()
@@ -154,28 +152,6 @@ export default class Trail {
             this.visuals.update(e)
             this.properties.renderer.setClearColor(this.properties.bgColor, this.properties.clearAlpha)
             this.properties.bgColor.setStyle(this.properties.bgColorHex)
-            this.properties.bloom.amount = this.properties.bloomAmount
-            this.properties.bloom.radius = this.properties.bloomRadius
-            this.properties.bloom.threshold = this.properties.bloomThreshold
-            this.properties.bloom.smoothWidth = this.properties.bloomSmoothWidth
-            this.properties.bloom.haloWidth = this.properties.haloWidth
-            this.properties.bloom.haloRGBShift = this.properties.haloRGBShift
-            this.properties.bloom.haloStrength = this.properties.haloStrength
-            this.properties.bloom.haloMaskInner = this.properties.haloMaskInner
-            this.properties.bloom.haloMaskOuter = this.properties.haloMaskOuter
-            this.properties.bloom.saturation = this.properties.bloomSaturation
-            this.properties.bloom.highPassMultiplier = this.properties.bloomHighPassMultiplier * (this.properties.bloom.USE_CONVOLUTION ? 1 : 1.5)
-            this.properties.final.isActive = this.properties.useFinal
-            this.properties.final.vignetteFrom = this.properties.vignetteFrom
-            this.properties.final.vignetteTo = this.properties.vignetteTo
-            this.properties.final.vignetteColor.setStyle(this.properties.vignetteColorHex)
-            this.properties.final.saturation = this.properties.saturation
-            this.properties.final.contrast = this.properties.contrast
-            this.properties.final.brightness = this.properties.brightness
-            this.properties.final.tintColor.setStyle(this.properties.tintColorHex)
-            this.properties.final.tintOpacity = this.properties.tintOpacity
-            this.properties.final.bgColor.setStyle(this.properties.bgColorHex)
-            this.properties.final.opacity = this.properties.opacity
             this.screenPaint.needsMouseDown = this.properties.screenPaintNeedsMouseDown
             this.screenPaint.minRadius = 0
             this.screenPaint.maxRadius = Math.max(40, this.properties.viewportWidth / 20)

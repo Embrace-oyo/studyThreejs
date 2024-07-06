@@ -24,14 +24,24 @@ export default class BlueNoise {
 
     preInit() {
         let e = new THREE.Texture;
-        e.generateMipmaps = !1, e.minFilter = e.magFilter = THREE.LinearFilter, e.wrapS = e.wrapT = THREE.RepeatWrapping;
+        e.generateMipmaps = !1
+        e.minFilter = e.magFilter = THREE.LinearFilter
+        e.wrapS = e.wrapT = THREE.RepeatWrapping;
         let t = new THREE.Texture(this.base.properties.loader.add("https://lusion.dev/assets/textures/LDR_RGB1_0.png", {
             weight: 55,
             onLoad: function () {
-                t.needsUpdate = !0, e.needsUpdate = !0
+                t.needsUpdate = !0
+                e.needsUpdate = !0
             }
         }).content);
-        e.image = t.image, t.generateMipmaps = !1, t.minFilter = t.magFilter = THREE.NearestFilter, t.wrapS = t.wrapT = THREE.RepeatWrapping, this.sharedUniforms.u_blueNoiseTexture.value = t, this.sharedUniforms.u_blueNoiseLinearTexture.value = e, this.sharedUniforms.u_blueNoiseTexelSize.value = new THREE.Vector2(1 / this.TEXTURE_SIZE, 1 / this.TEXTURE_SIZE), this.base.shaderHelper.addChunk("getBlueNoise", getBlueNoiseShader)
+        e.image = t.image
+        t.generateMipmaps = !1
+        t.minFilter = t.magFilter = THREE.NearestFilter
+        t.wrapS = t.wrapT = THREE.RepeatWrapping
+        this.sharedUniforms.u_blueNoiseTexture.value = t
+        this.sharedUniforms.u_blueNoiseLinearTexture.value = e
+        this.sharedUniforms.u_blueNoiseTexelSize.value = new THREE.Vector2(1 / this.TEXTURE_SIZE, 1 / this.TEXTURE_SIZE)
+        this.base.shaderHelper.addChunk("getBlueNoise", getBlueNoiseShader)
     }
 
     update(e) {

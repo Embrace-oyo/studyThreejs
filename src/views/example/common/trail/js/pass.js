@@ -649,11 +649,22 @@ export class ScreenPaintDistortion extends PostEffect {
     }
 
     syncCamera(e) {
-        this.needsSync = !0, e && (e.matrixWorldInverse.decompose(this._position, this._quaternion, this._scale), this.projectionViewMatrix.multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse), this.projectionViewInverseMatrix.copy(this.projectionViewMatrix).invert()), this.prevProjectionViewMatrix.copy(this.projectionViewMatrix)
+        this.needsSync = !0
+        if (e) {
+            e.matrixWorldInverse.decompose(this._position, this._quaternion, this._scale)
+            this.projectionViewMatrix.multiplyMatrices(e.projectionMatrix, e.matrixWorldInverse)
+            this.projectionViewInverseMatrix.copy(this.projectionViewMatrix).invert()
+        }
+        this.prevProjectionViewMatrix.copy(this.projectionViewMatrix)
     }
 
     render(e, t = !1) {
-        this.material.uniforms.u_amount.value = this.amount, this.material.uniforms.u_rgbShift.value = this.rgbShift, this.material.uniforms.u_multiplier.value = this.multiplier, this.material.uniforms.u_colorMultiplier.value = this.colorMultiplier, this.material.uniforms.u_shade.value = this.shade, super.render(e, t)
+        this.material.uniforms.u_amount.value = this.amount
+        this.material.uniforms.u_rgbShift.value = this.rgbShift
+        this.material.uniforms.u_multiplier.value = this.multiplier
+        this.material.uniforms.u_colorMultiplier.value = this.colorMultiplier
+        this.material.uniforms.u_shade.value = this.shade
+        super.render(e, t)
     }
 }
 

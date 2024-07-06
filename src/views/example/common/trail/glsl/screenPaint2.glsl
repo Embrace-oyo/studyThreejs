@@ -13,7 +13,7 @@ vec2 sdSegment(in vec2 p, in vec2 a, in vec2 b){
     float h=clamp(dot(pa, ba)/dot(ba, ba), 0.0, 1.0);
     return vec2(length(pa-ba*h), h);
 }
-#ifdef USE_NOISE
+    #ifdef USE_NOISE
 uniform float u_curlScale;
 uniform float u_curlStrength;
 vec2 hash(vec2 p){
@@ -35,7 +35,7 @@ vec3 noised(in vec2 p){ vec2 i=floor(p);
     float vd=dot(gd, f-vec2(1.0, 1.0));
     return vec3(va+u.x*(vb-va)+u.y*(vc-va)+u.x*u.y*(va-vb-vc+vd), ga+u.x*(gb-ga)+u.y*(gc-ga)+u.x*u.y*(ga-gb-gc+gd)+du*(u.yx*(va-vb-vc+vd)+vec2(vb, vc)-va));
 }
-#endif
+    #endif
 void main(){
     vec2 res=sdSegment(gl_FragCoord.xy, u_drawFrom.xy, u_drawTo.xy);
     vec2 radiusWeight=mix(u_drawFrom.zw, u_drawTo.zw, res.y);

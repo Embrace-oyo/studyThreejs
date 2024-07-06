@@ -14,6 +14,7 @@ function _sfc32(a, e, t, r) {
         return r = r + 1 | 0, a = e ^ e >>> 9, e = t + (t << 3) | 0, t = t << 21 | t >>> 11, t = t + n | 0, (n >>> 0) / 4294967296
     }
 }
+
 class MathUtils {
     PI = Math.PI;
     PI2 = this.PI * 2;
@@ -191,7 +192,6 @@ class MathUtils {
 }
 
 const math = new MathUtils()
-
 let frag$n = `#define GLSLIFY 1
 uniform sampler2D u_lowPaintTexture;uniform sampler2D u_prevPaintTexture;uniform vec2 u_paintTexelSize;uniform vec2 u_scrollOffset;uniform vec4 u_drawFrom;uniform vec4 u_drawTo;uniform float u_pushStrength;uniform vec3 u_dissipations;uniform vec2 u_vel;varying vec2 v_uv;vec2 sdSegment(in vec2 p,in vec2 a,in vec2 b){vec2 pa=p-a,ba=b-a;float h=clamp(dot(pa,ba)/dot(ba,ba),0.0,1.0);return vec2(length(pa-ba*h),h);}
 #ifdef USE_NOISE
@@ -203,6 +203,7 @@ vec3 noise3=noised(gl_FragCoord.xy*u_curlScale*(1.0-lowData.xy));vec2 noise=nois
 #endif
 vec4 data=texture2D(u_prevPaintTexture,v_uv-u_scrollOffset+velInv*u_paintTexelSize);data.xy-=0.5;vec4 delta=(u_dissipations.xxyz-1.0)*data;vec2 newVel=u_vel*d;delta+=vec4(newVel,radiusWeight.yy*d);delta.zw=sign(delta.zw)*max(vec2(0.004),abs(delta.zw));data+=delta;data.xy+=0.5;gl_FragColor=clamp(data,vec4(0.0),vec4(1.0));}`;
 let _v$4 = new THREE.Vector2;
+
 
 export default class ScreenPaint {
     _lowRenderTarget;
@@ -242,7 +243,12 @@ export default class ScreenPaint {
     }
 
     init() {
-        this._lowRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this._lowBlurRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this._prevPaintRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this._currPaintRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this.sharedUniforms.u_lowPaintTexture.value = this._lowRenderTarget.texture, this._material = this.base.fboHelper.createRawShaderMaterial({
+        this._lowRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this._lowBlurRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this._prevPaintRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this._currPaintRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this.sharedUniforms.u_lowPaintTexture.value = this._lowRenderTarget.texture
+        this._material = this.base.fboHelper.createRawShaderMaterial({
             uniforms: {
                 u_lowPaintTexture: {value: this._lowRenderTarget.texture},
                 u_prevPaintTexture: this.sharedUniforms.u_prevPaintTexture,
@@ -255,7 +261,8 @@ export default class ScreenPaint {
                 u_vel: {value: new THREE.Vector2},
                 u_dissipations: {value: new THREE.Vector3},
                 u_scrollOffset: {value: new THREE.Vector2}
-            }, fragmentShader: frag$n
+            },
+            fragmentShader: frag$n
         })
     }
 
@@ -265,7 +272,10 @@ export default class ScreenPaint {
     }
 
     clear = () => {
-        this.base.fboHelper.clearColor(.5, .5, 0, 0, this._lowRenderTarget), this.base.fboHelper.clearColor(.5, .5, 0, 0, this._lowBlurRenderTarget), this.base.fboHelper.clearColor(.5, .5, 0, 0, this._currPaintRenderTarget), this._material.uniforms.u_vel.value.set(0, 0)
+        this.base.fboHelper.clearColor(.5, .5, 0, 0, this._lowRenderTarget)
+        this.base.fboHelper.clearColor(.5, .5, 0, 0, this._lowBlurRenderTarget)
+        this.base.fboHelper.clearColor(.5, .5, 0, 0, this._currPaintRenderTarget)
+        this._material.uniforms.u_vel.value.set(0, 0)
     };
 
     update(e) {
@@ -274,7 +284,8 @@ export default class ScreenPaint {
         let t = this._currPaintRenderTarget.width, r = this._currPaintRenderTarget.height,
             n = this._prevPaintRenderTarget;
         this._prevPaintRenderTarget = this._currPaintRenderTarget, this._currPaintRenderTarget = n, this.sharedUniforms.u_prevPaintTexture.value = this._prevPaintRenderTarget.texture, this.sharedUniforms.u_currPaintTexture.value = this._currPaintRenderTarget.texture;
-        let o = this.base.scrollManager.scrollViewDelta * this.base.properties.screenPaintOffsetRatio, l = this.base.scrollManager.isVertical ? 0 : o,
+        let o = this.base.scrollManager.scrollViewDelta * this.base.properties.screenPaintOffsetRatio,
+            l = this.base.scrollManager.isVertical ? 0 : o,
             c = this.base.scrollManager.isVertical ? o : 0;
         _v$4.copy(this.base.input.mousePixelXY), _v$4.x += l * this.base.properties.viewportWidth * 3, _v$4.y += c * this.base.properties.viewportHeight * 3;
         let u = _v$4.distanceTo(this.base.input.prevMousePixelXY),

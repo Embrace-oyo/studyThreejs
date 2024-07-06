@@ -14,6 +14,11 @@ const exampleRouter = [
         name: '拖尾特效',
         component: () => import('@/views/example/trail.vue')
     },
+    {
+        path: '/example/composer',
+        name: '离屏渲染',
+        component: () => import('@/views/example/composer.vue')
+    },
 
 ]
 

@@ -40,9 +40,11 @@ export default class Visuals {
     defaultStage3D = new Stage3D;
     currentStage3D = null;
     stage3DList = [];
+
     constructor(base) {
         this.base = base
     }
+
     preInit() {
     }
 
@@ -67,14 +69,20 @@ export default class Visuals {
         for (let t = 0; t < this.stage3DList.length; t++) {
             let r = this.stage3DList[t];
             if (r.isActive === !0) {
-                this.currentStage3D = r, r.syncProperties(e);
-                for (let n in r.properties) this.base.properties[n] = r.properties[n]
-            } else r.isActive = !1
+                this.currentStage3D = r
+                r.syncProperties(e);
+                for (let n in r.properties) {
+                    this.base.properties[n] = r.properties[n]
+                }
+            } else {
+                r.isActive = !1
+            }
         }
     }
 
     update(e) {
-        this.currentStage3D.update(e), this.currentStage3D.visible = !0;
+        this.currentStage3D.update(e)
+        this.currentStage3D.visible = !0;
         for (let t = 0; t < this.stage3DList.length; t++) {
             let r = this.stage3DList[t];
             r.wasActive = r.isActive
