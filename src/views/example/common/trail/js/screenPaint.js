@@ -267,8 +267,19 @@ export default class ScreenPaint {
     }
 
     resize(e, t) {
-        let r = e >> 2, n = t >> 2, o = e >> 3, l = t >> 3;
-        (r !== this._currPaintRenderTarget.width || n !== this._currPaintRenderTarget.height) && (this._currPaintRenderTarget.setSize(r, n), this._prevPaintRenderTarget.setSize(r, n), this._lowRenderTarget.setSize(o, l), this._lowBlurRenderTarget.setSize(o, l), this.sharedUniforms.u_paintTexelSize.value.set(1 / r, 1 / n), this.sharedUniforms.u_paintTextureSize.value.set(r, n), this.clear())
+        let r = e >> 2
+        let n = t >> 2
+        let o = e >> 3
+        let l = t >> 3;
+        if (r !== this._currPaintRenderTarget.width || n !== this._currPaintRenderTarget.height) {
+            this._currPaintRenderTarget.setSize(r, n)
+            this._prevPaintRenderTarget.setSize(r, n)
+            this._lowRenderTarget.setSize(o, l)
+            this._lowBlurRenderTarget.setSize(o, l)
+            this.sharedUniforms.u_paintTexelSize.value.set(1 / r, 1 / n)
+            this.sharedUniforms.u_paintTextureSize.value.set(r, n)
+            this.clear()
+        }
     }
 
     clear = () => {
@@ -280,16 +291,45 @@ export default class ScreenPaint {
 
     update(e) {
         if (!this.enabled) return;
-        this.useNoise !== this._prevUseNoise && (this._material.defines.USE_NOISE = this.useNoise, this._material.needsUpdate = !0, this._prevUseNoise = this.useNoise);
-        let t = this._currPaintRenderTarget.width, r = this._currPaintRenderTarget.height,
-            n = this._prevPaintRenderTarget;
-        this._prevPaintRenderTarget = this._currPaintRenderTarget, this._currPaintRenderTarget = n, this.sharedUniforms.u_prevPaintTexture.value = this._prevPaintRenderTarget.texture, this.sharedUniforms.u_currPaintTexture.value = this._currPaintRenderTarget.texture;
-        let o = this.base.scrollManager.scrollViewDelta * this.base.properties.screenPaintOffsetRatio,
-            l = this.base.scrollManager.isVertical ? 0 : o,
-            c = this.base.scrollManager.isVertical ? o : 0;
-        _v$4.copy(this.base.input.mousePixelXY), _v$4.x += l * this.base.properties.viewportWidth * 3, _v$4.y += c * this.base.properties.viewportHeight * 3;
-        let u = _v$4.distanceTo(this.base.input.prevMousePixelXY),
-            f = math.fit(u, 0, this.radiusDistanceRange, this.minRadius, this.maxRadius);
-        Math.abs(this.base.scrollManager.scrollViewDelta) == 0 && (!this.base.input.hadMoved || !this.drawEnabled || (this.needsMouseDown || this.base.browser.isMobile) && (!this.base.input.isDown || !this.base.input.wasDown)) && (f = 0), f = f / this.base.properties.viewportHeight * r, this._material.uniforms.u_pushStrength.value = this.pushStrength, this._material.uniforms.u_curlScale.value = this.curlScale, this._material.uniforms.u_curlStrength.value = this.curlStrength, this._material.uniforms.u_dissipations.value.set(this.velocityDissipation, this.weight1Dissipation, this.weight2Dissipation), this._fromDrawData.copy(this._toDrawData), _v$4.copy(this.base.input.mouseXY), _v$4.x += l, _v$4.y += c, this._toDrawData.set((_v$4.x + 1) * t / 2, (_v$4.y + 1) * r / 2, f, 1), _v$4.set(this._toDrawData.x - this._fromDrawData.x, this._toDrawData.y - this._fromDrawData.y).multiplyScalar(e * .8), this._material.uniforms.u_vel.value.multiplyScalar(this.accelerationDissipation).add(_v$4), this._material.uniforms.u_scrollOffset.value.y = l, this._material.uniforms.u_scrollOffset.value.y = c, this.base.fboHelper.render(this._material, this._currPaintRenderTarget), this.base.fboHelper.copy(this._currPaintRenderTarget.texture, this._lowRenderTarget), this.base.blur.blur(8, 1, this._lowRenderTarget, this._lowBlurRenderTarget)
+        if (this.useNoise !== this._prevUseNoise) {
+            this._material.defines.USE_NOISE = this.useNoise
+            this._material.needsUpdate = !0
+            this._prevUseNoise = this.useNoise
+        }
+        let t = this._currPaintRenderTarget.width
+        let r = this._currPaintRenderTarget.height
+        let n = this._prevPaintRenderTarget;
+        this._prevPaintRenderTarget = this._currPaintRenderTarget
+        this._currPaintRenderTarget = n
+        this.sharedUniforms.u_prevPaintTexture.value = this._prevPaintRenderTarget.texture
+        this.sharedUniforms.u_currPaintTexture.value = this._currPaintRenderTarget.texture;
+        let o = this.base.scrollManager.scrollViewDelta * this.base.properties.screenPaintOffsetRatio
+        let l = this.base.scrollManager.isVertical ? 0 : o
+        let c = this.base.scrollManager.isVertical ? o : 0;
+        _v$4.copy(this.base.input.mousePixelXY)
+        _v$4.x += l * this.base.properties.viewportWidth * 3
+        _v$4.y += c * this.base.properties.viewportHeight * 3;
+        let u = _v$4.distanceTo(this.base.input.prevMousePixelXY)
+        let f = math.fit(u, 0, this.radiusDistanceRange, this.minRadius, this.maxRadius);
+        if (Math.abs(this.base.scrollManager.scrollViewDelta) == 0 && (!this.base.input.hadMoved || !this.drawEnabled || (this.needsMouseDown || this.base.browser.isMobile) && (!this.base.input.isDown || !this.base.input.wasDown))) {
+            f = 0
+        }
+        f = f / this.base.properties.viewportHeight * r
+        this._material.uniforms.u_pushStrength.value = this.pushStrength
+        this._material.uniforms.u_curlScale.value = this.curlScale
+        this._material.uniforms.u_curlStrength.value = this.curlStrength
+        this._material.uniforms.u_dissipations.value.set(this.velocityDissipation, this.weight1Dissipation, this.weight2Dissipation)
+        this._fromDrawData.copy(this._toDrawData)
+        _v$4.copy(this.base.input.mouseXY)
+        _v$4.x += l
+        _v$4.y += c
+        this._toDrawData.set((_v$4.x + 1) * t / 2, (_v$4.y + 1) * r / 2, f, 1)
+        _v$4.set(this._toDrawData.x - this._fromDrawData.x, this._toDrawData.y - this._fromDrawData.y).multiplyScalar(e * .8)
+        this._material.uniforms.u_vel.value.multiplyScalar(this.accelerationDissipation).add(_v$4)
+        this._material.uniforms.u_scrollOffset.value.y = l
+        this._material.uniforms.u_scrollOffset.value.y = c
+        this.base.fboHelper.render(this._material, this._currPaintRenderTarget)
+        this.base.fboHelper.copy(this._currPaintRenderTarget.texture, this._lowRenderTarget)
+        this.base.blur.blur(8, 1, this._lowRenderTarget, this._lowBlurRenderTarget)
     }
 }

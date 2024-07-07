@@ -95,11 +95,33 @@ export default class Postprocessing {
     sharedUniforms = {};
     geom;
     hasSizeChanged = !0;
+
     constructor(base) {
         this.base = base
     }
+
     init(e) {
-        if (Object.assign(this, e), _geom ? this.geom = _geom : (this.geom = _geom = new THREE.BufferGeometry, this.geom.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3)), this.geom.setAttribute("a_uvClamp", new THREE.BufferAttribute(new Float32Array([0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]), 4))), this.sceneFlatRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this.sceneFlatRenderTarget.depthBuffer = !0, this.sceneMsRenderTarget = this.base.fboHelper.createMultisampleRenderTarget(1, 1), this.sceneMsRenderTarget.depthBuffer = !0, this.fromRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this.toRenderTarget = this.fromRenderTarget.clone(), this.useDepthTexture = !!this.useDepthTexture && this.base.fboHelper.renderer && (this.base.fboHelper.renderer.capabilities.isWebGL2 || this.base.fboHelper.renderer.extensions.get("WEBGL_depth_texture")), this.fromTexture = this.fromRenderTarget.texture, this.toTexture = this.toRenderTarget.texture, this.sceneRenderTarget = this.sceneMsRenderTarget, this.sceneTexture = this.sceneMsRenderTarget.texture, this.mesh = new THREE.Mesh, this.sharedUniforms = Object.assign(this.sharedUniforms, {
+        Object.assign(this, e)
+        if (_geom) {
+            this.geom = _geom
+        } else {
+            this.geom = _geom = new THREE.BufferGeometry
+            this.geom.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3))
+            this.geom.setAttribute("a_uvClamp", new THREE.BufferAttribute(new Float32Array([0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]), 4))
+        }
+        this.sceneFlatRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this.sceneFlatRenderTarget.depthBuffer = !0
+        this.sceneMsRenderTarget = this.base.fboHelper.createMultisampleRenderTarget(1, 1)
+        this.sceneMsRenderTarget.depthBuffer = !0
+        this.fromRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this.toRenderTarget = this.fromRenderTarget.clone()
+        this.useDepthTexture = !!this.useDepthTexture && this.base.fboHelper.renderer && (this.base.fboHelper.renderer.capabilities.isWebGL2 || this.base.fboHelper.renderer.extensions.get("WEBGL_depth_texture"))
+        this.fromTexture = this.fromRenderTarget.texture
+        this.toTexture = this.toRenderTarget.texture
+        this.sceneRenderTarget = this.sceneMsRenderTarget
+        this.sceneTexture = this.sceneMsRenderTarget.texture
+        this.mesh = new THREE.Mesh
+        this.sharedUniforms = Object.assign(this.sharedUniforms, {
             u_sceneTexture: {value: this.sceneTexture},
             u_fromTexture: {value: null},
             u_toTexture: {value: null},
@@ -110,22 +132,41 @@ export default class Postprocessing {
             u_resolution: {value: this.resolution},
             u_texelSize: {value: this.texelSize},
             u_aspect: {value: this.aspect}
-        }), this.useDepthTexture && this.base.fboHelper.renderer) {
+        })
+        if (this.useDepthTexture && this.base.fboHelper.renderer) {
             const t = new THREE.DepthTexture(this.resolution.width, this.resolution.height);
-            this.base.fboHelper.renderer.capabilities.isWebGL2 ? t.type = THREE.UnsignedIntType : (t.format = THREE.DepthStencilFormat, t.type = THREE.UnsignedInt248Type), t.minFilter = THREE.NearestFilter, t.magFilter = THREE.NearestFilter, this.sceneFlatRenderTarget.depthTexture = t, this.sceneMsRenderTarget.depthTexture = t, this.depthTexture = this.sharedUniforms.u_sceneDepthTexture.value = t
+            this.base.fboHelper.renderer.capabilities.isWebGL2 ? t.type = THREE.UnsignedIntType : (t.format = THREE.DepthStencilFormat, t.type = THREE.UnsignedInt248Type)
+            t.minFilter = THREE.NearestFilter
+            t.magFilter = THREE.NearestFilter
+            this.sceneFlatRenderTarget.depthTexture = t
+            this.sceneMsRenderTarget.depthTexture = t
+            this.depthTexture = this.sharedUniforms.u_sceneDepthTexture.value = t
         }
     }
 
     swap() {
         const e = this.fromRenderTarget;
-        this.fromRenderTarget = this.toRenderTarget, this.toRenderTarget = e, this.fromTexture = this.fromRenderTarget.texture, this.toTexture = this.toRenderTarget.texture, this.sharedUniforms.u_fromTexture.value = this.fromTexture, this.sharedUniforms.u_toTexture.value = this.toTexture
+        this.fromRenderTarget = this.toRenderTarget
+        this.toRenderTarget = e
+        this.fromTexture = this.fromRenderTarget.texture
+        this.toTexture = this.toRenderTarget.texture
+        this.sharedUniforms.u_fromTexture.value = this.fromTexture
+        this.sharedUniforms.u_toTexture.value = this.toTexture
     }
 
     setSize(e, t) {
         if (this.width !== e || this.height !== t) {
-            this.hasSizeChanged = !0, this.width = e, this.height = t, this.resolution.set(e, t), this.texelSize.set(1 / e, 1 / t);
+            this.hasSizeChanged = !0
+            this.width = e
+            this.height = t
+            this.resolution.set(e, t)
+            this.texelSize.set(1 / e, 1 / t);
             const r = t / Math.sqrt(e * e + t * t) * 2;
-            this.aspect.set(e / t * r, r), this.sceneFlatRenderTarget.setSize(e, t), this.sceneMsRenderTarget.setSize(e, t), this.fromRenderTarget.setSize(e, t), this.toRenderTarget.setSize(e, t)
+            this.aspect.set(e / t * r, r)
+            this.sceneFlatRenderTarget.setSize(e, t)
+            this.sceneMsRenderTarget.setSize(e, t)
+            this.fromRenderTarget.setSize(e, t)
+            this.toRenderTarget.setSize(e, t)
         }
     }
 
@@ -147,10 +188,23 @@ export default class Postprocessing {
 
     render(e, t, r) {
         if (!this.base.fboHelper.renderer) return;
-        this.scene = e, this.camera = t, this.mesh.geometry = this.geom;
-        const n = this.queue.filter(this._filterQueue), o = this.sharedUniforms;
-        if (n.sort((l, c) => l.renderOrder == c.renderOrder ? 0 : l.renderOrder - c.renderOrder), this.checkSceneRt(), o.u_cameraNear.value = t.near, o.u_cameraFar.value = t.far, o.u_cameraFovRad.value = t.fov / 180 * Math.PI, this.onBeforeSceneRendered.dispatch(), n.length) {
-            this.base.fboHelper.renderer.setRenderTarget(this.sceneRenderTarget), this.base.fboHelper.renderer.render(e, t), this.base.fboHelper.renderer.setRenderTarget(null), this.base.fboHelper.copy(this.sceneRenderTarget.texture, this.fromRenderTarget), this.onAfterSceneRendered.dispatch(this.sceneRenderTarget);
+        this.scene = e
+        this.camera = t
+        this.mesh.geometry = this.geom;
+        const n = this.queue.filter(this._filterQueue)
+        const o = this.sharedUniforms;
+        n.sort((l, c) => l.renderOrder == c.renderOrder ? 0 : l.renderOrder - c.renderOrder)
+        this.checkSceneRt()
+        o.u_cameraNear.value = t.near
+        o.u_cameraFar.value = t.far
+        o.u_cameraFovRad.value = t.fov / 180 * Math.PI
+        this.onBeforeSceneRendered.dispatch()
+        if (n.length) {
+            this.base.fboHelper.renderer.setRenderTarget(this.sceneRenderTarget)
+            this.base.fboHelper.renderer.render(e, t)
+            this.base.fboHelper.renderer.setRenderTarget(null)
+            this.base.fboHelper.copy(this.sceneRenderTarget.texture, this.fromRenderTarget)
+            this.onAfterSceneRendered.dispatch(this.sceneRenderTarget);
             const l = this.base.fboHelper.getColorState();
             this.base.fboHelper.renderer.autoClear = !1;
             for (let c = 0, u = n.length; c < u; c++) {
@@ -158,7 +212,11 @@ export default class Postprocessing {
                 p.setPostprocessing(this), p.render(this, f)
             }
             this.base.fboHelper.setColorState(l)
-        } else this.base.fboHelper.renderer.render(e, t), this.onAfterSceneRendered.dispatch();
-        this.onAfterRendered.dispatch(), this.hasSizeChanged = !1
+        } else {
+            this.base.fboHelper.renderer.render(e, t)
+            this.onAfterSceneRendered.dispatch()
+        }
+        this.onAfterRendered.dispatch()
+        this.hasSizeChanged = !1
     }
 }

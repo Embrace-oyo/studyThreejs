@@ -31,22 +31,37 @@ export default class FboHelper {
     _debugMaterial;
 
     constructor(base) {
-       this.base = base
+        this.base = base
     }
 
 
     init(e, t) {
-        this.renderer = e, this.floatType = t, this.isWebGL2 = this.renderer.capabilities.isWebGL2, this._scene = new THREE.Scene, this._camera = new THREE.Camera, this._camera.position.z = 1, this.triGeom = new THREE.BufferGeometry, this.triGeom.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3)), this.quadGeom = new THREE.PlaneGeometry(2, 2), this._tri = new THREE.Mesh(this.triGeom), this._tri.frustumCulled = !1, this._scene.add(this._tri), this.precisionPrefix = `precision ${this.renderer.capabilities.precision} float;
-`, this.precisionPrefix2 = `#version 300 es
+        this.renderer = e
+        this.floatType = t
+        this.isWebGL2 = this.renderer.capabilities.isWebGL2
+        this._scene = new THREE.Scene
+        this._camera = new THREE.Camera
+        this._camera.position.z = 1
+        this.triGeom = new THREE.BufferGeometry
+        this.triGeom.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3))
+        this.quadGeom = new THREE.PlaneGeometry(2, 2)
+        this._tri = new THREE.Mesh(this.triGeom)
+        this._tri.frustumCulled = !1
+        this._scene.add(this._tri)
+        this.precisionPrefix = `precision ${this.renderer.capabilities.precision} float;
+        `,
+            this.precisionPrefix2 = `#version 300 es
 			precision ${this.renderer.capabilities.precision} float;
 			precision ${this.renderer.capabilities.precision} int;
 			#define IS_WEBGL2 true
-		`, this.isWebGL2 ? (this.vertexPrefix = `${this.precisionPrefix2}
+		`,
+            this.isWebGL2 ? (this.vertexPrefix = `${this.precisionPrefix2}
 				precision mediump sampler2DArray;
 				#define attribute in
 				#define varying out
 				#define texture2D texture
-			`, this.fragmentPrefix = `${this.precisionPrefix2}
+			`,
+                this.fragmentPrefix = `${this.precisionPrefix2}
 				#define varying in
 				out highp vec4 pc_fragColor;
 				#define gl_FragColor pc_fragColor
@@ -60,7 +75,10 @@ export default class FboHelper {
 				#define texture2DGradEXT textureGrad
 				#define texture2DProjGradEXT textureProjGrad
 				#define textureCubeGradEXT textureGrad
-			`) : (this.vertexPrefix = this.precisionPrefix, this.fragmentPrefix = this.precisionPrefix), this.renderer.getContext().getExtension("OES_standard_derivatives"), this.vertexShader = this.precisionPrefix + blitVert, this.copyMaterial = new THREE.RawShaderMaterial({
+			`) : (this.vertexPrefix = this.precisionPrefix, this.fragmentPrefix = this.precisionPrefix),
+            this.renderer.getContext().getExtension("OES_standard_derivatives")
+        this.vertexShader = this.precisionPrefix + blitVert
+        this.copyMaterial = new THREE.RawShaderMaterial({
             uniforms: {u_texture: {value: null}},
             vertexShader: this.vertexShader,
             fragmentShader: this.precisionPrefix + blitFrag,
@@ -174,7 +192,11 @@ export default class FboHelper {
             vertexShader: blitVert,
             fragmentShader: blitFrag,
             derivatives: !1
-        }, e), e.vertexShader = (e.vertexShaderPrefix ? e.vertexShaderPrefix : e.derivatives ? this.vertexPrefix : this.precisionPrefix) + e.vertexShader, e.fragmentShader = (e.fragmentShaderPrefix ? e.fragmentShaderPrefix : e.derivatives ? this.fragmentPrefix : this.precisionPrefix) + e.fragmentShader, delete e.vertexShaderPrefix, delete e.fragmentShaderPrefix, delete e.derivatives;
+        }, e)
+        e.vertexShader = (e.vertexShaderPrefix ? e.vertexShaderPrefix : e.derivatives ? this.vertexPrefix : this.precisionPrefix) + e.vertexShader, e.fragmentShader = (e.fragmentShaderPrefix ? e.fragmentShaderPrefix : e.derivatives ? this.fragmentPrefix : this.precisionPrefix) + e.fragmentShader
+        delete e.vertexShaderPrefix,
+            delete e.fragmentShaderPrefix,
+            delete e.derivatives;
         let t = new THREE.RawShaderMaterial(e);
         this.base.taskManager.add(t)
         return t

@@ -2033,7 +2033,9 @@ export class TextureHelper {
     }
 
     init() {
-        this.blackTexture = this._createPixelTexture([0, 0, 0, 255]), this.whiteTexture = this._createPixelTexture([255, 255, 255, 255]), this.transparentTexture = this._createPixelTexture([0, 0, 0, 0])
+        this.blackTexture = this._createPixelTexture([0, 0, 0, 255])
+        this.whiteTexture = this._createPixelTexture([255, 255, 255, 255])
+        this.transparentTexture = this._createPixelTexture([0, 0, 0, 0])
     }
 
     _createPixelTexture(e) {
@@ -2385,19 +2387,19 @@ export class Preloader {
         }
         if (r == 1 && !this.base.properties.hasStarted) this._startCallback();
         let n = settings.SKIP_ANIMATION ? +this.base.properties.hasStarted : math.saturate(this.base.properties.startTime);
-       /* for (let o = 0; o < this.domDigits.length; o++) {
-            let l = this.domDigits[o]
-            let c = Math.floor(t * 100 / Math.pow(10, this.domDigits.length - o - 1));
-            l._easedVal = math.mix(l._easedVal, c, 1 - Math.exp(-7 * e))
-            c - l._easedVal < .01 && (l._easedVal = c);
-            let u = l._easedVal % 10
-            let f = Math.floor(u)
-            let p = Math.ceil(u) % 10
-            let g = u - f;
-            l._domNums[0].innerHTML = f
-            l._domNums[1].innerHTML = p
-            l.style.transform = "translateY(" + -(g - ease.expoInOut(math.saturate(n * 1.2 - .2 * o / (this.domDigits.length - 1)))) * 50 + "%) translateY(-0.05em)"
-        }*/
+        /* for (let o = 0; o < this.domDigits.length; o++) {
+             let l = this.domDigits[o]
+             let c = Math.floor(t * 100 / Math.pow(10, this.domDigits.length - o - 1));
+             l._easedVal = math.mix(l._easedVal, c, 1 - Math.exp(-7 * e))
+             c - l._easedVal < .01 && (l._easedVal = c);
+             let u = l._easedVal % 10
+             let f = Math.floor(u)
+             let p = Math.ceil(u) % 10
+             let g = u - f;
+             l._domNums[0].innerHTML = f
+             l._domNums[1].innerHTML = p
+             l.style.transform = "translateY(" + -(g - ease.expoInOut(math.saturate(n * 1.2 - .2 * o / (this.domDigits.length - 1)))) * 50 + "%) translateY(-0.05em)"
+         }*/
         if (n == 1) this.isActive = !1
     }
 }

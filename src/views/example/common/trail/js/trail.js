@@ -23,7 +23,6 @@ import CameraControls from "@/views/example/common/trail/js/cameraControls"
 import Visuals from "@/views/example/common/trail/js/visuals"
 import ScreenPaint from "@/views/example/common/trail/js/screenPaint"
 import {ScreenPaintDistortion, Smaa, Bloom, Final, Fsr, PreUfx, PostUfx} from "@/views/example/common/trail/js/pass.js"
-import textureBicubicShader from '@/views/example/common/trail/glsl/textureBicubicShader.glsl'
 
 export default class Trail {
     constructor() {
@@ -47,7 +46,6 @@ export default class Trail {
         this.shaderHelper = new ShaderHelper()
         this.fboHelper = new FboHelper(this)
         this.taskManager = new TaskManager(this)
-        this.textureHelper = new TextureHelper(this)
         this.blueNoise = new BlueNoise(this)
         this.blur = new Blur(this)
         this.screenPaint = new ScreenPaint(this)
@@ -75,9 +73,7 @@ export default class Trail {
             this.properties.sharedUniforms.u_resolution.value = this.properties.resolution = new THREE.Vector2
             this.properties.sharedUniforms.u_viewportResolution.value = this.properties.viewportResolution = new THREE.Vector2
             this.properties.sharedUniforms.u_bgColor.value = this.properties.bgColor = new THREE.Color
-            this.shaderHelper.addChunk("textureBicubic", textureBicubicShader)
             this.fboHelper.init(this.properties.renderer, this.settings.RENDER_TARGET_FLOAT_TYPE)
-            this.textureHelper.init()
             this.properties.postprocessing = new Postprocessing(this)
             this.properties.postprocessing.init()
             this.blueNoise.preInit()
@@ -87,33 +83,13 @@ export default class Trail {
             this.properties.smaa.setTextures(this.properties.loader.add("https://lusion.dev/assets/textures/smaa-area.png", {weight: 32}).content, this.properties.loader.add("https://lusion.dev/assets/textures/smaa-search.png", {weight: .1}).content)
             this.properties.postprocessing.queue.push(this.properties.smaa);
 
-            let e = !this.browser.isMobile || this.settings.USE_HD;
-            this.properties.bloom = new Bloom(this)
-            this.properties.bloom.init({
-                USE_CONVOLUTION: e,
-                USE_HD: e
-            })
-            this.properties.postprocessing.queue.push(this.properties.bloom)
 
             this.screenPaint.init()
             this.properties.screenPaintDistortion = new ScreenPaintDistortion(this)
             this.properties.screenPaintDistortion.init({screenPaint: this.screenPaint})
             this.properties.postprocessing.queue.push(this.properties.screenPaintDistortion)
 
-            this.properties.final = new Final(this)
-            this.properties.final.init()
-            this.properties.postprocessing.queue.push(this.properties.final)
-            if (this.settings.UP_SCALE > 1) {
-                this.properties.upscaler = new Fsr(this)
-                this.properties.upscaler.init()
-                this.properties.postprocessing.queue.push(this.properties.upscaler)
-            }
-            this.preUfx = new PreUfx(this);
-            this.preUfx.init()
-            this.properties.postprocessing.queue.push(this.preUfx)
-            this.postUfx = new PostUfx(this)
-            this.postUfx.init()
-            this.properties.postprocessing.queue.push(this.postUfx)
+
         }
     }
 
@@ -127,7 +103,6 @@ export default class Trail {
 
     appInit() {
         if (!this.settings.WEBGL_OFF) {
-            this.properties.smaa && this.properties.smaa.updateTextures()
             this.cameraControls.init()
             this.visuals.init()
         }

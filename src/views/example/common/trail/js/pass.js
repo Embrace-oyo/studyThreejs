@@ -262,7 +262,11 @@ export class Smaa extends PostEffect {
                 u_areaTexture: {value: null},
                 u_searchTexture: {value: null}
             }
-        }, e), super.init(), this.weightsRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this.edgesRenderTarget = this.base.fboHelper.createRenderTarget(1, 1), this.edgesMaterial = new THREE.RawShaderMaterial({
+        }, e)
+        super.init()
+        this.weightsRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this.edgesRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
+        this.edgesMaterial = new THREE.RawShaderMaterial({
             uniforms: {
                 u_texture: {value: null},
                 u_texelSize: null
@@ -273,7 +277,8 @@ export class Smaa extends PostEffect {
             blending: THREE.NoBlending,
             depthTest: !1,
             depthWrite: !1
-        }), this.weightsMaterial = new THREE.RawShaderMaterial({
+        })
+        this.weightsMaterial = new THREE.RawShaderMaterial({
             uniforms: {
                 u_edgesTexture: {value: this.edgesRenderTarget.texture},
                 u_areaTexture: this.sharedUniforms.u_areaTexture,
@@ -292,7 +297,8 @@ export class Smaa extends PostEffect {
             blending: THREE.NoBlending,
             depthTest: !1,
             depthWrite: !1
-        }), this.material = this.base.fboHelper.createRawShaderMaterial({
+        })
+        this.material = this.base.fboHelper.createRawShaderMaterial({
             uniforms: {
                 u_texture: {value: null},
                 u_weightsTexture: {value: this.weightsRenderTarget.texture},
@@ -307,17 +313,20 @@ export class Smaa extends PostEffect {
         const r = this.sharedUniforms.u_areaTexture.value = this._createTexture(e);
         r.minFilter = THREE.LinearFilter;
         const n = this.sharedUniforms.u_searchTexture.value = this._createTexture(t);
-        n.magFilter = THREE.NearestFilter, n.minFilter = THREE.NearestFilter
+        n.magFilter = THREE.NearestFilter
+        n.minFilter = THREE.NearestFilter
     }
 
     updateTextures() {
-        this.sharedUniforms.u_areaTexture.value.needsUpdate = !0, this.sharedUniforms.u_searchTexture.value.needsUpdate = !0
+        this.sharedUniforms.u_areaTexture.value.needsUpdate = !0
+        this.sharedUniforms.u_searchTexture.value.needsUpdate = !0
     }
 
     setPostprocessing(e) {
         super.setPostprocessing(e);
         const t = e.width, r = e.height;
-        this.edgesRenderTarget.setSize(t, r), this.weightsRenderTarget.setSize(t, r)
+        this.edgesRenderTarget.setSize(t, r)
+        this.weightsRenderTarget.setSize(t, r)
     }
 
     dispose() {
@@ -332,12 +341,21 @@ export class Smaa extends PostEffect {
         const r = this.base.fboHelper.getColorState();
         this.sharedUniforms.u_searchTexture.value || console.warn("You need to use Smaa.setImages() to set the smaa textures manually and assign to this class.");
         const n = this.base.fboHelper.renderer;
-        n && (n.autoClear = !0, n.setClearColor(0, 0)), this.edgesMaterial.uniforms.u_texelSize = this.weightsMaterial.uniforms.u_texelSize = this.material.uniforms.u_texelSize = e.sharedUniforms.u_texelSize, this.edgesMaterial.uniforms.u_texture.value = e.fromTexture, e.renderMaterial(this.edgesMaterial, this.edgesRenderTarget), e.renderMaterial(this.weightsMaterial, this.weightsRenderTarget), this.base.fboHelper.setColorState(r), this.material.uniforms.u_texture.value = e.fromTexture, super.render(e, t)
+        n && (n.autoClear = !0, n.setClearColor(0, 0))
+        this.edgesMaterial.uniforms.u_texelSize = this.weightsMaterial.uniforms.u_texelSize = this.material.uniforms.u_texelSize = e.sharedUniforms.u_texelSize
+        this.edgesMaterial.uniforms.u_texture.value = e.fromTexture
+        e.renderMaterial(this.edgesMaterial, this.edgesRenderTarget)
+        e.renderMaterial(this.weightsMaterial, this.weightsRenderTarget)
+        this.base.fboHelper.setColorState(r)
+        this.material.uniforms.u_texture.value = e.fromTexture
+        super.render(e, t)
     }
 
     _createTexture(e) {
         const t = new THREE.Texture(e);
-        return t.generateMipmaps = !1, t.flipY = !1, t
+        t.generateMipmaps = !1
+        t.flipY = !1
+        return t
     }
 }
 
@@ -629,7 +647,9 @@ export class ScreenPaintDistortion extends PostEffect {
     }
 
     init(e) {
-        if (Object.assign(this, e), super.init(), !this.screenPaint) throw new Error("screenPaint is required");
+        Object.assign(this, e)
+        super.init()
+        if (!this.screenPaint) throw new Error("screenPaint is required");
         this.material = this.base.fboHelper.createRawShaderMaterial({
             uniforms: Object.assign({
                 u_texture: {value: null},
