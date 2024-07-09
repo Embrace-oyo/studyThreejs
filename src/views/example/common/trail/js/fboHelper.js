@@ -85,7 +85,8 @@ export default class FboHelper {
             depthTest: !1,
             depthWrite: !1,
             blending: THREE.NoBlending
-        }), this.uvCopyMaterial = new THREE.RawShaderMaterial({
+        }),
+            this.uvCopyMaterial = new THREE.RawShaderMaterial({
             uniforms: {u_texture: {value: null}},
             vertexShader: this.precisionPrefix + uvBlitVert,
             fragmentShader: this.precisionPrefix + blitFrag,

@@ -144,7 +144,6 @@ export default class Trail {
             this.properties.screenPaintDistortion.multiplier = this.properties.screenPaintDistortionMultiplier
             this.properties.upscaler && (this.properties.upscaler.sharpness = this.properties.upscalerSharpness)
             this.properties.postprocessing.render(this.visuals.currentStage3D, this.properties.camera, !0)
-            window.__debugTexture && this.fboHelper.debugTo(window.__debugTexture)
         }
     }
 
@@ -211,9 +210,6 @@ export default class Trail {
     }
 
     update(a) {
-        this.scrollManager.autoScrollSpeed = this.properties.autoScrollSpeed
-        window.__AUTO_SCROLL__ && (this.scrollManager.autoScrollSpeed = window.__AUTO_SCROLL__)
-        this.taskManager.update()
         this.properties.reset()
         this.appPreUpdate(a)
         this.input.update(a)

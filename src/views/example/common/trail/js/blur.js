@@ -31,7 +31,18 @@ export default class Blur {
     }
 
     blur(e, t, r, n, o, l) {
-        let c = .25, u = Math.ceil(r.width * t) || 0, f = Math.ceil(r.height * t) || 0;
-        this.material || (this.material = this.getBlur9Material()), n || console.warn("You have to pass intermediateRenderTarget to blur"), (u !== n.width || f !== n.height) && n.setSize(u, f), o ? l || o.setSize(r.width, r.height) : o = r, this.material.uniforms.u_texture.value = r.texture || r, this.material.uniforms.u_delta.value.set(e / u * c, 0), this.base.fboHelper.render(this.material, n), this.material.uniforms.u_texture.value = n.texture || n, this.material.uniforms.u_delta.value.set(0, e / f * c), this.base.fboHelper.render(this.material, o)
+        let c = .25
+        let u = Math.ceil(r.width * t) || 0
+        let f = Math.ceil(r.height * t) || 0;
+        this.material || (this.material = this.getBlur9Material())
+        n || console.warn("You have to pass intermediateRenderTarget to blur")
+        (u !== n.width || f !== n.height) && n.setSize(u, f)
+        o ? l || o.setSize(r.width, r.height) : o = r
+        this.material.uniforms.u_texture.value = r.texture || r
+        this.material.uniforms.u_delta.value.set(e / u * c, 0)
+        this.base.fboHelper.render(this.material, n)
+        this.material.uniforms.u_texture.value = n.texture || n
+        this.material.uniforms.u_delta.value.set(0, e / f * c)
+        this.base.fboHelper.render(this.material, o)
     }
 }

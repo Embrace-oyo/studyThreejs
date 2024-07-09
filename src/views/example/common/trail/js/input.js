@@ -716,7 +716,23 @@ export class Input {
     }
 
     postUpdate(e) {
-        this.prevThroughElems.length = 0, this.prevThroughElems.concat(this.currThroughElems), this.deltaWheel = 0, this.deltaDragScrollX = 0, this.deltaDragScrollY = 0, this.deltaScrollX = 0, this.deltaScrollY = 0, this.dragScrollXMomentum = 0, this.dragScrollYMomentum = 0, this.deltaXY.set(0, 0), this.deltaPixelXY.set(0, 0), this.prevMouseXY.copy(this.mouseXY), this.prevMousePixelXY.copy(this.mousePixelXY), this.hadMoved = this.hasMoved, this.wasDown = this.isDown, this.justClicked = !1, this.isWheelScrolling = !1
+        this.prevThroughElems.length = 0,
+            this.prevThroughElems.concat(this.currThroughElems),
+            this.deltaWheel = 0,
+            this.deltaDragScrollX = 0,
+            this.deltaDragScrollY = 0,
+            this.deltaScrollX = 0,
+            this.deltaScrollY = 0,
+            this.dragScrollXMomentum = 0,
+            this.dragScrollYMomentum = 0,
+            this.deltaXY.set(0, 0),
+            this.deltaPixelXY.set(0, 0),
+            this.prevMouseXY.copy(this.mouseXY),
+            this.prevMousePixelXY.copy(this.mousePixelXY),
+            this.hadMoved = this.hasMoved,
+            this.wasDown = this.isDown,
+            this.justClicked = !1,
+            this.isWheelScrolling = !1
     }
 
     _onWheel(e) {
@@ -729,7 +745,16 @@ export class Input {
     }
 
     _onMove(e) {
-        this._getInputXY(e, this.mouseXY), this._getInputPixelXY(e, this.mousePixelXY), this.deltaXY.copy(this.mouseXY).sub(this._prevMouseXY), this.deltaPixelXY.copy(this.mousePixelXY).sub(this._prevMousePixelXY), this._prevMouseXY.copy(this.mouseXY), this._prevMousePixelXY.copy(this.mousePixelXY), this.hasMoved = this.deltaXY.length() > 0, this.isDown && (this.deltaDownXY.copy(this.mouseXY).sub(this.downXY), this.deltaDownPixelXY.copy(this.mousePixelXY).sub(this.downPixelXY), this.deltaDownPixelDistance = this.deltaDownPixelXY.length(), (this.base.browser.isMobile || this.canDesktopDragScroll) && (this.needsCheckDragScrollDirection && (this.isDragScrollingX = Math.abs(this.deltaPixelXY.x) > Math.abs(this.deltaPixelXY.y), this.isDragScrollingY = !this.isDragScrollingX, this.needsCheckDragScrollDirection = !1), this.isDragScrollingX && (this.deltaDragScrollX += -this.deltaPixelXY.x, this.deltaScrollX += -this.deltaPixelXY.x + this.deltaWheel, this.lastScrollXDirection = this.deltaDragScrollX > 0 ? 1 : -1, this.onXScrolled.dispatch(e.target)), this.isDragScrollingY && (this.deltaDragScrollY += -this.deltaPixelXY.y, this.deltaScrollY += -this.deltaPixelXY.y + this.deltaWheel, this.lastScrollYDirection = this.deltaDragScrollY > 0 ? 1 : -1, this.onYScrolled.dispatch(e.target)))), this._setThroughElementsByEvent(e, this.currThroughElems), this.onMoved.dispatch(e)
+        this._getInputXY(e, this.mouseXY)
+        this._getInputPixelXY(e, this.mousePixelXY)
+        this.deltaXY.copy(this.mouseXY).sub(this._prevMouseXY)
+        this.deltaPixelXY.copy(this.mousePixelXY).sub(this._prevMousePixelXY)
+        this._prevMouseXY.copy(this.mouseXY),
+            this._prevMousePixelXY.copy(this.mousePixelXY)
+        this.hasMoved = this.deltaXY.length() > 0
+        this.isDown && (this.deltaDownXY.copy(this.mouseXY).sub(this.downXY), this.deltaDownPixelXY.copy(this.mousePixelXY).sub(this.downPixelXY), this.deltaDownPixelDistance = this.deltaDownPixelXY.length(), (this.base.browser.isMobile || this.canDesktopDragScroll) && (this.needsCheckDragScrollDirection && (this.isDragScrollingX = Math.abs(this.deltaPixelXY.x) > Math.abs(this.deltaPixelXY.y), this.isDragScrollingY = !this.isDragScrollingX, this.needsCheckDragScrollDirection = !1), this.isDragScrollingX && (this.deltaDragScrollX += -this.deltaPixelXY.x, this.deltaScrollX += -this.deltaPixelXY.x + this.deltaWheel, this.lastScrollXDirection = this.deltaDragScrollX > 0 ? 1 : -1, this.onXScrolled.dispatch(e.target)), this.isDragScrollingY && (this.deltaDragScrollY += -this.deltaPixelXY.y, this.deltaScrollY += -this.deltaPixelXY.y + this.deltaWheel, this.lastScrollYDirection = this.deltaDragScrollY > 0 ? 1 : -1, this.onYScrolled.dispatch(e.target)))),
+            this._setThroughElementsByEvent(e, this.currThroughElems),
+            this.onMoved.dispatch(e)
     }
 
     _onUp(e) {
