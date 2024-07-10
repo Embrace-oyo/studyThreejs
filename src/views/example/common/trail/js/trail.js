@@ -50,7 +50,7 @@ export default class Trail {
         this.blur = new Blur(this)
         this.screenPaint = new ScreenPaint(this)
         this.cameraControls = new CameraControls(this)
-        this.visuals = new Visuals(this)
+        // this.visuals = new Visuals(this)
         this.ui = new UI(this)
         this.preloader = new Preloader(this)
         this.dateTime = performance.now()
@@ -97,34 +97,28 @@ export default class Trail {
     appPreInit() {
         if (!this.settings.WEBGL_OFF) {
             this.cameraControls.preInit()
-            this.visuals.preInit()
         }
     }
 
     appInit() {
         if (!this.settings.WEBGL_OFF) {
             this.cameraControls.init()
-            this.visuals.init()
         }
     }
 
     appStart() {
-        this.visuals.start()
     }
 
     appPreUpdate(e = 0) {
-        this.visuals.deactivateAll()
     }
 
     appUpdate(e = 0) {
         if (!this.settings.WEBGL_OFF) {
             this.properties.time = this.properties.sharedUniforms.u_time.value += e
             this.properties.deltaTime = this.properties.sharedUniforms.u_deltaTime.value = e
-            this.visuals.syncProperties(e)
             this.blueNoise.update(e)
             this.screenPaint.update(e)
             this.cameraControls.update(e)
-            this.visuals.update(e)
             this.properties.renderer.setClearColor(this.properties.bgColor, this.properties.clearAlpha)
             this.properties.bgColor.setStyle(this.properties.bgColorHex)
             this.screenPaint.needsMouseDown = this.properties.screenPaintNeedsMouseDown
@@ -143,7 +137,7 @@ export default class Trail {
             this.properties.screenPaintDistortion.colorMultiplier = this.properties.screenPaintDistortionColorMultiplier
             this.properties.screenPaintDistortion.multiplier = this.properties.screenPaintDistortionMultiplier
             this.properties.upscaler && (this.properties.upscaler.sharpness = this.properties.upscalerSharpness)
-            this.properties.postprocessing.render(this.visuals.currentStage3D, this.properties.camera, !0)
+            this.properties.postprocessing.render(this.properties.scene, this.properties.camera, !0)
         }
     }
 
@@ -157,7 +151,6 @@ export default class Trail {
             this.properties.camera.updateProjectionMatrix()
             this.properties.postprocessing.setSize(this.properties.width, this.properties.height)
             this.screenPaint.resize(this.properties.width, this.properties.height)
-            this.visuals.resize(this.properties.width, this.properties.height)
         }
     }
 

@@ -87,13 +87,13 @@ export default class FboHelper {
             blending: THREE.NoBlending
         }),
             this.uvCopyMaterial = new THREE.RawShaderMaterial({
-            uniforms: {u_texture: {value: null}},
-            vertexShader: this.precisionPrefix + uvBlitVert,
-            fragmentShader: this.precisionPrefix + blitFrag,
-            depthTest: !1,
-            depthWrite: !1,
-            blending: THREE.NoBlending
-        }), this.clearMaterial = new THREE.RawShaderMaterial({
+                uniforms: {u_texture: {value: null}},
+                vertexShader: this.precisionPrefix + uvBlitVert,
+                fragmentShader: this.precisionPrefix + blitFrag,
+                depthTest: !1,
+                depthWrite: !1,
+                blending: THREE.NoBlending
+            }), this.clearMaterial = new THREE.RawShaderMaterial({
             uniforms: {u_color: {value: new THREE.Vector4(1, 1, 1, 1)}},
             vertexShader: this.vertexShader,
             fragmentShader: this.precisionPrefix + clearFrag,
@@ -171,7 +171,8 @@ export default class FboHelper {
             clearAlpha: 1
         };
         const e = new THREE.Color;
-        return this.renderer.getClearColor(e), {
+        this.renderer.getClearColor(e)
+        return {
             autoClear: this.renderer.autoClear,
             autoClearColor: this.renderer.autoClearColor,
             autoClearStencil: this.renderer.autoClearStencil,
@@ -182,7 +183,13 @@ export default class FboHelper {
     }
 
     setColorState(e) {
-        this.renderer && (this.renderer.setClearColor(e.clearColor, e.clearAlpha), this.renderer.autoClear = e.autoClear, this.renderer.autoClearColor = e.autoClearColor, this.renderer.autoClearStencil = e.autoClearStencil, this.renderer.autoClearDepth = e.autoClearDepth)
+        if (this.renderer) {
+            this.renderer.setClearColor(e.clearColor, e.clearAlpha)
+            this.renderer.autoClear = e.autoClear
+            this.renderer.autoClearColor = e.autoClearColor
+            this.renderer.autoClearStencil = e.autoClearStencil
+            this.renderer.autoClearDepth = e.autoClearDepth
+        }
     }
 
     createRawShaderMaterial(e) {

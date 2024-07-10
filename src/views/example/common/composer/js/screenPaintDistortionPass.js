@@ -13,6 +13,8 @@ import copyFrag from "@/views/example/common/composer/glsl/copyFrag.glsl";
 import blurVert from "@/views/example/common/composer/glsl/blurVert.glsl";
 import blurFrag from "@/views/example/common/composer/glsl/blurFrag.glsl";
 import clearFrag from "@/views/example/common/composer/glsl/clearFrag.glsl";
+import screenPaintVert from "@/views/example/common/composer/glsl/screenPaintVert.glsl";
+import screenPaintFrag from "@/views/example/common/composer/glsl/screenPaintFrag.glsl";
 
 
 let _v$4 = new THREE.Vector2;
@@ -40,13 +42,9 @@ class ScreenPaintDistortion extends Pass {
     _lowBlurRenderTarget;
     _prevPaintRenderTarget;
     _currPaintRenderTarget;
-    _material;
-    _material2;
-    _distortionMaterial;
     _fromDrawData;
     _toDrawData;
     drawEnabled = !0;
-    needsMouseDown = !1;
     enabled = !0;
     minRadius = 0;
     maxRadius = 100;
@@ -67,25 +65,116 @@ class ScreenPaintDistortion extends Pass {
         u_currPaintTexture: {value: null},
         u_lowPaintTexture: {value: null}
     };
+    amount = 20;
+    rgbShift = 1;
+    multiplier = 1.25;
+    colorMultiplier = 1;
+    shade = 1.25;
+    renderOrder = 75;
+    screenPaintShaderUniforms = {}
+    resolution = new THREE.Vector2(0, 0);
+    texelSize = new THREE.Vector2(0, 0);
+    aspect = new THREE.Vector2(1, 1);
+    hasSizeChanged = !0;
+    useDepthTexture = !0;
+    sceneRenderTarget = null;
+    fromRenderTarget = null;
+    toRenderTarget = null;
+    depthTexture = null;
+    fromTexture = null;
+    toTexture = null;
+    sceneTexture = null;
 
-    constructor(width, height, renderer) {
+    constructor(config = {}) {
         super();
-        this.renderer = renderer;
-        this.width = width;
-        this.height = height;
+        this.renderer = config.renderer;
+        this.width = config.width;
+        this.height = config.height;
         this.dateTime = performance.now()
-        this.dom = renderer.domElement;
+        this.dom = config.renderer.domElement;
         this.dom.addEventListener('mousemove', (e) => {
-            this.mouseXY.set(e.offsetX / width * 2 - 1, 1 - e.offsetY / height * 2)
+            this.mouseXY.set(e.offsetX / config.width * 2 - 1, 1 - e.offsetY / config.height * 2)
             this.mousePixelXY.set(e.offsetX, e.offsetY)
             this.deltaXY.copy(this.mouseXY).sub(this._prevMouseXY)
             this._prevMouseXY.copy(this.mouseXY)
             this.hasMoved = this.deltaXY.length() > 0
         })
+        this.scene = config.scene;
+        this.camera = config.camera;
+
         this.fsQuad = new FullScreenQuad(null);
-        this.RTInit(width, height)
+        this.postprocessingInit()
+        this.blueNoiseInit()
+        this.RTInit(config.width, config.height)
         this.materialInit()
         this.textureInit()
+    }
+
+    postprocessingInit() {
+        this.sceneFlatRenderTarget = this.createRenderTarget(1, 1)
+        this.sceneFlatRenderTarget.depthBuffer = !0
+        this.sceneMsRenderTarget = this.createMultisampleRenderTarget(1, 1)
+        this.sceneMsRenderTarget.depthBuffer = !0
+        this.fromRenderTarget = this.createRenderTarget(1, 1)
+        this.toRenderTarget = this.fromRenderTarget.clone()
+        this.useDepthTexture = !!this.useDepthTexture && this.renderer && (this.renderer.capabilities.isWebGL2 || this.renderer.extensions.get("WEBGL_depth_texture"))
+        this.fromTexture = this.fromRenderTarget.texture
+        this.toTexture = this.toRenderTarget.texture
+        this.sceneRenderTarget = this.sceneMsRenderTarget
+        this.sceneTexture = this.sceneMsRenderTarget.texture
+        this.screenPaintShaderUniforms = Object.assign(this.screenPaintShaderUniforms, {
+            u_sceneTexture: {value: this.sceneTexture},
+            u_fromTexture: {value: null},
+            u_toTexture: {value: null},
+            u_sceneDepthTexture: {value: null},
+            u_cameraNear: {value: 0},
+            u_cameraFar: {value: 1},
+            u_cameraFovRad: {value: 1},
+            u_resolution: {value: this.resolution},
+            u_texelSize: {value: this.texelSize},
+            u_aspect: {value: this.aspect}
+        })
+
+        if (this.useDepthTexture && this.renderer) {
+            const t = new THREE.DepthTexture(this.resolution.width, this.resolution.height);
+            if (this.renderer.capabilities.isWebGL2) {
+                t.type = THREE.UnsignedIntType
+            } else {
+                t.format = THREE.DepthStencilFormat
+                t.type = THREE.UnsignedInt248Type
+            }
+            t.minFilter = THREE.NearestFilter
+            t.magFilter = THREE.NearestFilter
+            this.sceneFlatRenderTarget.depthTexture = t
+            this.sceneMsRenderTarget.depthTexture = t
+            this.depthTexture = this.screenPaintShaderUniforms.u_sceneDepthTexture.value = t
+        }
+    }
+
+    async blueNoiseInit() {
+        this.blueNoiseUniforms = {
+            u_blueNoiseTexture: {value: null},
+            u_blueNoiseLinearTexture: {value: null},
+            u_blueNoiseTexelSize: {value: null},
+            u_blueNoiseCoordOffset: {value: new THREE.Vector2}
+        }
+        const TEXTURE_SIZE = 128
+        let e = new THREE.Texture;
+        e.generateMipmaps = !1
+        e.minFilter = e.magFilter = THREE.LinearFilter
+        e.wrapS = e.wrapT = THREE.RepeatWrapping;
+        let loader = new THREE.TextureLoader()
+        let texture = await loader.loadAsync('https://lusion.dev/assets/textures/LDR_RGB1_0.png')
+        let t = texture.image;
+        t.needsUpdate = !0
+        e.needsUpdate = !0
+        e.image = t.image
+        t.generateMipmaps = !1
+        t.minFilter = t.magFilter = THREE.NearestFilter
+        t.wrapS = t.wrapT = THREE.RepeatWrapping
+        this.blueNoiseUniforms.u_blueNoiseTexture.value = t
+        this.blueNoiseUniforms.u_blueNoiseLinearTexture.value = e
+        this.blueNoiseUniforms.u_blueNoiseTexelSize.value = new THREE.Vector2(1 / TEXTURE_SIZE, 1 / TEXTURE_SIZE)
     }
 
     RTInit(width, height) {
@@ -152,6 +241,22 @@ class ScreenPaintDistortion extends Pass {
             depthWrite: !1,
             depthTest: !1
         })
+
+        this.screenPaintMaterial = new THREE.RawShaderMaterial({
+            vertexShader: screenPaintVert,
+            fragmentShader: screenPaintFrag,
+            uniforms: Object.assign({
+                u_texture: {value: null},
+                u_screenPaintTexture: this.sharedUniforms.u_currPaintTexture,
+                u_screenPaintTexelSize: this.sharedUniforms.u_paintTexelSize,
+                u_amount: {value: 0},
+                u_rgbShift: {value: 0},
+                u_multiplier: {value: 0},
+                u_colorMultiplier: {value: 0},
+                u_shade: {value: 0}
+            }, this.blueNoiseUniforms)
+        })
+
         this.clearInit()
     }
 
@@ -171,7 +276,9 @@ class ScreenPaintDistortion extends Pass {
         if (this.clear) this.renderer.clear();
         this.fsQuad.render(this.renderer);
     }
+
     beforeRender(renderer, writeBuffer, readBuffer) {
+        this.blueNoiseUniforms.u_blueNoiseCoordOffset.value.set(Math.random(), Math.random())
         if (!this.enabled) return;
         if (this.useNoise !== this._prevUseNoise) {
             this.beforeMaterial.defines.USE_NOISE = this.useNoise
@@ -181,10 +288,10 @@ class ScreenPaintDistortion extends Pass {
         let t = this._currPaintRenderTarget.width
         let r = this._currPaintRenderTarget.height
 
-        this._prevPaintRenderTarget = readBuffer
-
         let n = this._prevPaintRenderTarget;
-        this._prevPaintRenderTarget = this._currPaintRenderTarget = writeBuffer
+
+        // this._prevPaintRenderTarget = readBuffer
+        this._prevPaintRenderTarget = this._currPaintRenderTarget
 
 
         this._currPaintRenderTarget = n
@@ -233,7 +340,6 @@ class ScreenPaintDistortion extends Pass {
 
     }
 
-
     blurRender(renderer, writeBuffer, readBuffer) {
         let c = .25
         let u = Math.ceil(this._lowRenderTarget.width * 1) || 0
@@ -258,18 +364,114 @@ class ScreenPaintDistortion extends Pass {
 
     }
 
+    screenPaintRender(renderer, writeBuffer, readBuffer) {
+        console.log(1)
+        // Postprocessing.render()
+        if (!renderer) return;
+        const o = this.screenPaintShaderUniforms;
+        this.sceneRenderTarget = this.sceneFlatRenderTarget
+        this.sceneTexture = this.sceneRenderTarget.texture
+        this.screenPaintShaderUniforms.u_sceneTexture.value = this.sceneTexture
+        o.u_cameraNear.value = this.camera.near
+        o.u_cameraFar.value = this.camera.far
+        o.u_cameraFovRad.value = this.camera.fov / 180 * Math.PI
+
+        // this.onBeforeSceneRendered.dispatch()
+
+        renderer.setRenderTarget(this.sceneRenderTarget);
+        renderer.render(this.scene, this.camera)
+        renderer.setRenderTarget(null)
+
+
+        const r = this.copyMaterial;
+        r.uniforms.u_texture.value = this.sceneRenderTarget.texture
+
+
+        this.fsQuad.material = r;
+        renderer.setRenderTarget(this.fromRenderTarget);
+        if (this.clear) renderer.clear();
+        this.fsQuad.render(renderer);
+
+        // this.onAfterSceneRendered.dispatch(this.sceneRenderTarget);
+
+        const e = new THREE.Color;
+        renderer.getClearColor(e)
+        const l = {
+            autoClear: renderer.autoClear,
+            autoClearColor: renderer.autoClearColor,
+            autoClearStencil: renderer.autoClearStencil,
+            autoClearDepth: renderer.autoClearDepth,
+            clearColor: e.getHex(),
+            clearAlpha: renderer.getClearAlpha()
+        }
+        renderer.autoClear = !1
+
+        // p.render()
+        this.screenPaintMaterial.uniforms.u_amount.value = this.amount
+        this.screenPaintMaterial.uniforms.u_rgbShift.value = this.rgbShift
+        this.screenPaintMaterial.uniforms.u_multiplier.value = this.multiplier
+        this.screenPaintMaterial.uniforms.u_colorMultiplier.value = this.colorMultiplier
+        this.screenPaintMaterial.uniforms.u_shade.value = this.shade
+
+        // super.render
+        if (this.screenPaintMaterial.uniforms.u_texture) this.screenPaintMaterial.uniforms.u_texture.value = this.fromTexture
+        this.fsQuad.material = this.screenPaintMaterial;
+        console.log(this.screenPaintMaterial)
+        renderer.setRenderTarget(this.toRenderTarget);
+        // renderer.setRenderTarget(null);
+        if (this.clear) renderer.clear();
+        this.fsQuad.render(renderer);
+
+        //  e.swap()
+        const k = this.fromRenderTarget;
+        this.fromRenderTarget = this.toRenderTarget
+        this.toRenderTarget = k
+        this.fromTexture = this.fromRenderTarget.texture
+        this.toTexture = this.toRenderTarget.texture
+        this.sharedUniforms.u_fromTexture.value = this.fromTexture
+        this.sharedUniforms.u_toTexture.value = this.toTexture
+
+        // last
+        renderer.setClearColor(l.clearColor, l.clearAlpha)
+        renderer.autoClear = l.autoClear
+        renderer.autoClearColor = l.autoClearColor
+        renderer.autoClearStencil = l.autoClearStencil
+        renderer.autoClearDepth = l.autoClearDepth
+        this.hasSizeChanged = !1
+
+    }
+
     postUpdate() {
         this.prevMousePixelXY.copy(this.mousePixelXY)
         this.hadMoved = this.hasMoved
         this.deltaXY.set(0, 0)
     }
 
-    render(renderer, writeBuffer, readBuffer, deltaTime, maskActive) {
+    render(renderer, writeBuffer, readBuffer) {
 
-        this.beforeRender(renderer, writeBuffer, readBuffer)
+        // this.beforeRender(renderer, writeBuffer, readBuffer)
         // this.blurRender(renderer, writeBuffer, readBuffer)
 
-        if (this.renderToScreen) {
+        this.minRadius = 0
+        this.maxRadius = Math.max(40, this.width / 20)
+        this.radiusDistanceRange = 100
+        this.pushStrength = 25
+        this.velocityDissipation = 0.975
+        this.weight1Dissipation = 0.95
+        this.weight2Dissipation = 0.8
+        this.useNoise = !0
+        this.curlScale = 0.02
+        this.curlStrength = 3
+
+
+        this.amount = 3
+        this.rgbShift = 0.5
+        this.colorMultiplier = 10
+        this.multiplier = 5
+
+        // this.screenPaintRender(renderer, writeBuffer, readBuffer)
+
+       /* if (this.renderToScreen) {
 
             renderer.setRenderTarget(null);
             this.fsQuad.render(renderer);
@@ -280,12 +482,23 @@ class ScreenPaintDistortion extends Pass {
             if (this.clear) renderer.clear();
             this.fsQuad.render(renderer);
 
-        }
+        }*/
 
         this.postUpdate()
     }
 
-    setSize() {
+    setSize(e, t) {
+        this.hasSizeChanged = !0
+        this.width = e
+        this.height = t
+        this.resolution.set(e, t)
+        this.texelSize.set(1 / e, 1 / t);
+        const r = t / Math.sqrt(e * e + t * t) * 2;
+        this.aspect.set(e / t * r, r)
+        this.sceneFlatRenderTarget.setSize(e, t)
+        this.sceneMsRenderTarget.setSize(e, t)
+        this.fromRenderTarget.setSize(e, t)
+        this.toRenderTarget.setSize(e, t)
     }
 
     dispose() {
@@ -304,6 +517,21 @@ class ScreenPaintDistortion extends Pass {
             depthBuffer: !1,
             stencilBuffer: !1,
             samples: 0
+        })
+    }
+
+    createMultisampleRenderTarget(e, t) {
+        return new THREE.WebGLRenderTarget(e, t, {
+            wrapS: THREE.ClampToEdgeWrapping,
+            wrapT: THREE.ClampToEdgeWrapping,
+            magFilter: THREE.LinearFilter,
+            minFilter: THREE.LinearFilter,
+            type: THREE.UnsignedByteType,
+            anisotropy: 0,
+            encoding: THREE.LinearEncoding,
+            depthBuffer: !1,
+            stencilBuffer: !1,
+            samples: 8
         })
     }
 }

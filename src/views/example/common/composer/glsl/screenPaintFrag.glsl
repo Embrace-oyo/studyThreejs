@@ -1,4 +1,5 @@
 precision highp float;
+
 #define GLSLIFY 1
 uniform sampler2D u_texture;
 uniform sampler2D u_screenPaintTexture;

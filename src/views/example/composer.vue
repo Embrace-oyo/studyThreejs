@@ -1,40 +1,33 @@
 <template>
-  <div class="fbo" id="fbo"></div>
+  <div class="fbo" id="fbo">
+    <canvas id="canvas"></canvas>
+  </div>
 </template>
 
 <script setup>
 import * as THREE from "three";
 import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
 import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
-import {BloomPass} from 'three/addons/postprocessing/BloomPass.js';
-import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
-
-import {DotScreenShader} from 'three/addons/shaders/DotScreenShader.js';
-import {RGBShiftShader} from 'three/addons/shaders/RGBShiftShader.js';
-
-import SMAAPass from '@/views/example/common/composer/js/SMAAPass'
+import {SMAAPass} from 'three/addons/postprocessing/SMAAPass.js';
 import ScreenPaintDistortionPass from '@/views/example/common/composer/js/screenPaintDistortionPass'
-
-import screenPaintShader from '@/views/example/common/composer/glsl/screenPaintShader.glsl'
-import blitVert from '@/views/example/common/composer/glsl/blitVert.glsl'
-import blitFrag from '@/views/example/common/composer/glsl/blitFrag.glsl'
-import vertShader from '@/views/example/common/composer/glsl/vertShader.glsl'
-import fragShader from '@/views/example/common/composer/glsl/fragShader.glsl'
-import screenPaintDistortionShader from '@/views/example/common/composer/glsl/screenPaintDistortionShader.glsl'
-import vShader from '@/views/example/common/composer/glsl/vShader.glsl'
-import fShader from '@/views/example/common/composer/glsl/fShader.glsl'
 
 import {nextTick} from "vue";
 
-let dom, width, height, renderer, scene, camera, object, blueNoiseSharedUniforms, composer;
+let dom, canvas, gl, width, height, renderer, scene, camera, object, composer;
 
 const init = () => {
   dom = document.getElementById('fbo')
+  canvas = document.getElementById('canvas')
+  gl = canvas.getContext("webgl2", {antialias: !1, alpha: !1, xrCompatible: !1, powerPreference: "high-performance"})
   width = dom.offsetWidth;
   height = dom.offsetHeight;
-  renderer = new THREE.WebGLRenderer();
+  renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    context: gl,
+    premultipliedAlpha: !1
+  });
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(width, height)
   renderer.toneMapping = THREE.ReinhardToneMapping;
@@ -81,12 +74,17 @@ const postprocessing = () => {
   composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
 
-  const SMAA_Pass = new SMAAPass(dom.offsetWidth * renderer.getPixelRatio(), dom.offsetHeight * renderer.getPixelRatio());
-  composer.addPass(SMAA_Pass)
+  const smaaPass = new SMAAPass(dom.offsetWidth * renderer.getPixelRatio(), dom.offsetHeight * renderer.getPixelRatio());
+  composer.addPass(smaaPass);
 
-
-  // const screenPaintPass = new ScreenPaintDistortionPass(dom.offsetWidth, dom.offsetHeight, renderer)
-  // composer.addPass(screenPaintPass)
+  const screenPaintPass = new ScreenPaintDistortionPass({
+    width: dom.offsetWidth,
+    height: dom.offsetHeight,
+    renderer,
+    scene,
+    camera
+  })
+  composer.addPass(screenPaintPass)
 
   const outputPass = new OutputPass();
   composer.addPass(outputPass);
@@ -118,5 +116,10 @@ nextTick(() => {
   top: 0;
   right: 0;
   bottom: 0;
+
+  .canvas {
+    width: 100%;
+    height: 100%;
+  }
 }
 </style>

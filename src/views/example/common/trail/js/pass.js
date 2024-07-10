@@ -225,7 +225,9 @@ class PostEffect {
     }
 
     render(e, t = !1) {
-        this.material.uniforms.u_texture && (this.material.uniforms.u_texture.value = e.fromTexture), this.base.fboHelper.render(this.material, t ? null : e.toRenderTarget), e.swap()
+        this.material.uniforms.u_texture && (this.material.uniforms.u_texture.value = e.fromTexture)
+        this.base.fboHelper.render(this.material, t ? null : e.toRenderTarget)
+        e.swap()
     }
 }
 

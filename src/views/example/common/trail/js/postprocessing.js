@@ -183,7 +183,9 @@ export default class Postprocessing {
     }
 
     checkSceneRt() {
-        this.sceneRenderTarget = this.base.properties.isSmaaEnabled ? this.sceneFlatRenderTarget : this.sceneMsRenderTarget, this.sceneTexture = this.sceneRenderTarget.texture, this.sharedUniforms.u_sceneTexture.value = this.sceneTexture
+        this.sceneRenderTarget = this.base.properties.isSmaaEnabled ? this.sceneFlatRenderTarget : this.sceneMsRenderTarget
+        this.sceneTexture = this.sceneRenderTarget.texture
+        this.sharedUniforms.u_sceneTexture.value = this.sceneTexture
     }
 
     render(e, t, r) {
@@ -208,8 +210,10 @@ export default class Postprocessing {
             const l = this.base.fboHelper.getColorState();
             this.base.fboHelper.renderer.autoClear = !1;
             for (let c = 0, u = n.length; c < u; c++) {
-                const f = c === u - 1 && r, p = n[c];
-                p.setPostprocessing(this), p.render(this, f)
+                const f = c === u - 1 && r;
+                const p = n[c];
+                p.setPostprocessing(this)
+                p.render(this, f)
             }
             this.base.fboHelper.setColorState(l)
         } else {
