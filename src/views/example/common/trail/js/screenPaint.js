@@ -299,6 +299,9 @@ export default class ScreenPaint {
         let t = this._currPaintRenderTarget.width
         let r = this._currPaintRenderTarget.height
         let n = this._prevPaintRenderTarget;
+
+
+
         this._prevPaintRenderTarget = this._currPaintRenderTarget
         this._currPaintRenderTarget = n
         this.sharedUniforms.u_prevPaintTexture.value = this._prevPaintRenderTarget.texture

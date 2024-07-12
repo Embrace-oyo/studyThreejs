@@ -75,8 +75,8 @@ export default class FboHelper {
 				#define texture2DGradEXT textureGrad
 				#define texture2DProjGradEXT textureProjGrad
 				#define textureCubeGradEXT textureGrad
-			`) : (this.vertexPrefix = this.precisionPrefix, this.fragmentPrefix = this.precisionPrefix),
-            this.renderer.getContext().getExtension("OES_standard_derivatives")
+			`) : (this.vertexPrefix = this.precisionPrefix, this.fragmentPrefix = this.precisionPrefix)
+        this.renderer.getContext().getExtension("OES_standard_derivatives")
         this.vertexShader = this.precisionPrefix + blitVert
         this.copyMaterial = new THREE.RawShaderMaterial({
             uniforms: {u_texture: {value: null}},
@@ -85,15 +85,16 @@ export default class FboHelper {
             depthTest: !1,
             depthWrite: !1,
             blending: THREE.NoBlending
-        }),
-            this.uvCopyMaterial = new THREE.RawShaderMaterial({
-                uniforms: {u_texture: {value: null}},
-                vertexShader: this.precisionPrefix + uvBlitVert,
-                fragmentShader: this.precisionPrefix + blitFrag,
-                depthTest: !1,
-                depthWrite: !1,
-                blending: THREE.NoBlending
-            }), this.clearMaterial = new THREE.RawShaderMaterial({
+        })
+        this.uvCopyMaterial = new THREE.RawShaderMaterial({
+            uniforms: {u_texture: {value: null}},
+            vertexShader: this.precisionPrefix + uvBlitVert,
+            fragmentShader: this.precisionPrefix + blitFrag,
+            depthTest: !1,
+            depthWrite: !1,
+            blending: THREE.NoBlending
+        })
+        this.clearMaterial = new THREE.RawShaderMaterial({
             uniforms: {u_color: {value: new THREE.Vector4(1, 1, 1, 1)}},
             vertexShader: this.vertexShader,
             fragmentShader: this.precisionPrefix + clearFrag,
@@ -102,7 +103,8 @@ export default class FboHelper {
             blending: THREE.NoBlending
         });
         const r = new THREE.PlaneGeometry(1, 1);
-        r.translate(.5, -.5, 0), this._debugMaterial = new THREE.RawShaderMaterial({
+        r.translate(.5, -.5, 0)
+        this._debugMaterial = new THREE.RawShaderMaterial({
             uniforms: {
                 u_texture: {value: null},
                 u_transform: {value: new THREE.Vector4(0, 0, 1, 1)}
@@ -112,7 +114,11 @@ export default class FboHelper {
             depthTest: !1,
             depthWrite: !1,
             blending: THREE.NoBlending
-        }), this._debugMesh = new THREE.Mesh(r, this._debugMaterial), this._debugScene = new THREE.Scene, this._debugScene.frustumCulled = !1, this._debugScene.add(this._debugMesh)
+        })
+        this._debugMesh = new THREE.Mesh(r, this._debugMaterial)
+        this._debugScene = new THREE.Scene
+        this._debugScene.frustumCulled = !1
+        this._debugScene.add(this._debugMesh)
     }
 
     copy(e, t) {

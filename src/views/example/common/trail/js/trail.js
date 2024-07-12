@@ -68,6 +68,7 @@ export default class Trail {
                 premultipliedAlpha: !1
             })
             this.properties.scene = new THREE.Scene
+            this.properties.scene.background = new THREE.Color('gray')
             this.properties.camera = new THREE.PerspectiveCamera(45, 1, .1, 200)
             this.properties.scene.add(this.properties.camera)
             this.properties.sharedUniforms.u_resolution.value = this.properties.resolution = new THREE.Vector2

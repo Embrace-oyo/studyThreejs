@@ -41,6 +41,7 @@ export default class Blur {
         this.material.uniforms.u_texture.value = r.texture || r
         this.material.uniforms.u_delta.value.set(e / u * c, 0)
         this.base.fboHelper.render(this.material, n)
+
         this.material.uniforms.u_texture.value = n.texture || n
         this.material.uniforms.u_delta.value.set(0, e / f * c)
         this.base.fboHelper.render(this.material, o)

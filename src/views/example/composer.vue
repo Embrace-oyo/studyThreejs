@@ -9,13 +9,17 @@ import * as THREE from "three";
 import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
 import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
-import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
-import {SMAAPass} from 'three/addons/postprocessing/SMAAPass.js';
-import ScreenPaintDistortionPass from '@/views/example/common/composer/js/screenPaintDistortionPass'
+import {DotScreenPass} from 'three/addons/postprocessing/DotScreenPass.js';
+import {GlitchPass} from 'three/addons/postprocessing/GlitchPass.js';
+import {GTAOPass} from 'three/addons/postprocessing/GTAOPass.js';
+import {RenderPixelatedPass} from 'three/addons/postprocessing/RenderPixelatedPass.js';
+import {SMAAPass} from '@/views/example/common/composer/js/SMAAPass.js';
+import {ScreenPaintPass} from '@/views/example/common/composer/js/screenPaintDistortionPass'
 
 import {nextTick} from "vue";
 
-let dom, canvas, gl, width, height, renderer, scene, camera, object, composer;
+let dom, canvas, gl, width, height, renderer, scene, camera, object, composer, renderTarget, postProcessScene,
+    postProcessCamera;
 
 const init = () => {
   dom = document.getElementById('fbo')
@@ -40,7 +44,7 @@ const init = () => {
 
 
   camera = new THREE.PerspectiveCamera(70, width / height, .1, 1000)
-  camera.position.set(0, 0, 400)
+  camera.position.set(0, 0, 500)
   camera.lookAt(0, 0, 0)
 
 }
@@ -52,7 +56,7 @@ const objectInit = () => {
   const geometry = new THREE.SphereGeometry(1, 4, 4);
   const material = new THREE.MeshPhongMaterial({color: 0xffffff, flatShading: true});
 
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 500; i++) {
 
     const mesh = new THREE.Mesh(geometry, material);
     mesh.position.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
@@ -74,25 +78,67 @@ const postprocessing = () => {
   composer = new EffectComposer(renderer);
   composer.addPass(new RenderPass(scene, camera));
 
-  const smaaPass = new SMAAPass(dom.offsetWidth * renderer.getPixelRatio(), dom.offsetHeight * renderer.getPixelRatio());
+  const smaaPass = new SMAAPass(dom.offsetWidth, dom.offsetHeight);
   composer.addPass(smaaPass);
 
-  const screenPaintPass = new ScreenPaintDistortionPass({
-    width: dom.offsetWidth,
-    height: dom.offsetHeight,
-    renderer,
-    scene,
-    camera
-  })
-  composer.addPass(screenPaintPass)
+  const gtaoPass = new GTAOPass(scene, camera);
+  gtaoPass.output = GTAOPass.OUTPUT.Denoise;
+  gtaoPass.updateGtaoMaterial({
+    radius: 0.25,
+    distanceExponent: 1.,
+    thickness: 1.,
+    scale: 1.,
+    samples: 16,
+    distanceFallOff: 1.,
+    screenSpaceRadius: false,
+  });
+  gtaoPass.updatePdMaterial({
+    lumaPhi: 10,
+    depthPhi: 2.,
+    normalPhi: 3.,
+    radius: 4.,
+    radiusExponent: 1.,
+    rings: 2.,
+    samples: 16,
+  });
+  composer.addPass(gtaoPass);
+
+  const glitchPass = new GlitchPass()
+  composer.addPass(glitchPass);
+
+  /*const renderPixelatedPass = new RenderPixelatedPass(5, scene, camera, {normalEdgeStrength: 1, depthEdgeStrength: 1});
+  composer.addPass(renderPixelatedPass);*/
+
+
+  /* const screenPaintPass = new ScreenPaintPass({
+     renderer,
+     scene,
+     camera,
+     dom
+   })
+   composer.addPass(screenPaintPass)*/
+
 
   const outputPass = new OutputPass();
+  outputPass.renderToScreen = true;
   composer.addPass(outputPass);
+}
+
+const postProcess = () => {
+  renderTarget = new THREE.WebGLRenderTarget(dom.offsetWidth, dom.offsetHeight);
+  postProcessScene = new THREE.Scene();
+  postProcessCamera = new THREE.PerspectiveCamera(70, width / height, .1, 1000)
+  postProcessCamera.position.z = 1;
+  const postProcessPlane = new THREE.BoxGeometry(1, 1, 1);
+  const postProcessMaterial = new THREE.MeshBasicMaterial({color: 0x00ff00});
+  const postProcessMesh = new THREE.Mesh(postProcessPlane, postProcessMaterial);
+  postProcessScene.add(postProcessMesh);
 }
 
 const animation = () => {
   object.rotation.x += 0.005;
   object.rotation.y += 0.01;
+
 
   if (composer) {
     composer.render()
@@ -117,7 +163,7 @@ nextTick(() => {
   right: 0;
   bottom: 0;
 
-  .canvas {
+  #canvas {
     width: 100%;
     height: 100%;
   }
