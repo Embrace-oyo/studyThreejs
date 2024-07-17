@@ -11,14 +11,18 @@ function getDefaultExportFromCjs(a) {
 }
 
 let minSignal$1 = {exports: {}};
-(function (a) {
+/*(function (a) {
     (function (e) {
         function t() {
-            this._listeners = [], this.dispatchCount = 0
+            this._listeners = []
+            this.dispatchCount = 0
         }
 
         var r = t.prototype;
-        r.add = c, r.addOnce = u, r.remove = f, r.dispatch = p;
+        r.add = c
+        r.addOnce = u
+        r.remove = f
+        r.dispatch = p;
         var n = "Callback function is missing!", o = Array.prototype.slice;
 
         function l(g) {
@@ -67,6 +71,128 @@ let minSignal$1 = {exports: {}};
 
         a.exports = t
     })()
+})(minSignal$1);*/
+(function (a) {
+    (function (e) {
+        // 构造函数，初始化监听器列表和分发计数
+        function t() {
+            this._listeners = [];
+            this.dispatchCount = 0;
+        }
+
+        // 定义原型方法
+        var r = t.prototype;
+        r.add = add;
+        r.addOnce = addOnce;
+        r.remove = remove;
+        r.dispatch = dispatch;
+
+        // 一些常量和辅助函数
+        var missingCallbackMessage = "Callback function is missing!",
+            slice = Array.prototype.slice;
+
+        // 按优先级排序监听器
+        function sortListenersByPriority(g) {
+            g.sort(function (v, _) {
+                return v = v.p, _ = _.p, _ < v ? 1 : _ > v ? -1 : 0;
+            });
+        }
+
+        // 添加监听器
+        function add(callback, context, priority, onceCallback) {
+            if (!callback) throw missingCallbackMessage;
+            priority = priority || 0;
+            var listeners = this._listeners, listener, i;
+
+            for (i = listeners.length; i--;) {
+                listener = listeners[i];
+                if (listener.f === callback && listener.c === context) return false;
+            }
+
+            if (typeof priority == "function") {
+                onceCallback = priority;
+                priority = onceCallback;
+                onceCallback = null;
+            }
+
+            listeners.unshift({
+                f: callback,
+                c: context,
+                p: priority,
+                r: onceCallback || callback,
+                a: slice.call(arguments, onceCallback ? 4 : 3),
+                j: 0
+            });
+
+            sortListenersByPriority(listeners);
+            return true;
+        }
+
+        // 添加一次性监听器
+        function addOnce(callback, context, priority, onceCallback) {
+            if (!callback) throw missingCallbackMessage;
+            var self = this;
+            var wrapper = function () {
+                self.remove(callback, context);
+                return callback.apply(context, slice.call(arguments, 0));
+            };
+
+            onceCallback = slice.call(arguments, 0);
+            if (onceCallback.length === 1) onceCallback.push(e);
+            onceCallback.splice(2, 0, wrapper);
+            return add.apply(self, onceCallback);
+        }
+
+        // 移除监听器
+        function remove(callback, context) {
+            if (!callback) {
+                this._listeners.length = 0;
+                return true;
+            }
+
+            var listeners = this._listeners, listener, i;
+
+            for (i = listeners.length; i--;) {
+                listener = listeners[i];
+                if (listener.f === callback && (!context || listener.c === context)) {
+                    listener.j = 0;
+                    listeners.splice(i, 1);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        // 分发事件
+        function dispatch() {
+            var args = slice.call(arguments, 0);
+            this.dispatchCount++;
+            var dispatchId = this.dispatchCount,
+                listeners = this._listeners,
+                listener, result, i;
+
+            for (i = listeners.length; i--;) {
+                listener = listeners[i];
+                if (listener && listener.j < dispatchId) {
+                    listener.j = dispatchId;
+                    if (listener.r.apply(listener.c, listener.a.concat(args)) === false) {
+                        result = listener;
+                        break;
+                    }
+                }
+            }
+
+            for (i = listeners.length; i--;) {
+                listeners[i].j = 0;
+            }
+
+            return result;
+        }
+
+        // 将 t 导出为模块
+        a.exports = t;
+    })();
 })(minSignal$1);
 const MinSignal$2 = getDefaultExportFromCjs(minSignal$1.exports);
 

@@ -1,15 +1,26 @@
 <template>
-  <div class="fbo" id="fbo">
+  <div class="canvasBox" id="canvasBox">
     <canvas id="canvas"></canvas>
   </div>
 </template>
 
 <script setup>
+import {nextTick, onMounted} from "vue";
+import Main from "@/views/example/common/composer/js/main.js";
 
+let main;
+onMounted(() => {
+  nextTick(() => {
+    main = new Main({
+      DOM: document.querySelector('#canvasBox'),
+      canvas: document.querySelector('#canvas')
+    })
+  })
+})
 </script>
 
 <style scoped lang="less">
-.fbo {
+.canvasBox {
   position: absolute;
   left: 0;
   top: 0;

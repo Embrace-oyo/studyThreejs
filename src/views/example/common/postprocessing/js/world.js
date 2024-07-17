@@ -155,7 +155,15 @@ class FboHelper {
     }
 
     renderMesh(e, t, r = this._camera) {
-        this._tri && this.renderer && this._scene && r && (this._tri.visible = !1, this._scene.add(e), t && this.renderer.setRenderTarget(t || null), this.renderer.render(this._scene, r), t && this.renderer.setRenderTarget(null), this._scene.remove(e), this._tri.visible = !0)
+        if (this._tri && this.renderer && this._scene && r) {
+            this._tri.visible = !1
+            this._scene.add(e)
+            t && this.renderer.setRenderTarget(t || null)
+            this.renderer.render(this._scene, r)
+            t && this.renderer.setRenderTarget(null)
+            this._scene.remove(e)
+            this._tri.visible = !0
+        }
     }
 
 
@@ -309,7 +317,7 @@ class BlueNoise {
         this.shaderUniforms.u_blueNoiseTexelSize.value = new THREE.Vector2(1 / this.TEXTURE_SIZE, 1 / this.TEXTURE_SIZE)
     }
 
-    update(e) {
+    update() {
         this.shaderUniforms.u_blueNoiseCoordOffset.value.set(Math.random(), Math.random())
     }
 }
@@ -444,18 +452,21 @@ class Smaa extends PostEffect {
         return this.enabled && !this.shaderUniforms.u_areaTexture.value.needsUpdate && this.base.properties.isSmaaEnabled
     }
 
-    render(e, t) {
+    render(parentThis, flag) {
         const r = this.base.fboHelper.getColorState();
         this.shaderUniforms.u_searchTexture.value || console.warn("You need to use Smaa.setImages() to set the smaa textures manually and assign to this class.");
         const n = this.base.fboHelper.renderer;
-        n && (n.autoClear = !0, n.setClearColor(0, 0))
-        this.edgesMaterial.uniforms.u_texelSize = this.weightsMaterial.uniforms.u_texelSize = this.material.uniforms.u_texelSize = e.shaderUniforms.u_texelSize
-        this.edgesMaterial.uniforms.u_texture.value = e.fromTexture
-        e.renderMaterial(this.edgesMaterial, this.edgesRenderTarget)
-        e.renderMaterial(this.weightsMaterial, this.weightsRenderTarget)
+        if (n) {
+            n.autoClear = !0
+            n.setClearColor(0, 0)
+        }
+        this.edgesMaterial.uniforms.u_texelSize = this.weightsMaterial.uniforms.u_texelSize = this.material.uniforms.u_texelSize = parentThis.shaderUniforms.u_texelSize
+        this.edgesMaterial.uniforms.u_texture.value = parentThis.fromTexture
+        parentThis.renderMaterial(this.edgesMaterial, this.edgesRenderTarget)
+        parentThis.renderMaterial(this.weightsMaterial, this.weightsRenderTarget)
         this.base.fboHelper.setColorState(r)
-        this.material.uniforms.u_texture.value = e.fromTexture
-        super.render(e, t)
+        this.material.uniforms.u_texture.value = parentThis.fromTexture
+        super.render(parentThis, flag)
     }
 
     _createTexture(e) {
