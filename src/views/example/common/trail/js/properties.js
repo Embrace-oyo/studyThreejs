@@ -374,16 +374,21 @@ export class Support {
     }
 
     isSupported() {
-        return this.base.properties._isSupportedDevice = !0, this.base.properties._isSupportedBrowser = (browser$1.isChrome || browser$1.isSafari || browser$1.isEdge || browser$1.isFirefox || browser$1.isOpera) && !browser$1.isIE, this.base.properties._isSupportedWebGL = this.checkSupportWebGL(), this.base.properties._isSupportedWebGL
+        this.base.properties._isSupportedDevice = !0
+        this.base.properties._isSupportedBrowser = (browser$1.isChrome || browser$1.isSafari || browser$1.isEdge || browser$1.isFirefox || browser$1.isOpera) && !browser$1.isIE
+        this.base.properties._isSupportedWebGL = this.checkSupportWebGL()
+        return this.base.properties._isSupportedWebGL
     }
 
     checkSupportWebGL() {
         if (!(this.base.properties.canvas instanceof HTMLCanvasElement)) return !1;
+        console.log(settings.USE_WEBGL2)
         if (settings.USE_WEBGL2 && window.WebGL2RenderingContext) try {
             return this.base.properties.gl = this.base.properties.canvas.getContext("webgl2", this.base.properties.webglOpts), settings.RENDER_TARGET_FLOAT_TYPE = THREE.HalfFloatType, settings.DATA_FLOAT_TYPE = THREE.FloatType, !0
         } catch (e) {
             return console.error(e), !1
         }
+        console.log( browser$1.isIOS || e.getExtension("OES_texture_half_float"))
         if (settings.USE_WEBGL2 = !1, window.WebGLRenderingContext) try {
             let e = this.base.properties.gl = this.base.properties.canvas.getContext("webgl", this.base.properties.webglOpts) || this.base.properties.canvas.getContext("experimental-webgl", this.base.properties.webglOpts);
             if ((e.getExtension("OES_texture_float") || e.getExtension("OES_texture_half_float")) && e.getParameter(e.MAX_VERTEX_TEXTURE_IMAGE_UNITS)) settings.RENDER_TARGET_FLOAT_TYPE = browser$1.isIOS || e.getExtension("OES_texture_half_float") ? THREE.HalfFloatType : THREE.FloatType, settings.DATA_FLOAT_TYPE = THREE.FloatType; else return settings.USE_FLOAT_PACKING = !0, settings.RENDER_TARGET_FLOAT_TYPE = settings.DATA_FLOAT_TYPE = THREE.UnsignedByteType, !1;

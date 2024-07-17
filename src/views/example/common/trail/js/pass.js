@@ -199,7 +199,7 @@ void main(){vec3 bnoise=getBlueNoise(gl_FragCoord.xy+vec2(17.,29.));vec4 data=te
 
 
 class PostEffect {
-    sharedUniforms = {};
+    shaderUniforms = {};
     enabled = !0;
     material = null;
     renderOrder = 0;
@@ -260,7 +260,7 @@ export class Smaa extends PostEffect {
 
     init(e) {
         Object.assign(this, {
-            sharedUniforms: {
+            shaderUniforms: {
                 u_areaTexture: {value: null},
                 u_searchTexture: {value: null}
             }
@@ -283,8 +283,8 @@ export class Smaa extends PostEffect {
         this.weightsMaterial = new THREE.RawShaderMaterial({
             uniforms: {
                 u_edgesTexture: {value: this.edgesRenderTarget.texture},
-                u_areaTexture: this.sharedUniforms.u_areaTexture,
-                u_searchTexture: this.sharedUniforms.u_searchTexture,
+                u_areaTexture: this.shaderUniforms.u_areaTexture,
+                u_searchTexture: this.shaderUniforms.u_searchTexture,
                 u_texelSize: null
             },
             vertexShader: this.base.fboHelper.precisionPrefix + smaaWeightsVert,
@@ -312,16 +312,16 @@ export class Smaa extends PostEffect {
     }
 
     setTextures(e, t) {
-        const r = this.sharedUniforms.u_areaTexture.value = this._createTexture(e);
+        const r = this.shaderUniforms.u_areaTexture.value = this._createTexture(e);
         r.minFilter = THREE.LinearFilter;
-        const n = this.sharedUniforms.u_searchTexture.value = this._createTexture(t);
+        const n = this.shaderUniforms.u_searchTexture.value = this._createTexture(t);
         n.magFilter = THREE.NearestFilter
         n.minFilter = THREE.NearestFilter
     }
 
     updateTextures() {
-        this.sharedUniforms.u_areaTexture.value.needsUpdate = !0
-        this.sharedUniforms.u_searchTexture.value.needsUpdate = !0
+        this.shaderUniforms.u_areaTexture.value.needsUpdate = !0
+        this.shaderUniforms.u_searchTexture.value.needsUpdate = !0
     }
 
     setPostprocessing(e) {
@@ -336,15 +336,15 @@ export class Smaa extends PostEffect {
     }
 
     needsRender() {
-        return this.enabled && !this.sharedUniforms.u_areaTexture.value.needsUpdate && this.base.properties.isSmaaEnabled
+        return this.enabled && !this.shaderUniforms.u_areaTexture.value.needsUpdate && this.base.properties.isSmaaEnabled
     }
 
     render(e, t) {
         const r = this.base.fboHelper.getColorState();
-        this.sharedUniforms.u_searchTexture.value || console.warn("You need to use Smaa.setImages() to set the smaa textures manually and assign to this class.");
+        this.shaderUniforms.u_searchTexture.value || console.warn("You need to use Smaa.setImages() to set the smaa textures manually and assign to this class.");
         const n = this.base.fboHelper.renderer;
         n && (n.autoClear = !0, n.setClearColor(0, 0))
-        this.edgesMaterial.uniforms.u_texelSize = this.weightsMaterial.uniforms.u_texelSize = this.material.uniforms.u_texelSize = e.sharedUniforms.u_texelSize
+        this.edgesMaterial.uniforms.u_texelSize = this.weightsMaterial.uniforms.u_texelSize = this.material.uniforms.u_texelSize = e.shaderUniforms.u_texelSize
         this.edgesMaterial.uniforms.u_texture.value = e.fromTexture
         e.renderMaterial(this.edgesMaterial, this.edgesRenderTarget)
         e.renderMaterial(this.weightsMaterial, this.weightsRenderTarget)
@@ -612,7 +612,7 @@ export class Bloom extends PostEffect {
 
     render(e, t = !1) {
         let r = this.base.properties.postprocessing.width, n = this.base.properties.postprocessing.height;
-        this.highPassMaterial.uniforms.u_texture.value = e.fromTexture, this.highPassMaterial.uniforms.u_luminosityThreshold.value = this.threshold, this.highPassMaterial.uniforms.u_smoothWidth.value = this.smoothWidth, this.highPassMaterial.uniforms.u_amount.value = this.highPassMultiplier, this.highPassMaterial.uniforms.u_haloWidth.value = this.haloWidth, this.highPassMaterial.uniforms.u_haloRGBShift.value = this.haloRGBShift * r, this.highPassMaterial.uniforms.u_haloStrength.value = this.haloStrength, this.highPassMaterial.uniforms.u_haloMaskInner.value = this.haloMaskInner, this.highPassMaterial.uniforms.u_haloMaskOuter.value = this.haloMaskOuter, this.highPassMaterial.uniforms.u_texelSize = e.sharedUniforms.u_texelSize, this.highPassMaterial.uniforms.u_aspect = e.sharedUniforms.u_aspect;
+        this.highPassMaterial.uniforms.u_texture.value = e.fromTexture, this.highPassMaterial.uniforms.u_luminosityThreshold.value = this.threshold, this.highPassMaterial.uniforms.u_smoothWidth.value = this.smoothWidth, this.highPassMaterial.uniforms.u_amount.value = this.highPassMultiplier, this.highPassMaterial.uniforms.u_haloWidth.value = this.haloWidth, this.highPassMaterial.uniforms.u_haloRGBShift.value = this.haloRGBShift * r, this.highPassMaterial.uniforms.u_haloStrength.value = this.haloStrength, this.highPassMaterial.uniforms.u_haloMaskInner.value = this.haloMaskInner, this.highPassMaterial.uniforms.u_haloMaskOuter.value = this.haloMaskOuter, this.highPassMaterial.uniforms.u_texelSize = e.shaderUniforms.u_texelSize, this.highPassMaterial.uniforms.u_aspect = e.shaderUniforms.u_aspect;
         let o = this.haloStrength > 0, l = n / Math.sqrt(r * r + n * n) * 2;
         if (this.highPassMaterial.uniforms.u_aspect.value.set(r / n * l, l), l = n / Math.max(r, n), this.highPassMaterial.uniforms.u_dirtAspect.value.set(r / n * l, l), this.highPassMaterial.defines.USE_HALO !== o && (this.highPassMaterial.defines.USE_HALO = o, this.highPassMaterial.needsUpdate = !0), this.USE_CONVOLUTION && (this.highPassMaterial.uniforms.u_convolutionBuffer.value = this.convolutionBuffer), e.renderMaterial(this.highPassMaterial, this.highPassRenderTarget), this.USE_CONVOLUTION) {
             this.base.fboHelper.copy(this.highPassRenderTarget.texture, this.fftCacheRT1), this.renderFFT(this.fftCacheRT1, this.fftCacheRT2, !0), this.convolutionMixMaterial.uniforms.u_texture.value = this.fftCacheRT2.texture, this.base.fboHelper.render(this.convolutionMixMaterial, this.fftCacheRT1), this.renderFFT(this.fftCacheRT1, this.fftCacheRT2, !1);
@@ -655,14 +655,14 @@ export class ScreenPaintDistortion extends PostEffect {
         this.material = this.base.fboHelper.createRawShaderMaterial({
             uniforms: Object.assign({
                 u_texture: {value: null},
-                u_screenPaintTexture: this.screenPaint.sharedUniforms.u_currPaintTexture,
-                u_screenPaintTexelSize: this.screenPaint.sharedUniforms.u_paintTexelSize,
+                u_screenPaintTexture: this.screenPaint.shaderUniforms.u_currPaintTexture,
+                u_screenPaintTexelSize: this.screenPaint.shaderUniforms.u_paintTexelSize,
                 u_amount: {value: 0},
                 u_rgbShift: {value: 0},
                 u_multiplier: {value: 0},
                 u_colorMultiplier: {value: 0},
                 u_shade: {value: 0}
-            }, this.base.blueNoise.sharedUniforms), fragmentShader: frag$1
+            }, this.base.blueNoise.shaderUniforms), fragmentShader: frag$1
         })
     }
 
@@ -819,7 +819,7 @@ class Ufx extends PostEffect {
     frameIdx = -1;
     sectionLayer = new THREE.Object3D;
     projectDetailsLayer = new THREE.Object3D;
-    sharedUniforms = {u_fromTexture: {value: null}};
+    shaderUniforms = {u_fromTexture: {value: null}};
 
     constructor(base) {
         super(base);

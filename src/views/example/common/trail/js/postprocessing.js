@@ -92,7 +92,7 @@ export default class Postprocessing {
     sceneTexture = null;
     mesh = null;
     queue = [];
-    sharedUniforms = {};
+    shaderUniforms = {};
     geom;
     hasSizeChanged = !0;
 
@@ -121,7 +121,7 @@ export default class Postprocessing {
         this.sceneRenderTarget = this.sceneMsRenderTarget
         this.sceneTexture = this.sceneMsRenderTarget.texture
         this.mesh = new THREE.Mesh
-        this.sharedUniforms = Object.assign(this.sharedUniforms, {
+        this.shaderUniforms = Object.assign(this.shaderUniforms, {
             u_sceneTexture: {value: this.sceneTexture},
             u_fromTexture: {value: null},
             u_toTexture: {value: null},
@@ -140,7 +140,7 @@ export default class Postprocessing {
             t.magFilter = THREE.NearestFilter
             this.sceneFlatRenderTarget.depthTexture = t
             this.sceneMsRenderTarget.depthTexture = t
-            this.depthTexture = this.sharedUniforms.u_sceneDepthTexture.value = t
+            this.depthTexture = this.shaderUniforms.u_sceneDepthTexture.value = t
         }
     }
 
@@ -150,8 +150,8 @@ export default class Postprocessing {
         this.toRenderTarget = e
         this.fromTexture = this.fromRenderTarget.texture
         this.toTexture = this.toRenderTarget.texture
-        this.sharedUniforms.u_fromTexture.value = this.fromTexture
-        this.sharedUniforms.u_toTexture.value = this.toTexture
+        this.shaderUniforms.u_fromTexture.value = this.fromTexture
+        this.shaderUniforms.u_toTexture.value = this.toTexture
     }
 
     setSize(e, t) {
@@ -171,7 +171,10 @@ export default class Postprocessing {
     }
 
     dispose() {
-        this.fromRenderTarget && this.fromRenderTarget.dispose(), this.toRenderTarget && this.toRenderTarget.dispose(), this.sceneMsRenderTarget && this.sceneMsRenderTarget.dispose(), this.sceneFlatRenderTarget && this.sceneFlatRenderTarget.dispose()
+        this.fromRenderTarget && this.fromRenderTarget.dispose()
+        this.toRenderTarget && this.toRenderTarget.dispose()
+        this.sceneMsRenderTarget && this.sceneMsRenderTarget.dispose()
+        this.sceneFlatRenderTarget && this.sceneFlatRenderTarget.dispose()
     }
 
     _filterQueue(e) {
@@ -179,13 +182,14 @@ export default class Postprocessing {
     }
 
     renderMaterial(e, t) {
-        this.mesh.material = e, this.base.fboHelper.renderMesh(this.mesh, t)
+        this.mesh.material = e
+        this.base.fboHelper.renderMesh(this.mesh, t)
     }
 
     checkSceneRt() {
         this.sceneRenderTarget = this.base.properties.isSmaaEnabled ? this.sceneFlatRenderTarget : this.sceneMsRenderTarget
         this.sceneTexture = this.sceneRenderTarget.texture
-        this.sharedUniforms.u_sceneTexture.value = this.sceneTexture
+        this.shaderUniforms.u_sceneTexture.value = this.sceneTexture
     }
 
     render(e, t, r) {
@@ -194,7 +198,7 @@ export default class Postprocessing {
         this.camera = t
         this.mesh.geometry = this.geom;
         const n = this.queue.filter(this._filterQueue)
-        const o = this.sharedUniforms;
+        const o = this.shaderUniforms;
         n.sort((l, c) => l.renderOrder == c.renderOrder ? 0 : l.renderOrder - c.renderOrder)
         this.checkSceneRt()
         o.u_cameraNear.value = t.near

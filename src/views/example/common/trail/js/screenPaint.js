@@ -230,7 +230,7 @@ export default class ScreenPaint {
     curlScale = .1;
     curlStrength = 5;
     _prevUseNoise = null;
-    sharedUniforms = {
+    shaderUniforms = {
         u_paintTexelSize: {value: new THREE.Vector2},
         u_paintTextureSize: {value: new THREE.Vector2},
         u_prevPaintTexture: {value: null},
@@ -247,12 +247,12 @@ export default class ScreenPaint {
         this._lowBlurRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
         this._prevPaintRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
         this._currPaintRenderTarget = this.base.fboHelper.createRenderTarget(1, 1)
-        this.sharedUniforms.u_lowPaintTexture.value = this._lowRenderTarget.texture
+        this.shaderUniforms.u_lowPaintTexture.value = this._lowRenderTarget.texture
         this._material = this.base.fboHelper.createRawShaderMaterial({
             uniforms: {
                 u_lowPaintTexture: {value: this._lowRenderTarget.texture},
-                u_prevPaintTexture: this.sharedUniforms.u_prevPaintTexture,
-                u_paintTexelSize: this.sharedUniforms.u_paintTexelSize,
+                u_prevPaintTexture: this.shaderUniforms.u_prevPaintTexture,
+                u_paintTexelSize: this.shaderUniforms.u_paintTexelSize,
                 u_drawFrom: {value: this._fromDrawData = new THREE.Vector4(0, 0, 0, 0)},
                 u_drawTo: {value: this._toDrawData = new THREE.Vector4(0, 0, 0, 0)},
                 u_pushStrength: {value: 0},
@@ -276,8 +276,8 @@ export default class ScreenPaint {
             this._prevPaintRenderTarget.setSize(r, n)
             this._lowRenderTarget.setSize(o, l)
             this._lowBlurRenderTarget.setSize(o, l)
-            this.sharedUniforms.u_paintTexelSize.value.set(1 / r, 1 / n)
-            this.sharedUniforms.u_paintTextureSize.value.set(r, n)
+            this.shaderUniforms.u_paintTexelSize.value.set(1 / r, 1 / n)
+            this.shaderUniforms.u_paintTextureSize.value.set(r, n)
             this.clear()
         }
     }
@@ -304,8 +304,8 @@ export default class ScreenPaint {
 
         this._prevPaintRenderTarget = this._currPaintRenderTarget
         this._currPaintRenderTarget = n
-        this.sharedUniforms.u_prevPaintTexture.value = this._prevPaintRenderTarget.texture
-        this.sharedUniforms.u_currPaintTexture.value = this._currPaintRenderTarget.texture;
+        this.shaderUniforms.u_prevPaintTexture.value = this._prevPaintRenderTarget.texture
+        this.shaderUniforms.u_currPaintTexture.value = this._currPaintRenderTarget.texture;
         let o = this.base.scrollManager.scrollViewDelta * this.base.properties.screenPaintOffsetRatio
         let l = this.base.scrollManager.isVertical ? 0 : o
         let c = this.base.scrollManager.isVertical ? o : 0;

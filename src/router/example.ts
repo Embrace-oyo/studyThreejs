@@ -19,6 +19,11 @@ const exampleRouter = [
         name: '离屏渲染',
         component: () => import('@/views/example/composer.vue')
     },
+    {
+        path: '/example/postprocessing',
+        name: '后处理',
+        component: () => import('@/views/example/postprocessing.vue')
+    },
 
 ]
 

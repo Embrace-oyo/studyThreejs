@@ -19,8 +19,6 @@ import FboHelper from "@/views/example/common/trail/js/fboHelper"
 import Postprocessing from "@/views/example/common/trail/js/postprocessing"
 import BlueNoise from "@/views/example/common/trail/js/blueNoise"
 import Blur from "@/views/example/common/trail/js/blur"
-import CameraControls from "@/views/example/common/trail/js/cameraControls"
-import Visuals from "@/views/example/common/trail/js/visuals"
 import ScreenPaint from "@/views/example/common/trail/js/screenPaint"
 import {ScreenPaintDistortion, Smaa, Bloom, Final, Fsr, PreUfx, PostUfx} from "@/views/example/common/trail/js/pass.js"
 
@@ -49,13 +47,9 @@ export default class Trail {
         this.blueNoise = new BlueNoise(this)
         this.blur = new Blur(this)
         this.screenPaint = new ScreenPaint(this)
-        this.cameraControls = new CameraControls(this)
-        // this.visuals = new Visuals(this)
-        this.ui = new UI(this)
-        this.preloader = new Preloader(this)
         this.dateTime = performance.now()
         this._needsResize = !1
-        this.preRun()
+        this.run()
     }
 
     appInitEngine() {
@@ -95,31 +89,12 @@ export default class Trail {
     }
 
 
-    appPreInit() {
-        if (!this.settings.WEBGL_OFF) {
-            this.cameraControls.preInit()
-        }
-    }
-
-    appInit() {
-        if (!this.settings.WEBGL_OFF) {
-            this.cameraControls.init()
-        }
-    }
-
-    appStart() {
-    }
-
-    appPreUpdate(e = 0) {
-    }
-
     appUpdate(e = 0) {
         if (!this.settings.WEBGL_OFF) {
             this.properties.time = this.properties.sharedUniforms.u_time.value += e
             this.properties.deltaTime = this.properties.sharedUniforms.u_deltaTime.value = e
             this.blueNoise.update(e)
             this.screenPaint.update(e)
-            this.cameraControls.update(e)
             this.properties.renderer.setClearColor(this.properties.bgColor, this.properties.clearAlpha)
             this.properties.bgColor.setStyle(this.properties.bgColorHex)
             this.screenPaint.needsMouseDown = this.properties.screenPaintNeedsMouseDown
@@ -155,13 +130,6 @@ export default class Trail {
         }
     }
 
-    preRun() {
-        for (const [a, e] of Object.entries(this.settings.CROSS_ORIGINS)) {
-            this.properties.loader.setCrossOrigin(a, e)
-        }
-        this.run()
-    }
-
     run() {
         let a = this.properties.viewportWidth = this.canvas.offsetWidth
         let e = this.properties.viewportHeight = this.canvas.offsetHeight;
@@ -169,46 +137,26 @@ export default class Trail {
         this.properties.width = a
         this.properties.height = e
         this.appInitEngine()
-        this.ui.preInit()
         this.input.preInit()
         this.scrollManager.init()
-        this.appPreInit()
         window.addEventListener("resize", () => {
             this.onResize()
         })
         this._onResize()
         this.loop()
-        this.ui.preload(() => {
-            this.init()
-        }, () => {
-            this.start()
-        })
+        this.init()
     }
 
     init() {
         this.input.init()
-        this.ui.init()
-        this.appInit()
         this.properties.hasInitialized = !0
+        this._onResize(!0)
     }
 
-    start() {
-        this.ui.start()
-        this.appStart()
-        this._onResize(!0)
-        this.properties.hasStarted = !0
-        this.scrollManager.isActive = !0
-        if (this.settings.JUMP_SECTION !== "") {
-            this.scrollManager.scrollTo(this.settings.JUMP_SECTION, this.settings.JUMP_OFFSET, !0)
-        }
-    }
 
     update(a) {
         this.properties.reset()
-        this.appPreUpdate(a)
-        this.input.update(a)
         this.scrollManager.update(a)
-        this.ui.update(a)
         this.appUpdate(a)
         this.input.postUpdate(a)
     }
@@ -250,7 +198,6 @@ export default class Trail {
         this.properties.resolution.set(this.properties.width, this.properties.height)
         a || this.input.resize()
         this.scrollManager.resize(e, t)
-        this.ui.resize(e, t, a)
         this.appResize(Math.ceil(r * this.properties.upscalerAmount), Math.ceil(n * this.properties.upscalerAmount))
         this.scrollManager.resize(e, t)
     }
