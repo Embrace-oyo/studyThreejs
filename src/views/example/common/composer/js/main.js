@@ -10,11 +10,8 @@ import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
 import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
 import {OutputPass} from 'three/addons/postprocessing/OutputPass.js';
 import {SMAAPass} from 'three/addons/postprocessing/SMAAPass.js';
+import {DotScreenPass} from 'three/addons/postprocessing/DotScreenPass.js';
 import {ScreenPass} from "@/views/example/common/composer/js/screenPass.js";
-
-
-import blitVert from "@/views/example/common/postprocessing/glsl/blitVert.glsl";
-import blitFrag from "@/views/example/common/postprocessing/glsl/blitFrag.glsl";
 
 
 class Main {
@@ -178,9 +175,15 @@ class Main {
         this.SMAAPass = new SMAAPass(this.mainViewportWidth * window.devicePixelRatio, this.mainViewportHeight * window.devicePixelRatio)
         this.mainComposer.addPass(this.SMAAPass)
 
+        // 点
+        // this.dotScreenPass = new DotScreenPass()
+        // this.mainComposer.addPass(this.dotScreenPass)
+
         // 屏幕绘画
         this.screenPass = new ScreenPass(this)
+        this.screenPass.renderToScreen = true;
         this.mainComposer.addPass(this.screenPass);
+
 
         // 通道输出
         this.outputPass = new OutputPass();
@@ -192,8 +195,7 @@ class Main {
 
         this.backgroundUpdate()
 
-        this.SMAAPass.enabled = this.option.isSmaaEnabled;
-
+        if (this.SMAAPass) this.SMAAPass.enabled = this.option.isSmaaEnabled;
 
         if (this.mainComposer) {
             this.mainComposer.render();

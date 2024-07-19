@@ -28,7 +28,7 @@ class FullScreenQuad {
         this.renderer = this.base.base.mainComposer.renderer;
         this.quadScene = new THREE.Scene();
         this.quadCamera = new THREE.Camera();
-        this.quadCamera.position.z = 1;
+        this.quadCamera.position.z = 100;
         this.quadGeometry = new THREE.BufferGeometry;
         this.quadGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3));
         this.quadMesh = new THREE.Mesh(this.quadGeometry);
@@ -381,22 +381,6 @@ class ScreenPaint {
     }
 
 
-    blur(e, t, r, n, o, l) {
-        let c = .25
-        let u = Math.ceil(r.width * t) || 0
-        let f = Math.ceil(r.height * t) || 0;
-        if (!n) console.warn("You have to pass intermediateRenderTarget to blur")
-        (u !== n.width || f !== n.height) && n.setSize(u, f)
-        o ? l || o.setSize(r.width, r.height) : o = r
-        this.blurMaterial.uniforms.u_texture.value = r.texture || r
-        this.blurMaterial.uniforms.u_delta.value.set(e / u * c, 0)
-        this.base.quad.render(this.blurMaterial, n)
-
-        this.blurMaterial.uniforms.u_texture.value = n.texture || n
-        this.blurMaterial.uniforms.u_delta.value.set(0, e / f * c)
-        this.base.quad.render(this.blurMaterial, o)
-    }
-
     update() {
         let a = performance.now()
         let e = (a - this.base.base.mainDateTime) / 1e3;
@@ -408,19 +392,34 @@ class ScreenPaint {
         this.base.quad.render(this._material, this._currPaintRenderTarget)
         this.base.quad.copy(this._currPaintRenderTarget.texture, this._lowRenderTarget)
 
-        this.blur(8, 1, this._lowRenderTarget, this._lowBlurRenderTarget)
+        let c = .25
+        let u = Math.ceil(this._lowRenderTarget.width * 1) || 0
+        let f = Math.ceil(this._lowRenderTarget.height * 1) || 0;
+        (u !== this._lowBlurRenderTarget.width || f !== this._lowBlurRenderTarget.height) && this._lowBlurRenderTarget.setSize(u, f)
+        let o = this._lowRenderTarget;
+        this.blurMaterial.uniforms.u_texture.value = this._lowRenderTarget.texture || this._lowRenderTarget
+        this.blurMaterial.uniforms.u_delta.value.set(8 / u * c, 0)
+        this.base.quad.render(this.blurMaterial, this._lowBlurRenderTarget)
+
+
+        this.blurMaterial.uniforms.u_texture.value = this._lowBlurRenderTarget.texture || this._lowBlurRenderTarget
+        this.blurMaterial.uniforms.u_delta.value.set(0, 8 / f * c)
+        this.base.quad.render(this.blurMaterial, o)
+
 
         this.mouseUpdate()
+
+
     }
 }
 
 
 class ScreenPass {
-    isPass = !0;
-    enabled = !0;
-    needsSwap = !0;
-    clear = !1;
-    renderToScreen = !1;
+    isPass = true;
+    enabled = true;
+    needsSwap = true;
+    clear = true;
+    renderToScreen = true;
     amount = 20;
     rgbShift = 1;
     multiplier = 1.25;
@@ -434,7 +433,7 @@ class ScreenPass {
     blueNoiseShaderUniforms = {
         u_blueNoiseTexture: {value: null},
         u_blueNoiseLinearTexture: {value: null},
-        u_blueNoiseTexelSize: {value: null},
+        u_blueNoiseTexelSize: {value: new THREE.Vector2()},
         u_blueNoiseCoordOffset: {value: new THREE.Vector2()}
     };
     TEXTURE_SIZE = 128;
@@ -456,19 +455,21 @@ class ScreenPass {
     screenPaintDistortionColorMultiplier = 10;
     screenPaintDistortionMultiplier = 5;
 
+    flag = false;
+
 
     constructor(base) {
         this.base = base;
         this.bgColor = this.base.mainBackgroundColor;
-        this.blueNoiseInit();
         this.postGeometry = new THREE.BufferGeometry();
         this.postGeometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3))
         this.postGeometry.setAttribute("a_uvClamp", new THREE.BufferAttribute(new Float32Array([0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1]), 4))
-        this.postMesh = new THREE.Mesh();
         this.quad = new FullScreenQuad(this);
         this.screenPaint = new ScreenPaint(this)
-        this.passInit();
+        this.blueNoiseInit()
+        this.passInit()
     }
+
 
     async blueNoiseInit() {
         let e = new THREE.Texture;
@@ -485,15 +486,8 @@ class ScreenPass {
         this.blueNoiseShaderUniforms.u_blueNoiseTexture.value = t
         this.blueNoiseShaderUniforms.u_blueNoiseLinearTexture.value = e
         this.blueNoiseShaderUniforms.u_blueNoiseTexelSize.value = new THREE.Vector2(1 / this.TEXTURE_SIZE, 1 / this.TEXTURE_SIZE)
-    }
-
-    blueNoiseUpdate() {
-        this.blueNoiseShaderUniforms.u_blueNoiseCoordOffset.value.set(Math.random(), Math.random())
-    }
-
-    passInit() {
         this.material = this.quad.createRawShaderMaterial({
-            uniforms: Object.assign({
+            uniforms: {
                 u_texture: {value: null},
                 u_screenPaintTexture: this.screenPaint.shaderUniforms.u_currPaintTexture,
                 u_screenPaintTexelSize: this.screenPaint.shaderUniforms.u_paintTexelSize,
@@ -501,10 +495,18 @@ class ScreenPass {
                 u_rgbShift: {value: 0},
                 u_multiplier: {value: 0},
                 u_colorMultiplier: {value: 0},
-                u_shade: {value: 0}
-            }, this.blueNoiseShaderUniforms),
+                u_shade: {value: 0},
+                ...this.blueNoiseShaderUniforms
+            },
             fragmentShader: screenPaintFrag
         })
+    }
+
+    blueNoiseUpdate() {
+        this.blueNoiseShaderUniforms.u_blueNoiseCoordOffset.value.set(Math.random(), Math.random())
+    }
+
+    passInit() {
 
         this.sceneFlatRenderTarget = this.quad.createRenderTarget(1, 1)
         this.sceneMsRenderTarget = this.quad.createMultisampleRenderTarget(1, 1)
@@ -560,6 +562,7 @@ class ScreenPass {
 
 
     render(renderer, writeBuffer, readBuffer) {
+        this.quad.renderer = renderer;
         this.blueNoiseUpdate();
         this.screenPaint.update()
         renderer.setClearColor(this.bgColor, this.clearAlpha)
@@ -579,20 +582,7 @@ class ScreenPass {
         this.colorMultiplier = this.screenPaintDistortionColorMultiplier
         this.multiplier = this.screenPaintDistortionMultiplier
 
-
-        this.sceneRenderTarget = this.base.option.isSmaaEnabled ? this.sceneFlatRenderTarget : this.sceneMsRenderTarget
-        this.sceneTexture = this.sceneRenderTarget.texture = readBuffer.texture;
-        this.shaderUniforms.u_sceneTexture.value = this.sceneTexture
-
-
-        this.quad.renderer.setRenderTarget(this.sceneRenderTarget)
-        this.quad.renderer.render(this.base.mainScene, this.base.mainCamera)
-        this.quad.renderer.setRenderTarget(null)
-        this.quad.copy(this.sceneRenderTarget.texture, this.fromRenderTarget)
-
-        const l = this.quad.getColorState();
-        this.quad.renderer.autoClear = !1;
-
+        if (!this.material) return;
 
         this.material.uniforms.u_amount.value = this.amount
         this.material.uniforms.u_rgbShift.value = this.rgbShift
@@ -600,27 +590,22 @@ class ScreenPass {
         this.material.uniforms.u_colorMultiplier.value = this.colorMultiplier
         this.material.uniforms.u_shade.value = this.shade
 
-        renderer.setRenderTarget(null)
 
+        this.sceneFlatRenderTarget.texture = readBuffer.texture;
+        this.sceneRenderTarget.texture = this.sceneFlatRenderTarget.texture;
+        this.material.uniforms.u_texture.value = readBuffer.texture;
 
-        // this.quad.render(this.material, this.fromRenderTarget)
-        this.material.uniforms.u_texture = readBuffer.texture;
-        this.quad.quadMesh.material = this.material;
-        console.log(this.material);
-        // renderer.setRenderTarget(this.screenPaint._currPaintRenderTarget)
-        // renderer.render(this.quad.quadScene, this.quad.quadCamera)
-        // renderer.setRenderTarget(writeBuffer)
-        // this.quad.setColorState(l)
+        if (this.renderToScreen) {
+            renderer.setRenderTarget(writeBuffer);
+            this.quad.render(this.material, this.sceneRenderTarget);
 
+        } else {
+            renderer.setRenderTarget(null);
+            if (this.clear) renderer.clear();
+            this.quad.render(this.material, this.sceneRenderTarget);
 
-        /*     if (this.renderToScreen) {
-                 renderer.setRenderTarget(null)
-                 this.quad.render(renderer)
-             } else {
-                 renderer.setRenderTarget(writeBuffer)
-                 if (this.clear) renderer.clear()
-                 this.quad.render(renderer)
-             }*/
+        }
+
 
     }
 
