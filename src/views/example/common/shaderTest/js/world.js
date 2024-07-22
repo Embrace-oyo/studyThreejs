@@ -30,7 +30,7 @@ export default class World {
     renderer;
     scene;
     camera;
-    cameraPosition = new THREE.Vector3(0, 0, 50);
+    cameraPosition = new THREE.Vector3(0, 0, 1);
     cameraLookAt = new THREE.Vector3(0, 0, 0);
     GUI;
     option = {
@@ -43,7 +43,8 @@ export default class World {
         weight2Dissipation: 0.8,
         curlScale: 0.02,
         curlStrength: 3,
-        accelerationDissipation: 0.8
+        accelerationDissipation: 0.8,
+        pushStrength: 25,
     };
     fromDrawData = new THREE.Vector4(0, 0, 0, 0);
     toDrawData = new THREE.Vector4(0, 0, 0, 0);
@@ -58,6 +59,10 @@ export default class World {
     hasMoved = !1;
     prevPaintRenderTarget;
     currPaintRenderTarget;
+    lowRenderTarget;
+    targetScene = new THREE.Scene();
+    targetCamera = new THREE.Camera();
+    targetMesh;
 
     constructor(config = {}) {
         this.target = config.DOM
@@ -79,6 +84,12 @@ export default class World {
         this.camera.lookAt(this.cameraLookAt)
         this.camera.updateProjectionMatrix()
         this.scene.add(this.camera);
+        this.geometry = new THREE.BufferGeometry
+        this.geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3))
+        this.targetCamera.position.copy(this.cameraPosition);
+        this.targetMesh = new THREE.Mesh(this.geometry);
+        this.targetMesh.frustumCulled = !1;
+        this.targetScene.add(this.targetMesh);
 
         this.clock = new THREE.Clock()
         this.dateTime = performance.now();
@@ -119,8 +130,6 @@ export default class World {
     }
 
     meshInit() {
-        this.geometry = new THREE.BufferGeometry
-        this.geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3))
         this.rawShaderMaterial = new THREE.RawShaderMaterial({
             name: 'rawMaterial',
             vertexShader: rawVert,
@@ -179,12 +188,26 @@ export default class World {
             stencilBuffer: !1,
             samples: o
         });
+        this.lowRenderTarget = new THREE.WebGLRenderTarget(o, l, {
+            wrapS: THREE.ClampToEdgeWrapping,
+            wrapT: THREE.ClampToEdgeWrapping,
+            magFilter: r ? THREE.NearestFilter : THREE.LinearFilter,
+            minFilter: r ? THREE.NearestFilter : THREE.LinearFilter,
+            type: THREE.UnsignedByteType,
+            anisotropy: 0,
+            colorSpace: THREE.LinearSRGBColorSpace,
+            depthBuffer: !1,
+            stencilBuffer: !1,
+            samples: o
+        });
 
     }
 
     meshUpdate(e = 0) {
-        let t = this.width >> 2;
-        let r = this.height >> 2;
+        // let t = this.width >> 2;
+        // let r = this.height >> 2;
+        let t = this.width;
+        let r = this.height;
         let l = 0;
         let c = 0;
         this._v$4.copy(this.mousePixelXY)
@@ -201,10 +224,14 @@ export default class World {
         this.currPaintRenderTarget = n;
 
         this.rawShaderMaterial.uniforms.u_prevPaintTexture.value = this.prevPaintRenderTarget.texture;
+        this.rawShaderMaterial.uniforms.u_lowPaintTexture.value = this.lowRenderTarget.texture;
         this.rawShaderMaterial.uniforms.u_pushStrength.value = this.option.pushStrength
         this.rawShaderMaterial.uniforms.u_curlScale.value = this.option.curlScale
         this.rawShaderMaterial.uniforms.u_curlStrength.value = this.option.curlStrength
         this.rawShaderMaterial.uniforms.u_dissipations.value.set(this.option.velocityDissipation, this.option.weight1Dissipation, this.option.weight2Dissipation)
+        this.rawShaderMaterial.uniforms.u_drawTo.value = this.toDrawData
+        this.rawShaderMaterial.uniforms.u_drawFrom.value = this.fromDrawData
+        console.log(this.toDrawData.x, this.fromDrawData.x)
 
         this.fromDrawData.copy(this.toDrawData)
         this._v$4.copy(this.mouseXY)
@@ -218,9 +245,25 @@ export default class World {
         this.rawShaderMaterial.uniforms.u_scrollOffset.value.y = c
 
 
+        this.targetMesh.geometry = this.geometry;
+        this.targetMesh.material = this.rawShaderMaterial;
+        this.targetMesh.material.needsUpdate = true;
+
+
+        // this.renderer.setRenderTarget(this.currPaintRenderTarget)
+        // this.renderer.render(this.targetScene, this.targetCamera)
+        // this.renderer.setRenderTarget(null);
+        //
+        //
+        // this.lowRenderTarget = this.currPaintRenderTarget;
+        // this.renderer.setRenderTarget(this.lowRenderTarget)
+        // this.renderer.render(this.targetScene, this.targetCamera)
+        // this.renderer.setRenderTarget(null);
+
         this.prevMousePixelXY.copy(this.mousePixelXY)
         this.hadMoved = this.hasMoved
         this.deltaXY.set(0, 0)
+
     }
 
 

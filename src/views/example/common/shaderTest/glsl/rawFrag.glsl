@@ -1,13 +1,3 @@
-/*
-precision highp float;
-varying vec2 v_uv;
-void main() {
-    gl_FragColor = vec4(vec2(v_uv), 1.0, 1.0);
-}
-*/
-
-
-
 precision highp float;
 
 #define GLSLIFY 1
@@ -29,7 +19,7 @@ vec2 sdSegment(in vec2 p, in vec2 a, in vec2 b){
     return vec2(length(pa-ba*h), h);
 }
 
-#ifdef USE_NOISE
+    #ifdef USE_NOISE
 uniform float u_curlScale;
 uniform float u_curlStrength;
 
@@ -54,13 +44,14 @@ vec3 noised(in vec2 p){
     float vd=dot(gd, f-vec2(1.0, 1.0));
     return vec3(va+u.x*(vb-va)+u.y*(vc-va)+u.x*u.y*(va-vb-vc+vd), ga+u.x*(gb-ga)+u.y*(gc-ga)+u.x*u.y*(ga-gb-gc+gd)+du*(u.yx*(va-vb-vc+vd)+vec2(vb, vc)-va));
 }
-#endif
+    #endif
 
 void main(){
     vec2 res=sdSegment(gl_FragCoord.xy, u_drawFrom.xy, u_drawTo.xy);
     vec2 radiusWeight=mix(u_drawFrom.zw, u_drawTo.zw, res.y);
     float d=1.0-smoothstep(-0.01, radiusWeight.x, res.x);
-    vec4 lowData=texture2D(u_lowPaintTexture, v_uv-u_scrollOffset);
+    //    vec4 lowData=texture2D(u_lowPaintTexture, v_uv-u_scrollOffset);
+    vec4 lowData=vec4(v_uv, 1.0, 1.0);
     vec2 velInv=(0.5-lowData.xy)*u_pushStrength;
 
     #ifdef USE_NOISE
