@@ -231,7 +231,6 @@ export default class World {
         this.rawShaderMaterial.uniforms.u_dissipations.value.set(this.option.velocityDissipation, this.option.weight1Dissipation, this.option.weight2Dissipation)
         this.rawShaderMaterial.uniforms.u_drawTo.value = this.toDrawData
         this.rawShaderMaterial.uniforms.u_drawFrom.value = this.fromDrawData
-        console.log(this.toDrawData.x, this.fromDrawData.x)
 
         this.fromDrawData.copy(this.toDrawData)
         this._v$4.copy(this.mouseXY)
@@ -250,15 +249,15 @@ export default class World {
         this.targetMesh.material.needsUpdate = true;
 
 
-        // this.renderer.setRenderTarget(this.currPaintRenderTarget)
-        // this.renderer.render(this.targetScene, this.targetCamera)
-        // this.renderer.setRenderTarget(null);
-        //
-        //
-        // this.lowRenderTarget = this.currPaintRenderTarget;
-        // this.renderer.setRenderTarget(this.lowRenderTarget)
-        // this.renderer.render(this.targetScene, this.targetCamera)
-        // this.renderer.setRenderTarget(null);
+        this.renderer.setRenderTarget(this.currPaintRenderTarget)
+        this.renderer.render(this.targetScene, this.targetCamera)
+        this.renderer.setRenderTarget(null);
+
+
+        this.lowRenderTarget = this.currPaintRenderTarget;
+        this.renderer.setRenderTarget(this.lowRenderTarget)
+        this.renderer.render(this.targetScene, this.targetCamera)
+        this.renderer.setRenderTarget(null);
 
         this.prevMousePixelXY.copy(this.mousePixelXY)
         this.hadMoved = this.hasMoved

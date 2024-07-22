@@ -50,8 +50,7 @@ void main(){
     vec2 res=sdSegment(gl_FragCoord.xy, u_drawFrom.xy, u_drawTo.xy);
     vec2 radiusWeight=mix(u_drawFrom.zw, u_drawTo.zw, res.y);
     float d=1.0-smoothstep(-0.01, radiusWeight.x, res.x);
-    //    vec4 lowData=texture2D(u_lowPaintTexture, v_uv-u_scrollOffset);
-    vec4 lowData=vec4(v_uv, 1.0, 1.0);
+    vec4 lowData=texture2D(u_lowPaintTexture, v_uv-u_scrollOffset);
     vec2 velInv=(0.5-lowData.xy)*u_pushStrength;
 
     #ifdef USE_NOISE
@@ -69,4 +68,5 @@ void main(){
     data+=delta;
     data.xy+=0.5;
     gl_FragColor=clamp(data, vec4(0.0), vec4(1.0));
+
 }
