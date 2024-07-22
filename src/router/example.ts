@@ -24,6 +24,11 @@ const exampleRouter = [
         name: '后处理',
         component: () => import('@/views/example/postprocessing.vue')
     },
+    {
+        path: '/example/shaderTest',
+        name: '测试用例',
+        component: () => import('@/views/example/shaderTest.vue')
+    },
 
 ]
 

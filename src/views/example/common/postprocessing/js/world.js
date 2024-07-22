@@ -667,7 +667,7 @@ class ScreenPaintDistortion extends PostEffect {
     needsRender(e) {
         return this.amount > 0
     }
-    
+
 
     render(e, t = !1) {
         this.material.uniforms.u_amount.value = this.amount
@@ -959,6 +959,7 @@ class World {
             this.screenPaint.useNoise = this.screenPaintUseNoise
             this.screenPaint.curlScale = this.screenPaintCurlScale
             this.screenPaint.curlStrength = this.screenPaintCurlStrength
+
             this.screenPaintDistortion.amount = this.screenPaintDistortionAmount
             this.screenPaintDistortion.rgbShift = this.screenPaintDistortionRGBShift
             this.screenPaintDistortion.colorMultiplier = this.screenPaintDistortionColorMultiplier
