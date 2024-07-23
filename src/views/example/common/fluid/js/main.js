@@ -49,6 +49,20 @@ export default class Main {
         this.backgroundLoad();
         this.composerInit();
         this.animation();
+
+        window.onresize = () => {
+            this.resize();
+        }
+    }
+
+    resize() {
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
+        this.aspect = this.width / this.height;
+        this.renderer.setSize(this.width, this.height)
+        if (this.composer) this.composer.setSize(this.width, this.height);
+        this.camera.aspect = this.width / this.height;
+        this.camera.updateProjectionMatrix()
     }
 
     backgroundLoad() {
@@ -80,14 +94,7 @@ export default class Main {
 
         }
 
-
-        const geometryBox = new THREE.BoxGeometry(5, 5, 5);
-        const material1 = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: true});
-        const boxMesh = new THREE.Mesh(geometryBox, material1)
-        boxMesh.position.set(6, 0, 0)
-
         this.scene.add(this.object);
-        this.scene.add(boxMesh)
 
     }
 
@@ -122,5 +129,22 @@ export default class Main {
             this.renderer.render(this.scene, this.camera)
         }
 
+    }
+
+    destroy() {
+        // scene
+        this.scene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                child.geometry?.dispose();
+                Object.values(child.material).forEach((value) => {
+                    if (value && typeof value.dispose === "function") {
+                        value.dispose();
+                    }
+                });
+            }
+        });
+        // renderer
+        if (this.composer) this.composer.dispose()
+        this.renderer.dispose();
     }
 }

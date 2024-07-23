@@ -386,7 +386,6 @@ export default class Fluid {
 
     }
 
-
     render(renderer, writeBuffer, readBuffer) {
         if (!this.isLoad) return;
 
@@ -444,7 +443,17 @@ export default class Fluid {
     }
 
     dispose() {
-
+        this.rawShaderMaterial.dispose();
+        this.blurShaderMaterial.dispose();
+        this.copyShaderMaterial.dispose();
+        this.outShaderMaterial.dispose();
+        this.prevPaintRenderTarget.dispose();
+        this.currPaintRenderTarget.dispose();
+        this.lowRenderTarget.dispose();
+        this.lowBlurRenderTarget.dispose();
+        this.sceneFlatRenderTarget.dispose();
+        this.depth.dispose();
+        this.targetMesh.geometry.dispose();
     }
 
 }

@@ -10,13 +10,18 @@ justThreeJs shaderTest.vue
 
 <script setup>
 import Main from "@/views/example/common/fluid/js/main";
-import {nextTick, onMounted} from "vue";
+import {nextTick, onMounted, onUnmounted} from "vue";
 
+let fluid;
 onMounted(() => {
   nextTick(() => {
     const dom = document.querySelector('#fluid')
-    const fluid = new Main({DOM: dom});
+    fluid = new Main({DOM: dom});
   })
+})
+onUnmounted(() => {
+  console.log('销毁')
+  fluid.destroy()
 })
 </script>
 
