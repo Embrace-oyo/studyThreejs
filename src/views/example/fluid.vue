@@ -5,23 +5,23 @@ justThreeJs shaderTest.vue
 @created 2024/7/22 14:53:10
 -->
 <template>
-  <div class="shaderTest" id="shaderTest"></div>
+  <div class="fluid" id="fluid"></div>
 </template>
 
 <script setup>
-import World from "@/views/example/common/shaderTest/js/world.js";
+import Main from "@/views/example/common/fluid/js/main";
 import {nextTick, onMounted} from "vue";
 
 onMounted(() => {
   nextTick(() => {
-    const dom = document.querySelector('#shaderTest')
-    const world = new World({DOM: dom});
+    const dom = document.querySelector('#fluid')
+    const fluid = new Main({DOM: dom});
   })
 })
 </script>
 
 <style scoped lang="less">
-.shaderTest {
+.fluid {
   position: absolute;
   left: 0;
   top: 0;

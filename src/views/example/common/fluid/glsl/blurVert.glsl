@@ -1,3 +1,4 @@
+precision highp float;
 attribute vec2 position;
 varying vec2 v_uv;
 void main(){

@@ -10,24 +10,9 @@ const exampleRouter = [
         component: () => import('@/views/example/sky.vue')
     },
     {
-        path: '/example/trail',
-        name: '拖尾特效',
-        component: () => import('@/views/example/trail.vue')
-    },
-    {
-        path: '/example/composer',
-        name: '离屏渲染',
-        component: () => import('@/views/example/composer.vue')
-    },
-    {
-        path: '/example/postprocessing',
-        name: '后处理',
-        component: () => import('@/views/example/postprocessing.vue')
-    },
-    {
-        path: '/example/shaderTest',
-        name: '测试用例',
-        component: () => import('@/views/example/shaderTest.vue')
+        path: '/example/fluid',
+        name: '流体效果',
+        component: () => import('@/views/example/fluid.vue')
     },
 
 ]

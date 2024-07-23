@@ -1,6 +1,5 @@
 precision highp float;
 
-#define GLSLIFY 1
 uniform sampler2D u_lowPaintTexture;
 uniform sampler2D u_prevPaintTexture;
 uniform vec2 u_paintTexelSize;
