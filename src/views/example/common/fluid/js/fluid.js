@@ -310,10 +310,13 @@ export default class Fluid {
 
         let t = this.width >> 2;
         let r = this.height >> 2;
-
+        // _v$4复制mousePixelXY坐标数据
         this._v$4.copy(this.mousePixelXY)
+        // 计算该_v$4到传入的prevMousePixelX0的距离
         let u = this._v$4.distanceTo(this.prevMousePixelXY)
+        //  fit 函数用于将一个值 u 从范围 [0, radiusDistanceRange] 映射到范围 [minRadius, maxRadius]
         let f = fit(u, 0, this.option.radiusDistanceRange, this.option.minRadius, this.option.maxRadius);
+        // 判断是否进行鼠标移动
         if (!this.hadMoved || !this.drawEnabled) f = 0
         f = f / this.height * r
 
@@ -327,7 +330,7 @@ export default class Fluid {
         this.toDrawData.set((this._v$4.x + 1) * t / 2, (this._v$4.y + 1) * r / 2, f, 1)
         this._v$4.set(this.toDrawData.x - this.fromDrawData.x, this.toDrawData.y - this.fromDrawData.y).multiplyScalar(time * .8)
 
-
+        // u_vel当前值与accelerationDissipation相乘再与_v$4相加
         this.rawShaderMaterial.uniforms.u_vel.value.multiplyScalar(this.option.accelerationDissipation).add(this._v$4)
 
 

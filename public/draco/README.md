@@ -1,7 +1,6 @@
 # Draco 3D Data Compression
 
-Draco is an open-source library for compressing and decompressing 3D geometric meshes and point clouds. It is intended
-to improve the storage and transmission of 3D graphics.
+Draco is an open-source library for compressing and decompressing 3D geometric meshes and point clouds. It is intended to improve the storage and transmission of 3D graphics.
 
 [Website](https://google.github.io/draco/) | [GitHub](https://github.com/google/draco)
 
@@ -16,9 +15,7 @@ This folder contains three utilities:
 Each file is provided in two variations:
 
 * **Default:** Latest stable builds, tracking the project's [master branch](https://github.com/google/draco).
-* **glTF:** Builds targeted by
-  the [glTF mesh compression extension](https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_draco_mesh_compression),
-  tracking the [corresponding Draco branch](https://github.com/google/draco/tree/gltf_2.0_draco_extension).
+* **glTF:** Builds targeted by the [glTF mesh compression extension](https://github.com/KhronosGroup/glTF/tree/master/extensions/2.0/Khronos/KHR_draco_mesh_compression), tracking the [corresponding Draco branch](https://github.com/google/draco/tree/gltf_2.0_draco_extension).
 
 Either variation may be used with `THREE.DRACOLoader`:
 

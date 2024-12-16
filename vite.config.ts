@@ -10,6 +10,13 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 8181,
         https: false,
+        proxy: {
+            // 前缀写法
+            '^/provinces-cms': {
+                target: 'https://abeto.co',
+                changeOrigin: true,
+            },
+        },
     },
     plugins: [
         vue(),
