@@ -15,6 +15,7 @@ export default class Main {
 
 
         this.assets()
+        window.addEventListener('resize', () => this.resize());
     }
 
     async assets() {
@@ -189,8 +190,27 @@ export default class Main {
     }
 
     resize() {
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
+        this.aspect = this.width / this.height;
+        this.camera.aspect = this.aspect;
+        this.camera.updateProjectionMatrix();
+        this.renderer.setSize(this.width, this.height);
     }
 
     destroy() {
+        // scene
+        this.scene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                child.geometry?.dispose();
+                Object.values(child.material).forEach((value) => {
+                    if (value && typeof value.dispose === "function") {
+                        value.dispose();
+                    }
+                });
+            }
+        });
+        // renderer
+        this.renderer.dispose();
     }
 }

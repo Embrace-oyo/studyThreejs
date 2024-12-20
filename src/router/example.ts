@@ -36,14 +36,14 @@ const exampleRouter = [
     },
     {
         path: '/example/webGLFog',
-        name: '烟雾',
+        name: '烟雾特效',
         component: () => import('@/views/example/webGLFog.vue')
     },
-    /*  {
-          path: '/example/midwam',
-          name: 'MIDWAM',
-          component: () => import('@/views/example/midwam.vue')
-      },*/
+    {
+        path: '/example/ablate',
+        name: '转场特效',
+        component: () => import('@/views/example/ablate.vue')
+    },
 
 ]
 
