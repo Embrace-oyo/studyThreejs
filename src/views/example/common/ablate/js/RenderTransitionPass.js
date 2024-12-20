@@ -16,15 +16,16 @@ import transition8 from '@/views/example/common/ablate/glsl/transition8.glsl'
 import transition9 from '@/views/example/common/ablate/glsl/transition9.glsl'
 import transition10 from '@/views/example/common/ablate/glsl/transition10.glsl'
 import transition11 from '@/views/example/common/ablate/glsl/transition11.glsl'
+import transition12 from '@/views/example/common/ablate/glsl/transition12.glsl'
 import * as THREE from "three";
 class RenderTransitionPass extends Pass {
 
-	constructor( scene = [], aspect = 1, texture = null, texture1 = null,texture2 = null,texture3 = null,texture4 = null, texture5 = null) {
+	constructor( scene = [], aspect = 1, texture = null, texture1 = null,texture2 = null,texture3 = null,texture4 = null, texture5 = null, texture6 = null) {
 
 		super();
         this.sceneArray = scene
         this.aspect = aspect
-        this.array = [transition1, transition2, transition3, transition4, transition5, transition6,transition7,transition8,transition9, transition10, transition11]
+        this.array = [transition1, transition2, transition3, transition4, transition5, transition6,transition7,transition8,transition9, transition10, transition11, transition12]
         this.index = 0;
         this.texture = texture;
         this.texture1 = texture1;
@@ -32,6 +33,7 @@ class RenderTransitionPass extends Pass {
         this.texture3 = texture3;
         this.texture4 = texture4;
         this.texture5 = texture5;
+        this.texture6 = texture6;
 		this.material = this.createMaterial();
 		this.fsQuad = new FullScreenQuad( this.material );
 
@@ -154,6 +156,9 @@ class RenderTransitionPass extends Pass {
                 },
                 texture5:{
                     value: this.texture5
+                },
+                texture6:{
+                    value: this.texture6
                 },
 				mixRatio: {
 					value: 0.0

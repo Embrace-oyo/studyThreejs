@@ -45,6 +45,7 @@ export default class Main {
         this.textureLoader.load('https://threejs.org/examples/textures/transition/transition3.png', (texture) => this.texture3 = texture)
         this.textureLoader.load('https://threejs.org/examples/textures/transition/transition4.png', (texture) => this.texture4 = texture)
         this.textureLoader.load('https://threejs.org/examples/textures/transition/transition5.png', (texture) => this.texture5 = texture)
+        this.textureLoader.load('https://threejs.org/examples/textures/transition/transition6.png', (texture) => this.texture6 = texture)
         this.dracoLoader = new DRACOLoader(this.manager);
         this.dracoLoader.setDecoderPath('./draco/gltf/');
         this.loader = new GLTFLoader(this.manager).setDRACOLoader(this.dracoLoader);
@@ -129,7 +130,7 @@ export default class Main {
     setPostprocessing() {
         this.composer = new EffectComposer(this.renderer);
 
-        this.renderTransitionPass = new RenderTransitionPass([this.sceneA, this.sceneB], this.aspect, this.texture, this.texture1, this.texture2,this.texture3,this.texture4,this.texture5);
+        this.renderTransitionPass = new RenderTransitionPass([this.sceneA, this.sceneB], this.aspect, this.texture, this.texture1, this.texture2,this.texture3,this.texture4,this.texture5,this.texture6);
 
         this.outPass = new OutputPass();
 
@@ -187,6 +188,7 @@ export default class Main {
             '贴图转场3': 6 ,
             '贴图转场4': 7 ,
             '贴图转场5': 8 ,
+            '贴图转场6': 11 ,
         } ).onChange(  ( value ) => this.renderTransitionPass.setFragment(value)).listen();
         this.gui.add( this.params, 'threshold', 0, 1, 0.01 ).onChange(  ( value ) => this.renderTransitionPass.setTextureThreshold( value ) ).listen();
     }
