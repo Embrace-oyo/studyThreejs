@@ -11,11 +11,7 @@ export default defineConfig({
         port: 8181,
         https: false,
         proxy: {
-            // 前缀写法
-            '^/provinces-cms': {
-                target: 'https://abeto.co',
-                changeOrigin: true,
-            },
+            'assets': 'https://abeto.co/assets'
         },
     },
     plugins: [
