@@ -9,7 +9,7 @@ justThreeJs spaceDiscover.vue
 </template>
 
 <script setup>
-import Main from "@/views/example/spaceDiscover/js/main";
+import Main from "@/views/example/spaceDiscover/js/main.js";
 import {nextTick, onMounted, onUnmounted} from "vue";
 
 let spaceDiscover;
