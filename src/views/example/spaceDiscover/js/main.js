@@ -15,42 +15,27 @@ const options = {
     directionLocal: new CANNON.Vec3(0, -1.1, 0),
     suspensionStiffness: 30,
     suspensionRestLength: 0.3,
-    frictionSlip: 10,
+    frictionSlip: 5,
     dampingRelaxation: 2.3,
     dampingCompression: 4.4,
-    maxSuspensionForce: 100000,
+    // maxSuspensionForce: 100000,
     rollInfluence: 0.01,
     axleLocal: new CANNON.Vec3(-1, 0, 0),
-    chassisConnectionPointLocal: new CANNON.Vec3(1, 1, 0),
+    // chassisConnectionPointLocal: new CANNON.Vec3(1, 1, 0),
     maxSuspensionTravel: 0.3,
     customSlidingRotationalSpeed: -30,
-    useCustomSlidingRotationalSpeed: true
+    useCustomSlidingRotationalSpeed: true,
+
+    // radius: 0.65,  // 轮胎半径
+    // suspensionRestLength: 0.3,  // 悬挂休息长度（悬挂的初始距离）
+    // suspensionStiffness: 50,  // 悬挂刚度（弹簧硬度）
+    suspensionDamping: 1,  // 悬挂阻尼
+    // frictionSlip: 5,  // 轮胎的摩擦力
+    maxSuspensionForce: 10000,  // 最大悬挂力
+    engineForce: 0,  // 引擎力
+    brakeForce: 5,  // 刹车力
+    steering: 0  // 转向角度
 };
-const settings =  {
-    stepFrequency: 60,
-    quatNormalizeSkip: 2,
-    quatNormalizeFast: true,
-    gx: 0,
-    gy: 0,
-    gz: 0,
-    iterations: 3,
-    tolerance: 0.0001,
-    k: 1e6,
-    d: 3,
-    scene: 0,
-    paused: false,
-    rendermode: "solid",
-    constraints: false,
-    contacts: false, // Contact points
-    cm2contact: false, // center of mass to contact points
-    normals: false, // contact normals
-    axes: false, // "local" frame axes
-    particleSize: 0.1,
-    shadows: false,
-    aabbs: false,
-    profiling: false,
-    maxSubSteps: 3
-}
 const colors = [
     {
         stop: 0,
@@ -106,7 +91,7 @@ export default class Main{
         this.clock = new THREE.Clock();
 
         this.maxSteerVal = 0.6;
-        this.maxForce = 500;
+        this.maxForce = 600;
         this.brakeForce = 5;
 
         this.assetsInit()
@@ -158,7 +143,6 @@ export default class Main{
             this.animation()
         }
     }
-
     lightInit(){
         const light = new THREE.DirectionalLight(0xefefff, 1.5);
         light.position.set(1, 0, 1).normalize();
@@ -173,7 +157,6 @@ export default class Main{
         this.sun = light2;
         this.scene.add(light2);
     }
-
     initWorld(){
         this.world = new CANNON.World()
         this.debug = new CannonDebugger(this.scene, this.world);
@@ -193,7 +176,6 @@ export default class Main{
         document.onkeydown = this.handler;
         document.onkeyup = this.handler;
     }
-
     particleInit(){
         let numParticles = 2000
         let width = 500
@@ -272,7 +254,6 @@ export default class Main{
         this.particleSystem.position.y = -height / 2;
         this.scene.add(this.particleSystem)
     }
-
     chassisBodyInit(){
         this.chassisShape = new CANNON.Box(new CANNON.Vec3(1.25, 1, 3));
         this.chassisBody = new CANNON.Body({ mass: 150 });
@@ -287,7 +268,6 @@ export default class Main{
         this.chassisBody.threemesh = Object3d;
         this.scene.add(Object3d);
     }
-
     wheelBodyInit(){
         const axlewidth = 2;
         const backwheel = -0.95;
@@ -300,7 +280,7 @@ export default class Main{
             indexForwardAxis: 2
         });
 
-        options.chassisConnectionPointLocal.set(axlewidth, wheelheight, backwheel);
+        options.chassisConnectionPointLocal = new CANNON.Vec3(axlewidth, wheelheight, backwheel);
         this.vehicle.addWheel(options);
 
         options.chassisConnectionPointLocal.set(-axlewidth, wheelheight, backwheel);
@@ -343,20 +323,6 @@ export default class Main{
         this.vehicle.setSteeringValue(0, 2);
         this.vehicle.setSteeringValue(0, 3);
     }
-    cloneTerrain(terrainBodies, terrainShape, offsetX, offsetZ) {
-        const size = 128;
-        const clonedTerrainBody = new CANNON.Body({ mass: 0 });
-        clonedTerrainBody.addShape(terrainShape);
-        clonedTerrainBody.position.set(
-            -size * terrainShape.elementSize / 2 + offsetX,
-            -10,
-            size * terrainShape.elementSize / 2 + offsetZ
-        );
-        clonedTerrainBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-        this.world.addBody(clonedTerrainBody);
-        this.addVisual(clonedTerrainBody, 'landscape');
-        terrainBodies.push(clonedTerrainBody);
-    }
     groundInit(){
         let image = new Image()
         image.crossOrigin = "anonymous";
@@ -381,15 +347,14 @@ export default class Main{
                 }
             }
             const terrainShape = new CANNON.Heightfield(matrix, {elementSize: 10});
-            const terrainBody = new CANNON.Body({mass: 0});
-            terrainBody.addShape(terrainShape);
-            terrainBody.position.set(-width * terrainShape.elementSize / 2, -10, width * terrainShape.elementSize / 2);
-            terrainBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-            this.world.addBody(terrainBody);
-            this.addVisual(terrainBody, 'landscape')
+            this.terrainBody = new CANNON.Body({mass: 0});
+            this.terrainBody.addShape(terrainShape);
+            this.terrainBody.position.set(-width * terrainShape.elementSize / 2, -10, width * terrainShape.elementSize / 2);
+            this.terrainBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+            this.world.addBody(this.terrainBody);
+            this.addVisual(this.terrainBody, 'landscape')
         }
     }
-
     followCameraInit(){
         this.cameraOffset = new THREE.Vector3(0, 5, -10);
         this.carPosition = new THREE.Vector3();  // 车辆的位置
@@ -404,52 +369,43 @@ export default class Main{
         // 使相机朝向车辆
         this.camera.lookAt(this.carPosition);
         this.sun.target = this.vehicle.chassisBody.threemesh
-       /* this.followCamera = new THREE.Object3D();
-        this.followCamera.position.copy(this.camera.position);
-        this.followCamera.parent = this.chassisBody.threemesh;
-        this.sun.target = this.vehicle.chassisBody.threemesh
-        this.scene.add(this.followCamera);*/
     }
-
     handler(event){
-        let up = (event.type === 'keyup');
-        if(!up && event.type !== 'keydown'){
+        let up = (event.type == 'keyup'); // 是否是松开键盘
+
+        if (!up && event.type !== 'keydown') {
             return;
         }
 
-        switch(event.keyCode){
+        // 清除所有刹车
+        this.vehicle.setBrake(0, 0);
+        this.vehicle.setBrake(0, 1);
+        this.vehicle.setBrake(0, 2);
+        this.vehicle.setBrake(0, 3);
 
-            case 38: // forward
-                this.vehicle.applyEngineForce(up ? 0 : -this.maxForce, 0);
-                this.vehicle.applyEngineForce(up ? 0 : -this.maxForce, 1);
-                this.vehicle.applyEngineForce(up ? 0 : -this.maxForce, 2);
-                this.vehicle.applyEngineForce(up ? 0 : -this.maxForce, 3);
+        switch (event.keyCode) {
+            case 38: // 上箭头 - 前进
+                this.vehicle.applyEngineForce(up ? 0 : -this.maxForce, 2); // 2 代表后轮
+                this.vehicle.applyEngineForce(up ? 0 : -this.maxForce, 3); // 3 代表后轮
                 break;
-
-            case 40: // backward
-                this.vehicle.applyEngineForce(up ? 0 : this.maxForce, 0);
-                this.vehicle.applyEngineForce(up ? 0 : this.maxForce, 1);
-                this.vehicle.applyEngineForce(up ? 0 : this.maxForce, 2);
-                this.vehicle.applyEngineForce(up ? 0 : this.maxForce, 3);
+            case 40: // 下箭头 - 后退
+                this.vehicle.applyEngineForce(up ? 0 : this.maxForce, 2); // 2 代表后轮
+                this.vehicle.applyEngineForce(up ? 0 : this.maxForce, 3); // 3 代表后轮
                 break;
-
-            case 66: // b
-                this.vehicle.setBrake(this.brakeForce, 0);
+            case 66: // B 键 - 刹车
+                this.vehicle.setBrake(this.brakeForce, 0); // 0, 1, 2, 3 代表四个轮子
                 this.vehicle.setBrake(this.brakeForce, 1);
                 this.vehicle.setBrake(this.brakeForce, 2);
                 this.vehicle.setBrake(this.brakeForce, 3);
                 break;
-
-            case 39: // right
-                this.vehicle.setSteeringValue(up ? 0 : -this.maxSteerVal, 2);
-                this.vehicle.setSteeringValue(up ? 0 : -this.maxSteerVal, 3);
+            case 39: // 右箭头 - 右转
+                this.vehicle.setSteeringValue(up ? 0 : -this.maxSteerVal, 2); // 0 代表左前轮
+                this.vehicle.setSteeringValue(up ? 0 : -this.maxSteerVal, 3); // 1 代表右前轮
                 break;
-
-            case 37: // left
-                this.vehicle.setSteeringValue(up ? 0 : this.maxSteerVal, 2);
-                this.vehicle.setSteeringValue(up ? 0 : this.maxSteerVal, 3);
+            case 37: // 左箭头 - 左转
+                this.vehicle.setSteeringValue(up ? 0 : this.maxSteerVal, 2); // 0 代表左前轮
+                this.vehicle.setSteeringValue(up ? 0 : this.maxSteerVal, 3); // 1 代表右前轮
                 break;
-
         }
     }
     updateWheel(){
@@ -506,6 +462,24 @@ export default class Main{
         this.sun.position.copy(this.camera.position);
         this.sun.position.y += 10;
     }
+    updateCarPosition() {
+        if(!this.chassisBody || !this.terrainBody) return
+        let closestIntersection = null;
+        const raycaster = new THREE.Raycaster(this.chassisBody.position, new THREE.Vector3(0, -1, 0));
+        const intersects = raycaster.intersectObject(this.terrainBody.threemesh);
+        if (intersects.length > 0) {
+            if (!closestIntersection || intersects[0].distance < closestIntersection.distance) {
+                closestIntersection = intersects[0];
+            }
+        }
+        if (closestIntersection) {
+            // Position the cube on top of the terrain
+            this.chassisBody.position.y = closestIntersection.point.y + 0.5; // Offset slightly above terrain
+        } else {
+            // Default height if no intersection
+            this.chassisBody.threemesh.position.y = 40;
+        }
+    }
     animation(){
         // 循环
         this.renderer.setAnimationLoop(() => this.animation())
@@ -522,6 +496,7 @@ export default class Main{
         this.world.step(1 / 60);
         this.updateWheel()
         this.updateBodies()
+        // this.updateCarPosition()
         this.updateCamera()
         // this.debug.update();
 
@@ -529,7 +504,6 @@ export default class Main{
         // 渲染
         this.renderer.render(this.scene, this.camera)
     }
-
     addVisual(body, name, castShadow = false, receiveShadow = true){
         let mesh;
         if (body instanceof CANNON.Body) mesh = this.shape2Mesh(body, castShadow, receiveShadow);
@@ -545,7 +519,7 @@ export default class Main{
         const object3D = new THREE.Object3D();
         body.shapes.forEach((shape, index) => {
             let mesh;
-            let geometry = new THREE.BufferGeometry();;
+            let geometry = new THREE.BufferGeometry();
             let vertices = [];
             let faces = [];
             let positions = [];

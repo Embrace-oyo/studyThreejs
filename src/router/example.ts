@@ -49,6 +49,11 @@ const exampleRouter = [
         name: '太空探索🚀',
         component: () => import('@/views/example/spaceDiscover/spaceDiscover.vue')
     },
+    {
+        path: '/example/music',
+        name: '音乐可视化🎵',
+        component: () => import('@/views/example/music/music.vue')
+    },
 
 ]
 
