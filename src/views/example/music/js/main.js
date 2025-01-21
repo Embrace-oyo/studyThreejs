@@ -5,7 +5,9 @@
  * @created 2024/12/30 15:55:44
  */
 import * as THREE from 'three'
-
+import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+import vert from '@/views/example/music/glsl/vert.glsl'
+import frag from '@/views/example/music/glsl/frag.glsl'
 export default class Main{
     constructor(config) {
         this.target = config.target;
@@ -21,10 +23,18 @@ export default class Main{
         this.scene = new THREE.Scene()
         this.scene.background = new THREE.Color('#ccc');
         this.camera = new THREE.PerspectiveCamera(75, this.aspect, 0.1, 1000)
-        this.camera.position.copy( new THREE.Vector3(0, 20, 50))
+        this.camera.position.copy( new THREE.Vector3(0, 0.2, 0.5))
         this.camera.lookAt(new THREE.Vector3(0,0,0))
         this.target.appendChild(this.renderer.domElement);
         this.scene.add(new THREE.AxesHelper(500))
+
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
+        this.controls.enablePan = true;
+        this.controls.enableDamping = true;
+
+
         this.audioInit()
         this.meshInit()
         this.animation.bind(this)
@@ -43,54 +53,18 @@ export default class Main{
         this.analyser = new THREE.AudioAnalyser(this.audio, 256);
     }
     meshInit(){
-        // 创建山脉地形几何体
-        const width = 500;
-        const height = 500;
-        const segments = 256;
-        const geometry = new THREE.PlaneGeometry(width, height, segments, segments);
-        geometry.rotateX(-Math.PI / 2);
-
-// Shader 材质
-        const material = new THREE.ShaderMaterial({
-            vertexShader: `
-    uniform float time;
-    varying vec3 vNormal;
-    varying float vHeight;
-
-    // 生成噪声函数（使用简单的正弦函数模拟山脉）
-    float noise(float x, float z) {
-      return sin(x * 0.1 + time) * 2.0 + cos(z * 0.1 + time) * 2.0;
-    }
-
-    void main() {
-      vNormal = normal;
-      vHeight = noise(position.x, position.z);  // 使用噪声控制高度
-      vec3 newPosition = position + normal * vHeight;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
-    }
-  `,
-            fragmentShader: `
-    varying vec3 vNormal;
-    varying float vHeight;
-
-    void main() {
-      // 给山脉表面添加霓虹光效果
-      vec3 color = vec3(0.1, 0.5, 0.1);  // 设置一个绿色的颜色（霓虹效果）
-      if (vHeight > 2.0) {
-        color = vec3(0.0, 1.0, 0.0);  // 高处区域亮绿色
-      }
-      
-      // 模拟发光效果
-      gl_FragColor = vec4(color, 1.0);
-    }
-  `,
-            uniforms: {
-                time: { value: 0 },
+        this.geometry = new THREE.PlaneGeometry(100, 100, 256, 256);
+        this.material = new THREE.ShaderMaterial({
+            uniforms:{
+                iTime:{value: 0},
+                audioData: { value: new Float32Array(256) }
             },
-            wireframe: true,
-            side: THREE.DoubleSide,
-        });
-        this.mesh = new THREE.Mesh(geometry,material)
+            vertexShader: vert,
+            fragmentShader: frag,
+            wireframe: true // 可选的线框模式
+        })
+        this.mesh = new THREE.Mesh(this.geometry, this.material)
+        this.mesh.rotateX(-Math.PI / 2)
         this.scene.add(this.mesh)
     }
     start(){
@@ -100,16 +74,19 @@ export default class Main{
         this.audio.play();
     }
     update(){
-        // 获取音频的频谱数据
-        const data = this.analyser.getFrequencyData();
-
-
-        // 更新时间
-        this.mesh.material.uniforms.time.value += 0.05;
+        const data = this.analyser.getFrequencyData()
+        const audioData = new Float32Array(data.length);
+        // 将频率数据归一化到 0 到 1 的范围，并传递给 shader
+        for (let i = 0; i < data.length; i++) {
+            audioData[i] = data[i] / 256.0;
+        }
+        // 更新 uniform 数据
+        this.mesh.material.uniforms.audioData.value = audioData;
     }
     animation(){
         this.renderer.setAnimationLoop(() => this.animation())
 
+        this.controls.update();
 
         this.update()
 
