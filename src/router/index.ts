@@ -1,6 +1,6 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 // import shaderStudyRouter from "./shaderStudy";
-// import exampleRouter from "./example";
+import exampleRouter from "./routerList/example";
 
 const router = createRouter({
     history: createWebHashHistory(),
@@ -12,7 +12,19 @@ const router = createRouter({
         {
             path: '/preview',
             name: 'Home',
+            meta: {
+                keepAlive: true
+            },
             component: () => import('@/views/preview/preview.vue')
+        },
+        {
+            path: '/layout',
+            name: 'Layout',
+            meta: {
+                keepAlive: true
+            },
+            component: () => import('@/views/preview/layout.vue'),
+            children: exampleRouter
         }
     ]
 })

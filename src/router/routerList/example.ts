@@ -1,63 +1,99 @@
 const exampleRouter = [
     {
-        path: '/example/su7',
+        path: 'su7',
         name: '小米SU7',
+        meta:{
+            img: '../../assets/listImg/小米SU7.png'
+        },
         component: () => import('@/views/example/su7/su7.vue')
     },
     {
-        path: '/example/sky',
+        path: 'sky',
         name: '天空',
+        meta:{
+            img: '../../assets/listImg/天空.png'
+        },
         component: () => import('@/views/example/sky/sky.vue')
     },
     {
-        path: '/example/fluid',
+        path: 'fluid',
         name: '流体效果',
+        meta:{
+            img: '../../assets/listImg/流体效果.png'
+        },
         component: () => import('@/views/example/fluid/fluid.vue')
     },
     {
-        path: '/example/ring',
+        path: 'ring',
         name: '扩散光环效果',
+        meta:{
+            img: '../../assets/listImg/扩散光环效果.png'
+        },
         component: () => import('@/views/example/ring/ring.vue')
     },
-    /*{
-        path: '/example/abeto',
-        name: '花瓣特效',
-        component: () => import('@/views/example/abeto/abeto.vue')
-    },*/
     {
-        path: '/example/neon',
+        path: 'neon',
         name: '霓虹灯特效',
+        meta:{
+            img: '../../assets/listImg/霓虹灯特效.png'
+        },
         component: () => import('@/views/example/neon/neon.vue')
     },
     {
-        path: '/example/aurora',
+        path: 'aurora',
         name: '极光和树',
+        meta:{
+            img: '../../assets/listImg/极光和树.png'
+        },
         component: () => import('@/views/example/aurora/aurora.vue')
     },
     {
-        path: '/example/webGLFog',
+        path: 'webGLFog',
         name: '烟雾特效',
+        meta:{
+            img: '../../assets/listImg/烟雾特效.png'
+        },
         component: () => import('@/views/example/webGLFog/webGLFog.vue')
     },
     {
-        path: '/example/ablate',
+        path: 'ablate',
         name: '转场特效',
+        meta:{
+            img: '../../assets/listImg/转场特效.png'
+        },
         component: () => import('@/views/example/ablate/ablate.vue')
     },
     {
-        path: '/example/spaceDiscover',
+        path: 'spaceDiscover',
         name: '太空探索🚀',
+        meta:{
+            img: '../../assets/listImg/太空探索🚀.png'
+        },
         component: () => import('@/views/example/spaceDiscover/spaceDiscover.vue')
     },
     {
-        path: '/example/music',
+        path: 'music',
         name: '音乐可视化🎵',
+        meta:{
+            img: '../../assets/listImg/小米SU7.png'
+        },
         component: () => import('@/views/example/music/music.vue')
     },
     {
-        path: '/example/cloud',
+        path: 'cloud',
         name: '云☁️',
+        meta:{
+            img: '../../assets/listImg/云☁️.png'
+        },
         component: () => import('@/views/example/cloud/cloud.vue')
+    },
+    {
+        path: 'meteor',
+        name: '陨石🪨',
+        meta:{
+            img: '../../assets/listImg/云☁️.png'
+        },
+        component: () => import('@/views/example/meteor/meteor.vue')
     },
 
 ]

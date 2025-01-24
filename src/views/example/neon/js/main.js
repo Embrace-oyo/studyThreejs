@@ -144,7 +144,10 @@ export default class Main {
     }
 
     setRenderer() {
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({
+            antialias: true,
+            preserveDrawingBuffer: true
+        });
         this.renderer.setSize(this.width, this.height);
         this.renderer.autoClear = false;
         this.target.appendChild(this.renderer.domElement);

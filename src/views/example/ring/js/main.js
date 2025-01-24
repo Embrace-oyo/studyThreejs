@@ -51,7 +51,8 @@ export default class Ring {
             powerPreference: "high-performance",
             antialias: !1,
             alpha: !1,
-            premultipliedAlpha: !1
+            premultipliedAlpha: !1,
+            preserveDrawingBuffer: !0
         })
         this.renderer.setSize(this.width, this.height)
         this.target.appendChild(this.renderer.domElement);

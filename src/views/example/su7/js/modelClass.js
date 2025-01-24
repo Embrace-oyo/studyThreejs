@@ -143,7 +143,8 @@ export default class ModelClass {
             powerPreference: "high-performance",
             antialias: false,
             stencil: false,
-            depth: false
+            depth: false,
+            preserveDrawingBuffer: true
         });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);

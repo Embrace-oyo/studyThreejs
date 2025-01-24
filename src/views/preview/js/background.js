@@ -4,7 +4,7 @@
  * @description
  * @created 2025/1/21 15:17:34
  */
-import * as THREE from 'three'
+import {GUI} from 'three/examples/jsm/libs/lil-gui.module.min.js';
 import gsap from "gsap";
 import Triangle from '@/views/preview/js/triangle'
 
@@ -15,15 +15,15 @@ export default class Background {
     mouseOldY = 0;
     triangleWidth = 21;
     triangleHeight = 27;
-    speedTrailAppear = 0.1;
-    speedTrailDisappear = 0.1;
-    speedTriOpen = 1;
-    trailMaxLength = 18;
-    trailIntervalCreation = 100;
+    speedTriangleAppear = 0.1;
+    speedTriangleDisappear = 0.1;
+    speedTriangleOpen = 1;
+    triangleMaxLength = 18;
+    triangleIntervalCreation = 100;
     delayBeforeDisappear = 2;
-    cols;
-    rows;
-    tris;
+    cols = 0;
+    rows = 0;
+    triangles = [];
     randomAlpha = true;
     neighbours = ["side", "top", "bottom"];
     colors = [
@@ -38,32 +38,37 @@ export default class Background {
     ];
     interval = null;
 
-    constructor(config) {
-        this.target = config.target;
-        this.width = this.target.offsetWidth;
-        this.height = this.target.offsetHeight;
-        this.aspect = this.width / this.height;
+    constructor() {
         this.initCanvas()
         this.start();
-        this.resize()
+        // this.initGUI()
     }
 
     initCanvas() {
-        this.ctx = this.target.getContext('2d')
+        this.parent = document.getElementById('preview');
+        this.canvas = document.getElementById('canvas');
+        this.width = this.canvas.width = this.parent.scrollWidth;
+        this.height = this.canvas.height = this.parent.scrollHeight;
+        this.ctx = this.canvas.getContext('2d')
+        this.initParams();
+        gsap.ticker.add(() => this.draw())
+        this.resize()
+    }
+
+    initParams() {
         this.cols = Math.floor(this.width / this.triangleWidth);
         this.cols = (this.cols % 2) ? this.cols : this.cols - 1; // => keep it odd
         this.rows = Math.floor(this.height / this.triangleHeight) * 2;
         this.triangles = [];
-        gsap.ticker.add(() => this.draw())
     }
 
-    start() {
+    initGrid() {
         for (let j = 0; j < this.rows; j++) {
             for (let i = 0; i < this.cols; i++) {
                 let pos = i + (j * this.cols);
                 let triangle = new Triangle({
-                    pos,
-                    column: i,
+                    pos: pos,
+                    col: i,
                     row: j,
                     triangleWidth: this.triangleWidth,
                     triangleHeight: this.triangleHeight,
@@ -74,50 +79,16 @@ export default class Background {
                 triangle.draw();
             }
         }
+    }
+
+    start() {
         if (this.interval) clearInterval(this.interval);
-        this.interval = setInterval(() => this.createTrail(), this.trailIntervalCreation);
-    }
-
-    draw(){
-        this.ctx.clearRect(0, 0, this.width, this.height);
-        for (let i = 0; i < this.triangles.length; i++) {
-            this.triangles[i].draw();
-        }
-    }
-
-    createTrail() {
-        for (let i = 0; i < this.triangles.length; i++) {
-            this.triangles[i].selectedForTrail = false;
-        }
-        let trailLength = Math.floor(Math.random() * this.trailMaxLength - 2) + 2;
-        let index = Math.round(Math.random() * this.triangles.length);
-        let startTri = this.triangles[index];
-        startTri.selectedForTrail = true;
-        let currentTri = {
-            tri: startTri,
-            openDir: "side",
-            closeDir: "side"
-        };
-        for (let i = 0; i < trailLength; i++) {
-            let o = this.getNeighbour(currentTri.tri);
-            let opacity = 1;
-            if (this.randomAlpha) {
-                opacity = (Math.random() < .8) ? Math.random() * .5 : 1;
-            } else {
-                opacity = 1;
-            }
-            if (o != null) {
-                o.tri.selectedForTrail = true;
-                currentTri.tri.closeDir = o.openDir;
-                currentTri.tri.open(currentTri.openDir, this.speedTriOpen, opacity, i * this.speedTrailAppear);
-                currentTri.tri.close(currentTri.closeDir, 1, this.delayBeforeDisappear + i * this.speedTrailDisappear);
-                currentTri = o;
-            } else {
-                currentTri.tri.open(currentTri.openDir, this.speedTriOpen, opacity, (i + 1) * this.speedTrailAppear);
-                currentTri.tri.close(currentTri.closeDir, 1, this.delayBeforeDisappear + (i + 1) * this.speedTrailDisappear);
-                break;
-            }
-        }
+        this.initParams();
+        this.initGrid();
+        this.createTriangle();
+        this.interval = setInterval(() => {
+            this.createTriangle()
+        }, this.triangleIntervalCreation);
     }
 
     shuffleArray(o) {
@@ -128,33 +99,29 @@ export default class Background {
     getNeighbour(t) {
         this.shuffleArray(this.neighbours);
         for (let i = 0; i < this.neighbours.length; i++) {
-            if (this.neighbours[i] === "top") {
-                if (this.triangles[t.pos - this.cols] && t.row !== 0 && !this.triangles[t.pos - this.cols].selectedForTrail && !this.triangles[t.pos - this.cols].opened) {
+            if (this.neighbours[i] === 'top') {
+                if (t.row !== 0 && !this.triangles[t.pos - this.cols].selectedForTrail && !this.triangles[t.pos - this.cols].opened) return {
+                    triangle: this.triangles[t.pos - this.cols],
+                    openDir: "top",
+                    closeDir: "top"
+                };
+            } else if (this.neighbours[i] === 'bottom') {
+                if (t.row !== this.rows - 1 && !this.triangles[t.pos + this.cols].selectedForTrail && !this.triangles[t.pos + this.cols].opened) return {
+                    triangle: this.triangles[t.pos + this.cols],
+                    openDir: "bottom",
+                    closeDir: "top"
+                };
+            } else if (this.neighbours[i] === 'side') {
+                if (t.isLeft && t.col !== this.cols - 1 && !this.triangles[t.pos + 1].selectedForTrail && !this.triangles[t.pos + 1].opened) {
                     return {
-                        tri: this.triangles[t.pos - this.cols],
-                        openDir: "top",
-                        closeDir: "top"
-                    };
-                }
-
-            } else if (this.neighbours[i] === "bottom") {
-                if (this.triangles[t.pos + this.cols] && t.row !== this.rows - 1 && !this.triangles[t.pos + this.cols].selectedForTrail && !this.triangles[t.pos + this.cols].opened) {
-                    return {
-                        tri: this.triangles[t.pos + this.cols],
-                        openDir: "bottom",
-                        closeDir: "top"
-                    };
-                }
-            } else {
-                if (this.triangles[t.pos + 1] && t.isLeft && t.col !== this.cols - 1 && !this.triangles[t.pos + 1].selectedForTrail && !this.triangles[t.pos + 1].opened) {
-                    return {
-                        tri: this.triangles[t.pos + 1],
+                        triangle: this.triangles[t.pos + 1],
                         openDir: "side",
                         closeDir: "top"
                     };
-                } else if (this.triangles[t.pos - 1] && !t.isLeft && t.col !== 0 && !this.triangles[t.pos - 1].selectedForTrail && !this.triangles[t.pos - 1].opened) {
+                }
+                if (!t.isLeft && t.col !== 0 && !this.triangles[t.pos - 1].selectedForTrail && !this.triangles[t.pos - 1].opened) {
                     return {
-                        tri: this.triangles[t.pos - 1],
+                        triangle: this.triangles[t.pos - 1],
                         openDir: "side",
                         closeDir: "top"
                     };
@@ -164,23 +131,93 @@ export default class Background {
         return null;
     }
 
+    createTriangle() {
+        for (let i = 0; i < this.triangles.length; i++) {
+            this.triangles[i].selectedForTrail = false;
+        }
+        let triangleLength = Math.floor(Math.random() * this.triangleMaxLength - 2) + 2;
+        let index = Math.round(Math.random() * this.triangles.length);
+        let startTriangle = this.triangles[index];
+        startTriangle.selectedForTrail = true;
+        let currentTriangle = {
+            triangle: startTriangle,
+            openDir: "side",
+            closeDir: "side"
+        };
+        for (let i = 0; i < triangleLength; i++) {
+            let opacity = this.randomAlpha ? (Math.random() < .8 ? Math.random() * .5 : 1) : 1;
+            let o = this.getNeighbour(currentTriangle.triangle)
+            if (o != null) {
+                o.triangle.selectedForTrail = true;
+                currentTriangle.triangle.closeDir = o.openDir;
+                currentTriangle.triangle.open(currentTriangle.openDir, this.speedTriangleOpen, opacity, i * this.speedTriangleAppear);
+                currentTriangle.triangle.close(currentTriangle.closeDir, 1, this.delayBeforeDisappear + i * this.speedTriangleDisappear);
+                currentTriangle = o;
+            } else {
+                currentTriangle.triangle.open(currentTriangle.openDir, this.speedTriangleOpen, opacity, (i + 1) * this.speedTriangleAppear);
+                currentTriangle.triangle.close(currentTriangle.closeDir, 1, this.delayBeforeDisappear + (i + 1) * this.speedTriangleDisappear);
+                break;
+            }
+        }
+    }
+
+    initGUI() {
+        this.gui = new GUI({container: this.parent});
+        this.gui.domElement.style.position = 'absolute'
+        this.gui.domElement.style.right = '0'
+        this.gui.domElement.style.top = '0'
+        this.gui.domElement.style.zIndex = '999'
+        this.gui.add(this, 'triangleWidth', 10, 50, 1).name('Triangle Width').onFinishChange(() => this.start());
+        this.gui.add(this, 'triangleHeight', 10, 50, 1).name('Triangle Height').onFinishChange(() => this.start());
+        this.gui.add(this, 'triangleMaxLength', 2, 40, 1).name('Triangle MaxLength').onFinishChange(() => this.start());
+        this.gui.add(this, 'triangleIntervalCreation', 100, 1000, 100).name('Triangle Creation delay').onFinishChange(() => this.start());
+        this.gui.add(this, 'delayBeforeDisappear', 0.02, 4, 0.01).name('Disappear delay').onFinishChange(() => this.start());
+        this.gui.add(this, 'randomAlpha').name('Random Opacity').onFinishChange(() => this.start());
+        this.gui.add(this, 'pause').name('Pause');
+        this.gui.add(this, 'closeAll').name('closeAll');
+        this.gui.add(this, 'kill').name('Kill');
+        this.gui.add(this, 'start').name('Restart');
+    }
+
+    draw() {
+        this.ctx.clearRect(0, 0, this.width, this.height);
+        for (let i = 0; i < this.triangles.length; i++) {
+            this.triangles[i].draw();
+        }
+    }
+
     pause() {
+        if (this.interval) clearInterval(this.interval);
+        for (let i = 0; i < this.triangles.length; i++) {
+            if (this.triangles[i].tweenClose) this.triangles[i].tweenClose.kill();
+        }
     }
-
-    closeAll() {
+    closeAll(){
+        let count = 0;
+        if (this.interval) clearInterval(this.interval);
+        for (let i = 0; i < this.triangles.length; i++) {
+            if (this.triangles[i].tweenOpen) this.triangles[i].tweenOpen.kill();
+            if (this.triangles[i].opened || this.triangles[i].opening) {
+                count++;
+                this.triangles[i].close("top", .8, .2 + .0015 * count);
+            }
+        }
     }
-
-    kill() {
+    kill(){
+        if (this.interval) clearInterval(this.interval);
+        for (let i = 0; i < this.triangles.length; i++) {
+            gsap.killTweensOf(this.triangles[i]);
+            this.triangles[i].alpha = 0;
+        }
     }
-
 
     resize() {
         window.addEventListener("resize", () => {
-            this.width = this.target.offsetWidth;
-            this.height = this.target.offsetHeight;
-            this.cols = Math.floor(this.width / this.triangleWidth);
-            this.cols = (this.cols % 2) ? this.cols : this.cols - 1; // => keep it odd
-            this.rows = Math.floor(this.height / this.triangleHeight) * 2;
+            this.canvas.width = this.parent.offsetWidth;
+            this.canvas.height = this.parent.offsetHeight;
+            this.width = this.canvas.width = this.parent.scrollWidth;
+            this.height = this.canvas.height = this.parent.scrollHeight;
+            this.start()
         });
     }
 

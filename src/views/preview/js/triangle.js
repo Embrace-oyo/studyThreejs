@@ -8,11 +8,9 @@ import gsap from "gsap";
 
 export default class Triangle {
     constructor(config) {
-        this.tweenClose;
-        this.tweenOpen;
         this.ctx = config.ctx;
         this.pos = config.pos;
-        this.col = config.column;
+        this.col = config.col;
         this.row = config.row;
         this.colors = config.colors;
         this.triangleWidth = config.triangleWidth;
@@ -25,17 +23,18 @@ export default class Triangle {
         this.opened = false;
         this.opening = false;
         this.closing = false;
+
         this.tX1 = (this.isLeft) ? (this.col + 1) * this.triangleWidth : this.col * this.triangleWidth;
         this.tX2 = (this.isLeft) ? this.col * this.triangleWidth : (this.col + 1) * this.triangleWidth;
         this.tX3 = (this.isLeft) ? (this.col + 1) * this.triangleWidth : this.col * this.triangleWidth;
 
-        this.x1 = this.tX1;
-        this.x2 = this.tX1;
-        this.x3 = this.tX1;
-
         this.tY1 = .5 * this.row * this.triangleHeight;
         this.tY2 = .5 * (this.row + 1) * this.triangleHeight;
         this.tY3 = .5 * (this.row + 2) * this.triangleHeight;
+
+        this.x1 = this.tX1;
+        this.x2 = this.tX1;
+        this.x3 = this.tX1;
 
         this.y1 = this.tY1;
         this.y2 = this.tY1;
@@ -50,15 +49,6 @@ export default class Triangle {
         this.ctx.lineTo(this.x3, this.y3);
         this.ctx.closePath();
         this.ctx.fill();
-
-
-        // this.ctx.fillStyle = "rgb(200,0,0)";
-        // this.ctx.fillRect(this.x1, this.y1, 55, 50);
-        //
-        // this.ctx.fillStyle = "rgba(0, 0, 200, 0.5)";
-        // this.ctx.fillRect(this.x2, this.y2, 55, 50);
-        //
-        // this.ctx.fillRect(this.x3, this.y3, 55, 50);
     }
 
     open(direction, targetSpeed, targetAlpha, targetDelay) {

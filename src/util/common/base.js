@@ -49,6 +49,7 @@ class Base {
             depth: false,
             alpha: true,
             premultipliedAlpha: false,
+            preserveDrawingBuffer: true,
             ...gl
         });
         this.renderer.setSize(this.width, this.height);

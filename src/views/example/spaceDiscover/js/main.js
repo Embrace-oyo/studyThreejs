@@ -73,7 +73,7 @@ export default class Main{
         this.camera.position.set(0,5,-10);
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color('#222')
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.shadowMap.enabled = true;

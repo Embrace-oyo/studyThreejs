@@ -5,10 +5,20 @@ justThreeJs App.vue
 @created 2025/1/21 14:55:26
 -->
 <template>
-  <RouterView/>
+  <router-view v-slot="{ Component }">
+    <keep-alive>
+      <component
+          :is="Component"
+          v-if="$route.meta.keepAlive"
+          :key="$route.name"
+      />
+    </keep-alive>
+  </router-view>
 </template>
 
 <script setup>
+import { useRoute } from "vue-router";
+const $route = useRoute();
 </script>
 
 <style lang="less">

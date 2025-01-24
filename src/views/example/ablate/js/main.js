@@ -60,7 +60,7 @@ export default class Main {
     }
 
     setBase() {
-        this.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
+        this.renderer = new THREE.WebGLRenderer({alpha: true, antialias: true, preserveDrawingBuffer: true});
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.target.appendChild(this.renderer.domElement);

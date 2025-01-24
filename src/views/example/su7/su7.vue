@@ -42,7 +42,7 @@ onMounted(() => {
 onUnmounted(() => {
   model.destroy()
   model = null
-  console.log('销毁')
+  console.log('su7-销毁')
 })
 </script>
 
