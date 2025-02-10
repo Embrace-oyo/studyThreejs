@@ -51,8 +51,7 @@ void main(){
     mixFactor=cnoise(pos+iTime)*uNoise;
     col=mix(pos,pos2,mixFactor);
 
-    col=rotate(col,iTime*.5,vec3(0.,1.,0.));
-
+    col=rotate(col,iTime*0.5,vec3(2.,1.,0.));
     if(uAttractEnabled){
         vec3 attract=uAttract;
         attract.x=uId==0.?map(attract.x,369.,1000.,0.,3.):map(attract.x,0.,480.,-3.,0.)*-1.;

@@ -7,7 +7,9 @@
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 import {GPUComputationRenderer} from 'three/addons/misc/GPUComputationRenderer.js';
-import {createNoise2D, createNoise3D} from 'simplex-noise';
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js'
+import {GUI} from 'three/addons/libs/lil-gui.module.min.js';
+import {createNoise3D} from 'simplex-noise';
 import gsap from "gsap";
 import vertex from '@/views/example/meteor/glsl/vertex.glsl'
 import fragment from '@/views/example/meteor/glsl/fragment.glsl'
@@ -17,13 +19,17 @@ export default class Meteor {
     colorsBright = ['#a3b509', '#79b68a', '#f4da7e', '#ff8f4e', '#9d797d', '#b91b2a', '#b4885c', '#dd6316', '#d9c4b4']
     colorsDark = ['#000000', '#190502', '#1c1005', '#23190d', '#380008', '#131913', '#28120a', '#551705', '#471b01']
     shakeAngle = 0
-    wasteArray = []
     frequency = 1
     freqCount = 0
     metShakeSpeed = .1
     metRotateSpeed = .1
     slowMoFactor = 1
     shakeAmp = 3
+    params = {
+        uFreq: 1,
+        uNoise: 0.5
+    }
+    particleArray = []
 
     constructor(config) {
         this.target = config.target;
@@ -41,7 +47,7 @@ export default class Meteor {
         this.renderer.setSize(this.width, this.height);
         this.target.appendChild(this.renderer.domElement);
         this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.01, 3000);
-        this.camera.position.z = 5;
+        this.camera.position.z = 30;
         this.scene.add(new THREE.AxesHelper(1000))
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.controls.target.set(0, 0, 0);
@@ -49,10 +55,32 @@ export default class Meteor {
         this.controls.enablePan = false;
         this.controls.enableDamping = true;
         this.clock = new THREE.Clock();
-        this.createLight()
-        // this.createMeteorite()
+
+        // 环境贴图
+        this.rgbeLoader = new RGBELoader()
+        this.rgbeLoader.load('./hdr/宇宙4K (5).hdr', (environmentMap) => {
+            environmentMap.mapping = THREE.EquirectangularReflectionMapping
+            this.scene.background = environmentMap
+            this.scene.environment = environmentMap
+        })
+
+        // this.createLight()
+        this.createMeteorite()
+        this.createParticle(500);
         this.createFragments()
+        this.createGui();
         this.animation()
+    }
+
+    createGui() {
+        this.gui = new GUI({container: this.target});
+        this.gui.domElement.style.position = 'absolute'
+        this.gui.domElement.style.right = '0'
+        this.gui.domElement.style.top = '0'
+        this.gui.domElement.style.zIndex = '999'
+
+        this.gui.add(this.params, 'uFreq', 0.5, 3, 0.01).name('uFreq').onChange((val) => this.posVar.material.uniforms['uFreq'] = {value: val});
+        this.gui.add(this.params, 'uNoise', 0, 10, 0.1).name('uNoise').onChange((val) => this.posVar.material.uniforms['uNoise'] = {value: val});
     }
 
     createLight() {
@@ -78,30 +106,99 @@ export default class Meteor {
 
     createMeteorite() {
         this.sphereRadius = 5;
-        this.meteorite = new THREE.Object3D();
-        this.geometryCore = new THREE.TetrahedronGeometry(this.sphereRadius, 2);
-        this.materialCore = new THREE.MeshStandardMaterial({
+        this.geometry = new THREE.TetrahedronGeometry(this.sphereRadius, 4);
+        this.material = new THREE.MeshStandardMaterial({
             color: 0xd44642,
             roughness: .9,
             emissive: 0x270000,
             flatShading: true,
+            depthWrite: true,
+            // wireframe: true,
         });
-        this.metCore = new THREE.Mesh(this.geometryCore, this.materialCore);
-
-        // 添加到 meteorite 对象
-        this.meteorite.add(this.metCore);
-
-        // 添加到场景
-        this.scene.add(this.meteorite);
+        this.metCore = new THREE.Mesh(this.geometry, this.material);
+        this.scene.add(this.metCore);
     }
 
-    updateMeteorite() {
-        this.meteorite.rotation.x += 0.005;
-        this.meteorite.rotation.y += 0.01;
-        this.shakeAngle += this.metShakeSpeed;
-        this.metCore.position.x = (Math.cos(this.shakeAngle) * this.shakeAmp);
-        this.metCore.position.y = Math.cos(this.shakeAngle * 1.5) * this.shakeAmp * 2;
-        this.metCore.position.z = Math.cos(this.shakeAngle * 2) * this.shakeAmp * 3;
+    createParticle(count = 1) {
+        for (let i = 0; i < count; i++) {
+            const randomFace = Math.floor(Math.random() * (4 - 2 + 1)) + 2;
+            const color = this.hexToRgb(this.getColor("bright"));
+            const randomColor = new THREE.Color("rgb(" + color.r + "," + color.g + "," + color.b + ")");
+            const geometry = new THREE.TetrahedronGeometry(this.sphereRadius, randomFace);
+            const material = new THREE.MeshStandardMaterial({
+                color: randomColor,
+                flatShading: true,
+                transparent: true
+            });
+            const mesh = new THREE.Mesh(geometry, material);
+            // 随机生成一个球体上的点，并扩散到球体的半径范围内
+            const theta = Math.random() * Math.PI * 2; // 随机生成经度角 [0, 2π]
+            const phi = Math.acos(Math.random() * 2 - 1);  // 随机生成纬度角 [0, π]
+            const radius = this.sphereRadius + Math.random() * 20; // 根据半径扩散的范围
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.sin(phi) * Math.sin(theta);
+            const z = radius * Math.cos(phi);
+            const scale = 0.02 + Math.random() * 0.02;
+            // mesh.position.set(x, y, z);
+            mesh.scale.set(scale, scale, scale);
+            mesh.material.color.setRGB(color.r / 255, color.g / 255, color.b / 255);
+            const object = {
+                color,
+                geometry,
+                material,
+                mesh
+            }
+            this.scene.add(mesh);
+            gsap.to(mesh.position, {
+                x: x,
+                y: y,
+                z: z,
+                duration: 0.3,
+                ease: gsap.easeInOut,
+            })
+            this.particleArray.push(object);
+        }
+    }
+
+    updateParticle() {
+        const object = this.particleArray.shift();
+        this.createParticle(1)
+        const targetPositionX = object.mesh.position.x + 100 + Math.random();
+        const targetPositionY = object.mesh.position.y + 100 + Math.random();
+        const targetSpeed = 2 + Math.random() * 2;
+        const targetColor = this.hexToRgb(this.getColor("bright"));
+
+        gsap.to(object.mesh.rotation, {
+            x: Math.random() * Math.PI * 6,
+            y: Math.random() * Math.PI * 6,
+            z: Math.random() * Math.PI * 6,
+            duration: targetSpeed * this.slowMoFactor
+        })
+        gsap.to(object.mesh.position, {
+            x: targetPositionX,
+            y: targetPositionY,
+            duration: 4,
+            ease: gsap.easeInOut,
+            onComplete: (mesh) => {
+                this.scene.remove(mesh)
+                mesh.geometry.dispose(); // 释放几何体的内存
+                mesh.material.dispose(); // 释放材质的内存
+            },
+            onCompleteParams: [object.mesh]
+        })
+
+        /*gsap.to(object.mesh.color, {
+            r: targetColor.r,
+            g: targetColor.g,
+            b: targetColor.b,
+            duration: this.slowMoFactor,
+            ease: gsap.easeIn,
+            onUpdate: (mesh) => {
+                mesh.material.color.setRGB(object.color.r / 255, object.g / 255, object.color.b / 255);
+                mesh.material.needUpdate = true;
+            },
+            onUpdateParams: [object.mesh]
+        });*/
     }
 
     createFragments() {
@@ -163,6 +260,7 @@ export default class Meteor {
             depthWrite: false,
         });
         this.points = new THREE.Points(geometry, material);
+        this.points.scale.set(10, 10, 10)
         this.scene.add(this.points);
     }
 
@@ -180,7 +278,8 @@ export default class Meteor {
 
         this.controls.update();
 
-        // this.updateMeteorite();
+
+        this.updateParticle()
 
         this.updateFragments()
 
@@ -202,6 +301,27 @@ export default class Meteor {
         const curlZ = n4 - n1;
 
         return {x: curlX, y: curlY, z: curlZ};
+    }
+
+    createCurlNoise(x, y, z, scale = 1.0) {
+        const noise3D = createNoise3D()
+        const epsilon = 0.01; // 用于计算梯度差的微小增量
+        const noiseX = noise3D(x + epsilon, y, z);
+        const noiseY = noise3D(x, y + epsilon, z);
+        const noiseZ = noise3D(x, y, z + epsilon);
+
+        // 计算噪声的梯度（简单近似）
+        const gradX = noise3D(x + epsilon, y, z) - noise3D(x - epsilon, y, z);
+        const gradY = noise3D(x, y + epsilon, z) - noise3D(x, y - epsilon, z);
+        const gradZ = noise3D(x, y, z + epsilon) - noise3D(x, y, z - epsilon);
+
+        // 计算旋度（curl）：
+        const curlX = gradZ - gradY;
+        const curlY = gradX - gradZ;
+        const curlZ = gradY - gradX;
+
+        // 返回一个向量场，表示旋度（卷曲噪声）
+        return new THREE.Vector3(curlX, curlY, curlZ).normalize().multiplyScalar(scale);
     }
 
     hexToRgb(hex) {

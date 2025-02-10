@@ -19,6 +19,10 @@ onMounted(() => {
     ring = new Main({target: dom});
   })
 })
+onUnmounted(() => {
+  console.log('销毁-扩散光环特效')
+  ring.destroy()
+})
 </script>
 
 <style scoped lang="less">

@@ -152,4 +152,20 @@ export default class Ring {
 
     }
 
+    destroy() {
+        // scene
+        this.scene.traverse((child) => {
+            if (child instanceof THREE.Mesh) {
+                child.geometry?.dispose();
+                Object.values(child.material).forEach((value) => {
+                    if (value && typeof value.dispose === "function") {
+                        value.dispose();
+                    }
+                });
+            }
+        });
+        // renderer
+        this.renderer.dispose();
+    }
+
 }

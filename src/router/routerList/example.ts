@@ -8,14 +8,6 @@ const exampleRouter = [
         component: () => import('@/views/example/su7/su7.vue')
     },
     {
-        path: 'sky',
-        name: '天空',
-        meta:{
-            img: '../../assets/listImg/天空.png'
-        },
-        component: () => import('@/views/example/sky/sky.vue')
-    },
-    {
         path: 'fluid',
         name: '流体效果',
         meta:{
@@ -72,14 +64,6 @@ const exampleRouter = [
         component: () => import('@/views/example/spaceDiscover/spaceDiscover.vue')
     },
     {
-        path: 'music',
-        name: '音乐可视化🎵',
-        meta:{
-            img: '../../assets/listImg/小米SU7.png'
-        },
-        component: () => import('@/views/example/music/music.vue')
-    },
-    {
         path: 'cloud',
         name: '云☁️',
         meta:{
@@ -94,6 +78,14 @@ const exampleRouter = [
             img: '../../assets/listImg/云☁️.png'
         },
         component: () => import('@/views/example/meteor/meteor.vue')
+    },
+    {
+        path: 'dissipate',
+        name: '消散特效',
+        meta:{
+            img: '../../assets/listImg/消散特效.png'
+        },
+        component: () => import('@/views/example/dissipate/dissipate.vue')
     },
 
 ]
