@@ -31,6 +31,7 @@
     "three-custom-shader-material": "^5.4.0",
     "three-stdlib": "^2.29.6",
     "three.interactive": "^1.7.0",
+    "tweakpane": "^4.0.5",
     "vue": "^3.3.11",
     "vue-router": "^4.2.5",
     "yarn": "^1.22.22"

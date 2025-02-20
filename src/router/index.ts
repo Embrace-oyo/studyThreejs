@@ -1,21 +1,21 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 // import shaderStudyRouter from "./shaderStudy";
-import exampleRouter from "./routerList/example";
+import RouterList from "./routerList";
 
 const router = createRouter({
     history: createWebHashHistory(),
     routes: [
         {
             path: '/',
-            redirect: '/preview',
+            redirect: '/index',
         },
         {
-            path: '/preview',
+            path: '/index',
             name: 'Home',
             meta: {
                 keepAlive: true
             },
-            component: () => import('@/views/preview/preview.vue')
+            component: () => import('@/views/index/index.vue')
         },
         {
             path: '/layout',
@@ -23,8 +23,8 @@ const router = createRouter({
             meta: {
                 keepAlive: true
             },
-            component: () => import('@/views/preview/layout.vue'),
-            children: exampleRouter
+            component: () => import('@/views/index/layout.vue'),
+            children: RouterList
         }
     ]
 })

@@ -7,6 +7,11 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import pxtorem from 'postcss-pxtorem'
 // https://vitejs.dev/config/
 export default defineConfig({
+    resolve: {
+        alias: {
+            '@': fileURLToPath(new URL('./src', import.meta.url))
+        }
+    },
     server: {
         host: '0.0.0.0',
         port: 8181,
@@ -27,11 +32,7 @@ export default defineConfig({
             certDir: '/Users/.../.devServer/cert'
         })
     ],
-    resolve: {
-        alias: {
-            '@': fileURLToPath(new URL('./src', import.meta.url))
-        }
-    },
+    assetsInclude:['**/*.hdr'],
     css:{
         postcss: {
             plugins: [
