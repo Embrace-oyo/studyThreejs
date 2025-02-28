@@ -345,14 +345,13 @@ export default class Dissipate {
     async assetsInit() {
         this.manager = new THREE.LoadingManager();
         this.cubeTexture = await (new RGBELoader(this.manager)).loadAsync(filePath('宇宙4K (5).hdr'));
-        console.log(this.cubeTexture)
         this.cubeTexture.mapping = THREE.EquirectangularReflectionMapping
         this.scene.background = this.cubeTexture
         this.scene.environment = this.cubeTexture
         this.particleTexture = await (new THREE.TextureLoader(this.manager).load(filePath('star3.png')))
         // 加载完成
         this.manager.onLoad = async () => {
-            console.log('资源加载完成!');
+            console.info("%c资源加载完成!✅", "color:#fff;background-color:red",);
             this.callback();
             this.particleInit();
             this.animation();

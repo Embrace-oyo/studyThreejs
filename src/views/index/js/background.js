@@ -138,6 +138,7 @@ export default class Background {
         let triangleLength = Math.floor(Math.random() * this.triangleMaxLength - 2) + 2;
         let index = Math.round(Math.random() * this.triangles.length);
         let startTriangle = this.triangles[index];
+        if(!startTriangle) return
         startTriangle.selectedForTrail = true;
         let currentTriangle = {
             triangle: startTriangle,

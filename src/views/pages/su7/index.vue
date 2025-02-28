@@ -41,7 +41,7 @@ onMounted(() => {
 onUnmounted(() => {
   model.destroy()
   model = null
-  console.log('su7-销毁')
+  console.info("%csu7-销毁😁", "color:#fff;background-color:red");
 })
 </script>
 

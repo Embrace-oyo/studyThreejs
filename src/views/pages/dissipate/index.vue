@@ -24,9 +24,6 @@ const number = ref(0)
 let world = null
 const progressCallback = (any) => {
   isLoad.value = true
-  // const progress = Math.floor((xhr.loaded / xhr.total) * 100)
-  // if (progress >= 100) isLoad.value = true
-  // number.value = progress
 }
 onMounted(() => {
 
@@ -41,7 +38,7 @@ onMounted(() => {
 onUnmounted(() => {
   world.destroy()
   world = null
-  console.log('消融特效-销毁')
+  console.info("%c消融特效-销毁😁", "color:#fff;background-color:red");
 })
 </script>
 

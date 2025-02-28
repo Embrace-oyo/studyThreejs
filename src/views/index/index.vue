@@ -55,7 +55,7 @@ onMounted(() => {
   })
 })
 onUnmounted(() => {
-  console.log('preview-销毁')
+  console.info("%c首页-销毁😁", "color:#fff;background-color:red");
 })
 
 </script>

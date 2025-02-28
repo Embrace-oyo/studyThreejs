@@ -17,7 +17,7 @@ justThreeJs layout.vue
       </div>
     </div>
     <div class="container">
-      <RouterView/>
+      <RouterView :key="route.fullPath"/>
     </div>
   </div>
 </template>
@@ -37,7 +37,7 @@ const proxy = reactive({
 })
 const back = () => {
   router.push({
-    path: '/index'
+    path: '/'
   })
 }
 const raw = () => {
