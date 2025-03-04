@@ -18,7 +18,7 @@ const exampleRouter = [
     {
         path: 'fluid',
         name: '流体效果',
-        meta:{
+        meta: {
             img: '../../assets/listImg/流体效果.png'
         },
         component: () => import('@/views/pages/fluid/index.vue')
@@ -26,7 +26,7 @@ const exampleRouter = [
     {
         path: 'shield',
         name: '能量护盾效果',
-        meta:{
+        meta: {
             img: '../../assets/listImg/能量护盾效果.png'
         },
         component: () => import('@/views/pages/shield/index.vue')
@@ -34,7 +34,7 @@ const exampleRouter = [
     {
         path: 'water',
         name: '泳池',
-        meta:{
+        meta: {
             img: '../../assets/listImg/泳池.png'
         },
         component: () => import('@/views/pages/water/index.vue')
@@ -42,7 +42,7 @@ const exampleRouter = [
     {
         path: 'spaceDiscover',
         name: '太空探索🚀',
-        meta:{
+        meta: {
             img: '../../assets/listImg/太空探索🚀.png'
         },
         component: () => import('@/views/pages/spaceDiscover/index.vue')
@@ -50,7 +50,7 @@ const exampleRouter = [
     {
         path: 'fireBall',
         name: '火球🔥',
-        meta:{
+        meta: {
             img: '../../assets/listImg/火球.png'
         },
         component: () => import('@/views/pages/fireBall/index.vue')
@@ -58,7 +58,7 @@ const exampleRouter = [
     {
         path: 'neon',
         name: '霓虹灯特效',
-        meta:{
+        meta: {
             img: '../../assets/listImg/霓虹灯特效.png'
         },
         component: () => import('@/views/pages/neon/index.vue')
@@ -66,7 +66,7 @@ const exampleRouter = [
     {
         path: 'aurora',
         name: '极光和树',
-        meta:{
+        meta: {
             img: '../../assets/listImg/极光和树.png'
         },
         component: () => import('@/views/pages/aurora/index.vue')
@@ -74,7 +74,7 @@ const exampleRouter = [
     {
         path: 'ring',
         name: '扩散光环效果',
-        meta:{
+        meta: {
             img: '../../assets/listImg/扩散光环效果.png'
         },
         component: () => import('@/views/pages/ring/index.vue')
@@ -82,7 +82,7 @@ const exampleRouter = [
     {
         path: 'skull',
         name: '头骨',
-        meta:{
+        meta: {
             img: '../../assets/listImg/头骨.png'
         },
         component: () => import('@/views/pages/skull/index.vue')
@@ -90,53 +90,11 @@ const exampleRouter = [
     {
         path: 'metalCube',
         name: '金属方块',
-        meta:{
+        meta: {
             img: '../../assets/listImg/金属方块.png'
         },
         component: () => import('@/views/pages/metalCube/index.vue')
-    },
-    /*
-      {
-          path: 'aurora',
-          name: '极光和树',
-          meta:{
-              img: '../../assets/listImg/极光和树.png'
-          },
-          component: () => import('@/views/example/aurora/aurora.vue')
-      },
-      {
-          path: 'webGLFog',
-          name: '烟雾特效',
-          meta:{
-              img: '../../assets/listImg/烟雾特效.png'
-          },
-          component: () => import('@/views/example/webGLFog/webGLFog.vue')
-      },
-      {
-          path: 'ablate',
-          name: '转场特效',
-          meta:{
-              img: '../../assets/listImg/转场特效.png'
-          },
-          component: () => import('@/views/example/ablate/ablate.vue')
-      },
-      {
-          path: 'cloud',
-          name: '云☁️',
-          meta:{
-              img: '../../assets/listImg/云☁️.png'
-          },
-          component: () => import('@/views/example/cloud/cloud.vue')
-      },
-      {
-          path: 'meteor',
-          name: '陨石🪨',
-          meta:{
-              img: '../../assets/listImg/云☁️.png'
-          },
-          component: () => import('@/views/example/meteor/meteor.vue')
-      },
-    ,*/
+    }
 
 ]
 
