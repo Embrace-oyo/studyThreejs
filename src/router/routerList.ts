@@ -79,6 +79,22 @@ const exampleRouter = [
         },
         component: () => import('@/views/pages/ring/index.vue')
     },
+    {
+        path: 'skull',
+        name: '头骨',
+        meta:{
+            img: '../../assets/listImg/头骨.png'
+        },
+        component: () => import('@/views/pages/skull/index.vue')
+    },
+    {
+        path: 'metalCube',
+        name: '金属方块',
+        meta:{
+            img: '../../assets/listImg/金属方块.png'
+        },
+        component: () => import('@/views/pages/metalCube/index.vue')
+    },
     /*
       {
           path: 'aurora',

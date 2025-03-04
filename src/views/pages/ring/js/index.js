@@ -5,6 +5,7 @@
  * @created 2025/2/20 15:27:43
  */
 import * as THREE from "three";
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 // glsl
 import vertex from '@/views/pages/ring/glsl/ringVert.glsl'
 import fragment from '@/views/pages/ring/glsl/ringFrag.glsl'
@@ -37,6 +38,8 @@ export default class Ring {
         this.camera.lookAt(new THREE.Vector3(0, 0, 0))
         this.camera.updateProjectionMatrix()
         this.scene.add(this.camera);
+        this.control = new OrbitControls(this.camera, this.renderer.domElement);
+        this.control.enableDamping = true;
         this.clock = new THREE.Clock();
         this.assetsInit();
     }
@@ -44,7 +47,6 @@ export default class Ring {
     assetsInit() {
         this.manager = new THREE.LoadingManager();
         this.texture = (new THREE.TextureLoader(this.manager)).load(filePath('nosi.png'));
-        console.log(this.texture)
         this.manager.onLoad = () => {
             this.callback();
             this.geometryInit();
@@ -54,27 +56,22 @@ export default class Ring {
     }
 
     geometryInit() {
-        const geometry1 = new THREE.BoxGeometry(5, 5, 5);
         const geometry2 = new THREE.SphereGeometry(5, 128, 128);
-        const geometry3 = new THREE.PlaneGeometry(10, 8);
-        const material1 = new THREE.MeshBasicMaterial({color: 0x0077ff});
+        const geometry3 = new THREE.PlaneGeometry(10, 10);
         const material2 = new THREE.ShaderMaterial({
             vertexShader: vertex,
             fragmentShader: fragment,
             uniforms: {
                 iTime: {value: 1.0},
-                iResolution: {value: new THREE.Vector2(this.width, this.height)},
+                iResolution: {value: new THREE.Vector2(5, 5)},
                 uTexture: {value: this.texture}
             },
-            depthWrite: false,
-            depthTest: false,
-            blending: THREE.AdditiveBlending,
+            depthWrite: true,
+            depthTest: true,
+            // blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide
         })
-        this.cube = new THREE.Mesh(geometry1, material1);
-        this.cube.position.setX(-10)
         this.sphere = new THREE.Mesh(geometry2, material2);
-        this.sphere.position.setX(10)
-        this.scene.add(this.cube);
         this.scene.add(this.sphere);
     }
 
@@ -83,8 +80,7 @@ export default class Ring {
         this.renderer.setAnimationLoop(() => this.animation())
         let time = this.clock.getElapsedTime();
 
-        this.cube.position.set(-10, Math.sin(time * 2.0) * 0.5, 0);
-        this.sphere.position.set(10, Math.cos(time * 2.0) * 0.8, 0);
+        this.sphere.position.set(0, Math.cos(time * 2.0) * 0.8, 0);
 
         this.sphere.material.uniforms.iTime.value = time
 

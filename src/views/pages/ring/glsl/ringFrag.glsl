@@ -1,6 +1,6 @@
 precision highp float;
-#include "/node_modules/lygia/generative/srandom.glsl"
-#include "/node_modules/lygia/sample/mirror.glsl"
+#include "/node_modules/lygia/generative/fbm.glsl"
+//#include "/node_modules/lygia/sdf/circleSDF.glsl"
 varying vec2 vUv;
 varying vec3 vPos;
 uniform float iTime;
@@ -10,53 +10,60 @@ uniform sampler2D uTexture;
 #define time iTime * 0.15
 #define PI 3.14159265
 #define tau 6.2831853
+
+float circ(vec2 p){
+    float m = mod(time * 10.0, PI);
+    p = p / exp(m);
+    float r = length(p);
+    r = sqrt(r);
+    r = log(r);
+    r = mod(r * 4.0, tau);
+    r = abs(r - PI);
+    r = r * 3.0;
+    r = r + 0.2;
+    return r;
+}
 mat2 makem2(in float theta){
     float c = cos(theta);
     float s = sin(theta);
     return mat2(c, -s, s, c);
 }
-float noise(in vec2 x){
-    return texture2D(uTexture, x*.01).x;
+mat3 rotX(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+    return mat3(1, 0,  0,
+    0, c, -s,
+    0, s,  c);
 }
-float fbm(in vec2 p){
-    float z=2.;
-    float rz = 0.;
-    vec2 bp = p;
-    for (float i= 1.;i < 6.;i++)
-    {
-        rz+= abs((noise(p)-0.5)*2.)/z;
-        z = z*2.;
-        p = p*2.;
-    }
-    return rz;
+mat3 rotY(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+    return mat3(c,  0, s,
+    0,  1, 0,
+    -s,  0, c);
 }
-float dualfbm(in vec2 p){
-    //get two rotated fbm calls and displace the domain
-    vec2 p2 = p*.7;
-    vec2 basis = vec2(fbm(p2-time*1.6), fbm(p2+time*1.7));
-    basis = (basis-.5)*.2;
-    p += basis;
-
-    //coloring
-    return fbm(p*makem2(time*0.2));
+mat3 rotZ(float theta) {
+    float c = cos(theta);
+    float s = sin(theta);
+    return mat3(c, -s, 0,
+    s,  c, 0,
+    0,  0, 1);
 }
-float circ(vec2 p){
-    float r = length(p);
-    r = log(sqrt(r));
-    return abs(mod(r*4., tau)-3.14)*3.+.2;
-}
-
 
 void main(){
-    vec3 pos = vPos * 4.0;
-    vec2 uv = (vPos.xy - 0.5) * 2.0;
-    float aspect = vPos.x / vPos.y;
-//    uv.x*=aspect;
-    uv*=4.0;
-    float rz = dualfbm(uv);
-    uv /= exp(mod(time*10.0, 3.14159));
-    rz *= pow(abs((0.1-circ(uv))), 0.9);
-    vec3 col = vec3(.2, 0.1, 0.4)/rz;
+    vec2 uv = (vUv - 0.5) * 2.0;
+    float c = circ(uv);
+    vec3 pos = vPos;
+    float f1 = fbm(pos + time * 1.6);
+    float f2 = fbm(pos - time * 1.7);
+    float switchPoint = 2.0;
+    float t = smoothstep(switchPoint - 0.1, switchPoint + 0.1, length(vUv));
+    float mixF = mix(f1, f2, t);
+    mixF = (mixF-0.5)*0.2;
+    pos+=mixF;
+    mixF = fbm(pos);
+    mixF *= pow(abs(0.1 - c), 0.7);
+    vec3 col = vec3(.2, 0.1, 0.4)/mixF;
     col=pow(abs(col), vec3(.99));
-    gl_FragColor = vec4(col, 1.0);
+    gl_FragColor = vec4(vec3(col), 1.0);
 }
