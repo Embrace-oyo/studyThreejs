@@ -5,7 +5,7 @@
  * @created 2025/3/4 14:56:38
  */
 import * as THREE from "three";
-
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls'
 // glsl
 import backgroundVertex from '@/views/pages/metalCube/glsl/background/vertex.glsl'
 import backgroundFragment from '@/views/pages/metalCube/glsl/background/fragment.glsl'
@@ -131,7 +131,7 @@ export default class MetalCube {
         this.height = this.target.offsetHeight * this.devicePixelRatio;
         this.aspect = this.width / this.height;
         this.resolution = new THREE.Vector2(this.width, this.height);
-        this.renderer = new THREE.WebGL1Renderer({
+        this.renderer = new THREE.WebGLRenderer({
             powerPreference: "high-performance",
             alpha: true,
             antialias: true,
@@ -146,6 +146,11 @@ export default class MetalCube {
         this.camera.position.set(1000, 1000, 1000);
         this.camera.lookAt(new THREE.Vector3());
         this.clock = new THREE.Clock();
+        this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.controls.target.set(0, 0, 0);
+        this.controls.update();
+        this.controls.enablePan = true;
+        this.controls.enableDamping = true;
         this.callback();
         this.paramsInit();
         this.backgroundInit();
@@ -165,7 +170,26 @@ export default class MetalCube {
     }
 
     backgroundInit() {
-        const geometry = new THREE.OctahedronGeometry(30, 4);
+        const baseGeo = new THREE.OctahedronGeometry(30, 4);
+        const nonIndexedGeo = baseGeo.toNonIndexed();
+        const positions = nonIndexedGeo.attributes.position.array;
+        const faceNormals = new Float32Array(positions.length);
+        for (let i = 0; i < positions.length; i += 9) { // 每面3顶点，每个顶点xyz
+            const x1 = positions[i], y1 = positions[i+1], z1 = positions[i+2];
+            const x2 = positions[i+3], y2 = positions[i+4], z2 = positions[i+5];
+            const x3 = positions[i+6], y3 = positions[i+7], z3 = positions[i+8];
+
+            // 计算面法线（世界空间）
+            const v1 = new THREE.Vector3(x2 - x1, y2 - y1, z2 - z1);
+            const v2 = new THREE.Vector3(x3 - x1, y3 - y1, z3 - z1);
+            const normal = new THREE.Vector3().crossVectors(v1, v2).normalize();
+
+            // 为当前面的3个顶点填充相同法线
+            faceNormals.set([normal.x, normal.y, normal.z], i);   // 顶点1
+            faceNormals.set([normal.x, normal.y, normal.z], i+3); // 顶点2
+            faceNormals.set([normal.x, normal.y, normal.z], i+6); // 顶点3
+        }
+        nonIndexedGeo.setAttribute('normal', new THREE.BufferAttribute(faceNormals, 3));
         const material = new THREE.ShaderMaterial({
             uniforms: {
                 time: {
@@ -177,12 +201,36 @@ export default class MetalCube {
             },
             vertexShader: backgroundVertex,
             fragmentShader: backgroundFragment,
-            side: THREE.BackSide
+            side: THREE.BackSide,
         });
-        this.background = new THREE.Mesh(geometry, material);
+        this.background = new THREE.Mesh(nonIndexedGeo, material);
         this.background.name = 'Background';
         this.scene.add(this.background);
     }
+
+    updateNormals(geometry) {
+        const positions = geometry.attributes.position.array;
+        const normals = geometry.attributes.normal.array;
+
+        for (let i = 0; i < positions.length; i += 9) {
+            // 重新计算面法线（基于变形后的顶点位置）
+            const x1 = positions[i], y1 = positions[i+1], z1 = positions[i+2];
+            const x2 = positions[i+3], y2 = positions[i+4], z2 = positions[i+5];
+            const x3 = positions[i+6], y3 = positions[i+7], z3 = positions[i+8];
+
+            const v1 = new THREE.Vector3(x2 - x1, y2 - y1, z2 - z1);
+            const v2 = new THREE.Vector3(x3 - x1, y3 - y1, z3 - z1);
+            const normal = new THREE.Vector3().crossVectors(v1, v2).normalize();
+
+            // 更新法线数据
+            normals[i] = normal.x; normals[i+1] = normal.y; normals[i+2] = normal.z;
+            normals[i+3] = normal.x; normals[i+4] = normal.y; normals[i+5] = normal.z;
+            normals[i+6] = normal.x; normals[i+7] = normal.y; normals[i+8] = normal.z;
+        }
+
+        geometry.attributes.normal.needsUpdate = true;
+    }
+
 
     metalCubeInit() {
         const geometry = new THREE.PlaneGeometry(6.0, 6.0);
@@ -225,6 +273,7 @@ export default class MetalCube {
         this.metalCube.material.uniforms.acceleration.value = this.cube_force.acceleration.length();
         this.background.material.uniforms.time.value++;
         this.background.material.uniforms.acceleration.value = this.cube_force2.velocity.length();
+        this.updateNormals(this.background.geometry);
         this.camera.force.position.applyHook(0, 0.025);
         this.camera.force.position.applyDrag(0.2);
         this.camera.force.position.updateVelocity();

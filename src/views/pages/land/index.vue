@@ -2,10 +2,10 @@
 justThreeJs index.vue
 @author kongjianqiu
 @description
-@created 2025/3/4 14:55:40
+@created 2025/3/5 09:21:41
 -->
 <template>
-  <div class="metalCube">
+  <div class="land">
     <div class="loading" :class="{loadOk: isLoad}">
       <div class="load">
         <span v-for="(item, index) of 'LOADING...'" :key="index" :style="'--i:'+index">{{ item }}</span>
@@ -17,7 +17,7 @@ justThreeJs index.vue
 
 <script setup>
 import {onMounted, onUnmounted, ref} from "vue";
-import MetalCube from "@/views/pages/metalCube/js/index";
+import Land from "@/views/pages/land/js/index";
 
 const isLoad = ref(false)
 const number = ref(0)
@@ -27,8 +27,8 @@ const progressCallback = () => {
 }
 onMounted(() => {
 
-  world = new MetalCube({
-    parent: document.querySelector('.metalCube'),
+  world = new Land({
+    parent: document.querySelector('.land'),
     target: document.querySelector('.canvas'),
     callback: progressCallback,
   })
@@ -43,7 +43,7 @@ onUnmounted(() => {
 </script>
 
 <style scoped lang="less">
-.metalCube {
+.land {
   position: absolute;
   left: 0;
   top: 0;
@@ -120,5 +120,6 @@ onUnmounted(() => {
   z-index: 999;
 }
 </style>
+
 
 

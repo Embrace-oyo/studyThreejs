@@ -94,6 +94,14 @@ const exampleRouter = [
             img: '../../assets/listImg/金属方块.png'
         },
         component: () => import('@/views/pages/metalCube/index.vue')
+    },
+    {
+        path: 'land',
+        name: '岛屿🏝️',
+        meta: {
+            img: '../../assets/listImg/岛屿.png'
+        },
+        component: () => import('@/views/pages/land/index.vue')
     }
 
 ]

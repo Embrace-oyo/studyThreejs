@@ -2,7 +2,6 @@ uniform float time;
 uniform float time2;
 uniform float acceleration;
 uniform vec2 resolution;
-
 varying mat4 m_matrix;
 
 // const vec3 cPos = vec3(0.0, 0.0, 10.0);
@@ -15,7 +14,7 @@ vec3 hsv2rgb(vec3 c){
     return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
-#include "../common/snoise3"
+#include "/node_modules/lygia/generative/snoise.glsl"
 
 vec3 rotate(vec3 p, float radian_x, float radian_y, float radian_z) {
     mat3 mx = mat3(
