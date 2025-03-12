@@ -7,6 +7,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import pxtorem from 'postcss-pxtorem'
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: './',
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -48,7 +49,6 @@ export default defineConfig({
     },
     //打包配置
     build: {
-        base: './',
         outDir: 'docs',
         sourcemap: false,
         reportCompressedSize: false,
@@ -56,17 +56,17 @@ export default defineConfig({
         target: "modules",
         //指定输出路径
         //生成静态资源的存放路径
-        assetsDir: "./assets",
+        assetsDir: "docs/assets",
         emptyOutDir: true,  // 打包时先清空上一次构建生成的目录
         rollupOptions: {
             output: {
                 experimentalMinChunkSize: 20 * 1024,
                 // 引入文件名的名称
-                chunkFileNames: 'static/js/[name]-[hash].js',
+                chunkFileNames: 'js/[name]-[hash].js',
                 // 包的入口文件名称
-                entryFileNames: 'static/lib/[name]-[hash].js',
+                entryFileNames: 'lib/[name]-[hash].js',
                 // 资源文件像 字体，图片等
-                assetFileNames: 'static/[ext]/[name]-[hash].[ext]',
+                assetFileNames: '[ext]/[name]-[hash].[ext]',
                 // 分包
                 manualChunks(id) {
                     if (id.includes('three')) {
