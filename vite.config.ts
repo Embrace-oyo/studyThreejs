@@ -7,6 +7,7 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 import pxtorem from 'postcss-pxtorem'
 // https://vitejs.dev/config/
 export default defineConfig({
+    base: './',
     resolve: {
         alias: {
             '@': fileURLToPath(new URL('./src', import.meta.url))
@@ -15,7 +16,6 @@ export default defineConfig({
     server: {
         host: '0.0.0.0',
         port: 8181,
-        https: false,
         proxy: {
             'assets': 'https://abeto.co/assets'
         },
@@ -48,6 +48,38 @@ export default defineConfig({
                     minPixelValue: 2 // 设置要转换的最小像素值
                 })
             ]
+        }
+    },
+    //打包配置
+    build: {
+        outDir: 'docs',
+        sourcemap: false,
+        reportCompressedSize: false,
+        //浏览器兼容性  "esnext"|"modules"
+        target: "modules",
+        //指定输出路径
+        //生成静态资源的存放路径
+        assetsDir: "assets",
+        emptyOutDir: true,  // 打包时先清空上一次构建生成的目录
+        rollupOptions: {
+            output: {
+                experimentalMinChunkSize: 20 * 1024,
+                // 引入文件名的名称
+                chunkFileNames: 'js/[name]-[hash].js',
+                // 包的入口文件名称
+                entryFileNames: 'lib/[name]-[hash].js',
+                // 资源文件像 字体，图片等
+                assetFileNames: '[ext]/[name]-[hash].[ext]',
+                // 分包
+                manualChunks(id) {
+                    if (id.includes('three')) {
+                        return 'threejs'
+                    }
+                    if (id.includes('node_modules')) {
+                        return 'vendor'
+                    }
+                },
+            }
         }
     }
 })

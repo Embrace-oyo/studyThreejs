@@ -33,7 +33,7 @@ const exampleRouter = [
     },
     {
         path: 'water',
-        name: '泳池',
+        name: '泳池🏊',
         meta: {
             img: '../../assets/listImg/泳池.png'
         },
@@ -57,7 +57,7 @@ const exampleRouter = [
     },
     {
         path: 'neon',
-        name: '霓虹灯特效',
+        name: '霓虹灯特效💡',
         meta: {
             img: '../../assets/listImg/霓虹灯特效.png'
         },
@@ -65,7 +65,7 @@ const exampleRouter = [
     },
     {
         path: 'aurora',
-        name: '极光和树',
+        name: '极光和树🌲',
         meta: {
             img: '../../assets/listImg/极光和树.png'
         },
@@ -73,7 +73,7 @@ const exampleRouter = [
     },
     {
         path: 'ring',
-        name: '扩散光环效果',
+        name: '扩散光环效果😇',
         meta: {
             img: '../../assets/listImg/扩散光环效果.png'
         },
@@ -81,7 +81,7 @@ const exampleRouter = [
     },
     {
         path: 'skull',
-        name: '头骨',
+        name: '头骨🦴',
         meta: {
             img: '../../assets/listImg/头骨.png'
         },
@@ -89,7 +89,7 @@ const exampleRouter = [
     },
     {
         path: 'metalCube',
-        name: '金属方块',
+        name: '金属方块♦️',
         meta: {
             img: '../../assets/listImg/金属方块.png'
         },
@@ -102,6 +102,14 @@ const exampleRouter = [
             img: '../../assets/listImg/岛屿.png'
         },
         component: () => import('@/views/pages/land/index.vue')
+    },
+    {
+        path: 'ocean',
+        name: '海洋🌊',
+        meta: {
+            img: '../../assets/listImg/海洋.png'
+        },
+        component: () => import('@/views/pages/ocean/index.vue')
     }
 
 ]
