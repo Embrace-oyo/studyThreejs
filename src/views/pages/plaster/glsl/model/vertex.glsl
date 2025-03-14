@@ -11,7 +11,8 @@ varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPos;
 varying vec3 vEye;
-float circularIn(float t){ return 1.0-sqrt(1.0-t*t);
+float circularIn(float t){
+    return 1.0-sqrt(1.0-t*t);
 }
 vec2 getFastScrollNoise(float time, vec2 screenUv, sampler2D noiseTexture, vec4 params){
     float speed=params.x;
@@ -47,7 +48,7 @@ void main(){
     vec2 uvScreen=(ndc.xy/ndc.w+1.0)/2.0;
     vec4 flow=texture2D(tFlow, uvScreen);
     float extrude=mix(flow.b, flow.a, 0.5);
-    vec2 fastScrollNoise=getFastScrollNoise(uTime, uvScreen+vec2(0., -uScreenScroll), tMaskNoise, vec4(SCROLL_EXTRUDE_SPEED, SCROLL_EXTRUDE_NOISE_SIZE, SCROLL_EXTRUDE_MASK));
+    vec2 fastScrollNoise=getFastScrollNoise(uTime, uvScreen+vec2(0., -uScreenScroll), tMaskNoise, vec4(SCROLL_EXTRUDE_SPEED, SCROLL_EXTRUDE_NOISE_SIZE, -1.0, 1.0));
     float fastScrollExtrude=fastScrollNoise.r*SCROLL_EXTRUDE_STRENGTH;
     extrude=mix(extrude, fastScrollExtrude, uFastScroll)*uOpacity;
     pos.z*=mix(0.05, 1.0, extrude);
@@ -63,4 +64,5 @@ void main(){
     vec4 mvPos=viewMatrix*mPos;
     vEye=(modelMatrix*vec4(position, 1.)).xyz-cameraPosition;
     gl_Position=projectionMatrix*mvPos;
+//    gl_Position = projectionMatrix * modelViewMatrix * vec4(positon, 1.0);
 }

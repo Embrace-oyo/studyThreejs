@@ -2,9 +2,7 @@ precision highp float;
 
 #define GLSLIFY 1
 uniform float uTime;
-
 uniform vec2 uResolution;
-
 uniform sampler2D tMaskNoise;
 uniform sampler2D tFlow;
 uniform sampler2D tBake1;
@@ -65,15 +63,19 @@ struct FluidEffectConfig{
     float baseThreshold;
     float hueShift;
     float colorRange;
-};
-float cremap(float value, float start1, float stop1, float start2, float stop2){ float r=start2+(stop2-start2)*((value-start1)/(stop1-start1));
+}
+;
+float cremap(float value, float start1, float stop1, float start2, float stop2){
+    float r=start2+(stop2-start2)*((value-start1)/(stop1-start1));
     return clamp(r, min(start2, stop2), max(start2, stop2));
 }
-vec3 hsv2rgb(vec3 c){ vec4 K=vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
+vec3 hsv2rgb(vec3 c){
+    vec4 K=vec4(1.0, 2.0/3.0, 1.0/3.0, 3.0);
     vec3 p=abs(fract(c.xxx+K.xyz)*6.0-K.www);
     return c.z*mix(K.xxx, clamp(p-K.xxx, 0.0, 1.0), c.y);
 }
-vec3 rgb2hsv(vec3 c){ vec4 K=vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
+vec3 rgb2hsv(vec3 c){
+    vec4 K=vec4(0.0, -1.0/3.0, 2.0/3.0, -1.0);
     vec4 p=mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
     vec4 q=mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
     float d=q.x-min(q.w, q.y);
@@ -178,4 +180,7 @@ void main(){
     color=mix(whiteRender, blackRender, uSwitchColorTransition);
     gl_FragColor.rgb=color;
     gl_FragColor.a=alpha;
+
+//    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
+

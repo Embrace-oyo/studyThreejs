@@ -12,6 +12,7 @@ import skull from '@/assets/listImg/头骨.png'
 import metal from '@/assets/listImg/金属方块.png'
 import land from '@/assets/listImg/岛屿.png'
 import ocean from '@/assets/listImg/海洋.png'
+import oil from '@/assets/listImg/油画.png'
 
 const exampleRouter = [
     {
@@ -125,7 +126,23 @@ const exampleRouter = [
             img: ocean
         },
         component: () => import('@/views/pages/ocean/index.vue')
-    }
+    },
+    {
+        path: 'oil',
+        name: '油画🖼️',
+        meta: {
+            img: oil
+        },
+        component: () => import('@/views/pages/oil/index.vue')
+    },
+    /*{
+        path: 'plaster',
+        name: '浮雕',
+        meta: {
+            img: ocean
+        },
+        component: () => import('@/views/pages/plaster/index.vue')
+    }*/
 
 ]
 
