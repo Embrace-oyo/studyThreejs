@@ -35,8 +35,8 @@ export default class Skull {
         this.target = config.target;
         this.callback = config.callback;
         this.devicePixelRatio = window.devicePixelRatio;
-        this.width = this.target.offsetWidth * this.devicePixelRatio;
-        this.height = this.target.offsetHeight * this.devicePixelRatio;
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
         this.resolution = new THREE.Vector2(this.width, this.height);
         this.renderer = new THREE.WebGL1Renderer({
             powerPreference: "high-performance",

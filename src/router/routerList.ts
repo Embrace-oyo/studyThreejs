@@ -13,6 +13,7 @@ import metal from '@/assets/listImg/金属方块.png'
 import land from '@/assets/listImg/岛屿.png'
 import ocean from '@/assets/listImg/海洋.png'
 import oil from '@/assets/listImg/油画.png'
+import ripples from '@/assets/listImg/涟漪.png'
 
 const exampleRouter = [
     {
@@ -134,6 +135,14 @@ const exampleRouter = [
             img: oil
         },
         component: () => import('@/views/pages/oil/index.vue')
+    },
+    {
+        path: 'ripples',
+        name: '涟漪',
+        meta: {
+            img: ripples
+        },
+        component: () => import('@/views/pages/ripples/index.vue')
     },
     /*{
         path: 'plaster',

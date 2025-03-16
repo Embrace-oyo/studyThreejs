@@ -127,8 +127,8 @@ export default class MetalCube {
         this.target = config.target;
         this.callback = config.callback;
         this.devicePixelRatio = window.devicePixelRatio;
-        this.width = this.target.offsetWidth * this.devicePixelRatio;
-        this.height = this.target.offsetHeight * this.devicePixelRatio;
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
         this.aspect = this.width / this.height;
         this.resolution = new THREE.Vector2(this.width, this.height);
         this.renderer = new THREE.WebGLRenderer({
