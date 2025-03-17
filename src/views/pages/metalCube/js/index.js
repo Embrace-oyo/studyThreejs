@@ -137,7 +137,7 @@ export default class MetalCube {
             antialias: true,
             preserveDrawingBuffer: !0
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.setClearColor(0x000000, 1.0);
         this.scene = new THREE.Scene();

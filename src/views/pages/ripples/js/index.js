@@ -41,7 +41,7 @@ export default class Ripples {
             antialias: true,
             preserveDrawingBuffer: !0
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color('gray')

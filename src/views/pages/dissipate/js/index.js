@@ -34,8 +34,8 @@ export default class Dissipate {
         this.target = config.target;
         this.callback = config.callback;
         this.devicePixelRatio = window.devicePixelRatio;
-        this.width = this.target.offsetWidth * this.devicePixelRatio;
-        this.height = this.target.offsetHeight * this.devicePixelRatio;
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
         this.clock = new THREE.Clock();
         this.renderer = new THREE.WebGLRenderer({
             powerPreference: "high-performance",
@@ -44,7 +44,7 @@ export default class Dissipate {
             depth: false,
             preserveDrawingBuffer: !0
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.toneMapping = THREE.CineonToneMapping;
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -359,8 +359,8 @@ export default class Dissipate {
     }
 
     resizeRenderer() {
-        const width = this.target.offsetWidth * this.devicePixelRatio;
-        const height = this.target.offsetHeight * this.devicePixelRatio;
+        const width = this.target.offsetWidth;
+        const height = this.target.offsetHeight;
 
         const needResize = this.width !== width || this.height !== height;
 

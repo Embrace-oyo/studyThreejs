@@ -46,8 +46,8 @@ export default class FireBall {
         this.target = config.target;
         this.callback = config.callback;
         this.devicePixelRatio = window.devicePixelRatio;
-        this.width = this.target.offsetWidth * this.devicePixelRatio;
-        this.height = this.target.offsetHeight * this.devicePixelRatio;
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
         this.resolution = new THREE.Vector2(this.width, this.height);
         this.aspect = this.width / this.height;
         this.renderer = new THREE.WebGLRenderer({
@@ -57,7 +57,7 @@ export default class FireBall {
             depth: false,
             preserveDrawingBuffer: !0
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.setClearColor(0x0e0e0e, 1.0);
         this.target.appendChild(this.renderer.domElement);

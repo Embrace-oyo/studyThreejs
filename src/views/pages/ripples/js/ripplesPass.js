@@ -23,7 +23,7 @@ export default class RipplesPass extends Pass {
             // 坐标系转换（Three.js使用左上角坐标系）
             const rect = this.base.target.getBoundingClientRect();
             this.mouse.x = e.clientX - rect.left;
-            this.mouse.y = this.base.height - (e.clientY - rect.top);
+            this.mouse.y = this.height - (e.clientY - rect.top);
             this.mouse.z = 1.0;
             clearTimeout(this.time)
             this.time = setTimeout(() => {
@@ -32,19 +32,7 @@ export default class RipplesPass extends Pass {
             }, 50)
         });
         this.clearColor = new THREE.Color(0, 0, 0);
-        this.lowRenderTarget = new THREE.WebGLRenderTarget(this.width >> 2, this.width >> 2, {
-            wrapS: THREE.ClampToEdgeWrapping,
-            wrapT: THREE.ClampToEdgeWrapping,
-            magFilter: THREE.LinearFilter,
-            minFilter: THREE.LinearFilter,
-            type: THREE.UnsignedByteType,
-            anisotropy: 0,
-            colorSpace: THREE.LinearSRGBColorSpace,
-            depthBuffer: !1,
-            stencilBuffer: !1,
-            samples: 0
-        });
-        this.renderTargetA = new THREE.WebGLRenderTarget(512, 512, {
+        this.renderTargetA = new THREE.WebGLRenderTarget(this.width, this.height, {
             samples: 4,
             type: THREE.HalfFloatType,
             minFilter: THREE.LinearFilter,
@@ -52,7 +40,7 @@ export default class RipplesPass extends Pass {
             format: THREE.RGBAFormat
         });
         this.renderTargetA.texture.name = 'ripples';
-        this.renderTargetB = new THREE.WebGLRenderTarget(512, 512, {
+        this.renderTargetB = new THREE.WebGLRenderTarget(this.width, this.height, {
             samples: 4,
             type: THREE.HalfFloatType,
             minFilter: THREE.LinearFilter,
@@ -82,11 +70,11 @@ export default class RipplesPass extends Pass {
         })
         this.fsQuad = new FullScreenQuad(null);
 
-
         this.base.renderer.setRenderTarget(this.renderTargetA);
         this.base.renderer.setClearColor(this.clearColor);
         this.base.renderer.clear();
         this.base.renderer.setRenderTarget(null);
+
     }
 
     render(renderer, writeBuffer, readBuffer) {
@@ -122,11 +110,8 @@ export default class RipplesPass extends Pass {
     }
 
     setSize(width, height) {
-        this.lowRenderTarget.setSize(width >> 2, height >> 2);
         this.renderTargetA.setSize(width, height);
         this.renderTargetB.setSize(width, height);
-        this.width = width;
-        this.height = height;
         this.ripplesMaterial.uniforms.iResolution.value.set(width, height);
         this.waterMaterial.uniforms.iResolution.value.set(width, height);
     }

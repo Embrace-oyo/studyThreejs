@@ -20,8 +20,8 @@ export default class Ocean {
         this.target = config.target;
         this.callback = config.callback;
         this.devicePixelRatio = window.devicePixelRatio;
-        this.width = this.target.offsetWidth * this.devicePixelRatio;
-        this.height = this.target.offsetHeight * this.devicePixelRatio;
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
         this.aspect = this.width / this.height;
         this.resolution = new THREE.Vector2(this.width, this.height);
         this.renderer = new THREE.WebGLRenderer({
@@ -30,7 +30,7 @@ export default class Ocean {
             antialias: true,
             preserveDrawingBuffer: !0
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 0.5;

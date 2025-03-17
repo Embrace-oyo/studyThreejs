@@ -2,60 +2,53 @@
  * justThreeJs flowMap.js
  * @author kongjianqiu
  * @description
- * @created 2025/3/13 13:30:20
+ * @created 2025/3/17 16:38:46
  */
+
 import * as THREE from "three";
-import flowMapVertex from "@/views/pages/plaster/glsl/flowMap/vertex.glsl";
-import flowMapFragment from "@/views/pages/plaster/glsl/flowMap/fragment.glsl";
+import flowMapVertext from '@/views/pages/plaster/glsl/flowMap/vertex.glsl'
+import flowMapFragment from '@/views/pages/plaster/glsl/flowMap/fragment.glsl'
 
 export default class FlowMap {
-    constructor(base) {
-        this.base = base;
-        this.dateTime = performance.now();
-        this.renderer = this.base.renderer;
+    constructor(renderer, tNoise, uTime) {
+
+        const r = this;
+        this.renderer = renderer
         this.camera = new THREE.Camera();
         this.scene = new THREE.Scene();
         this.uniform = {
             value: null
         }
         this.mask = {
-            read: new THREE.WebGLRenderTarget(256, 256, {
-                type: THREE.FloatType,
-                depthBuffer: !1
-            }),
-            write: new THREE.WebGLRenderTarget(256, 256, {
-                type: THREE.FloatType,
-                depthBuffer: !1
-            }),
+            read: null,
+            write: null,
             swap: () => {
-                const m = this.mask.read;
-                this.mask.read = this.mask.write
-                this.mask.write = m
-                this.uniform.value = this.mask.read.texture
+                const m = r.mask.read;
+                r.mask.read = r.mask.write
+                r.mask.write = m
+                r.uniform.value = r.mask.read.texture
             }
         }
+        const m = {
+            type: /(iPad|iPhone|iPod)/g.test(navigator.userAgent) ? THREE.HalfFloatType : THREE.FloatType,
+            depthBuffer: false
+        };
+        this.mask.read = new THREE.WebGLRenderTarget(256, 256, m)
+        this.mask.write = new THREE.WebGLRenderTarget(256, 256, m)
         this.mask.swap()
-        this.aspect = 1;
-        this.mouse = new THREE.Vector2();
-        this.velocity = new THREE.Vector2();
-        this.mouse2 = new THREE.Vector2();
-        this.velocity2 = new THREE.Vector2();
-        this.mesh = this.createMesh();
-        this.scene.add(this.mesh);
-        this.setDissipation(0.953)
-        this.setFalloff(0.38)
-        this.setAlpha(1)
-    }
-
-    createMesh() {
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3))
-        geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([0, 0, 2, 0, 0, 2]), 2))
-        const material = new THREE.RawShaderMaterial({
-            vertexShader: flowMapVertex,
-            fragmentShader: flowMapFragment,
+        this.aspect = 1
+        this.mouse = new THREE.Vector2()
+        this.velocity = new THREE.Vector2()
+        this.mouse2 = new THREE.Vector2()
+        this.velocity2 = new THREE.Vector2()
+        this.geometry = new THREE.BufferGeometry();
+        this.geometry.setAttribute("position", new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3))
+        this.geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([0, 0, 2, 0, 0, 2]), 2))
+        this.material = new THREE.RawShaderMaterial({
+            vertexShader: flowMapVertext,
+            fragmentShader: flowMapVertext,
             uniforms: {
-                tMap: this.uniform,
+                tMap: r.uniform,
                 uFalloff: {
                     value: 0.5 * .5
                 },
@@ -68,12 +61,8 @@ export default class FlowMap {
                 uDeltaMult: {
                     value: 1
                 },
-                tNoise: {
-                    value: this.base.maskNoise
-                },
-                uTime: {
-                    value: 0
-                },
+                tNoise: tNoise,
+                uTime: uTime,
                 uAspect: {
                     value: 1
                 },
@@ -95,7 +84,9 @@ export default class FlowMap {
             },
             depthTest: !1
         })
-        return new THREE.Mesh(geometry, material);
+        this.mesh = new THREE.Mesh(this.geometry, this.material);
+        this.mesh.material.needsUpdate = true;
+
     }
 
     setFalloff(i) {
@@ -111,9 +102,6 @@ export default class FlowMap {
     }
 
     update(i = 0) {
-        this.mouse.lerp(this.base.normalFlip, 0.4)
-        this.velocity.lerp(this.base.velocity, this.base.velocity.length() ? .1 : .04)
-        console.log()
         this.mesh.material.uniforms.uAspect.value = this.aspect
         this.mesh.material.uniforms.uOffset.value = i;
         const e = this.renderer.getRenderTarget();
@@ -123,8 +111,8 @@ export default class FlowMap {
         this.mask.swap()
     }
 
-    tick(e) {
-        const t = Math.min(e, 32) / 16;
+    tick(i, e) {
+        const t = Math.min(i, 32) / 16;
         this.mesh.material.uniforms.uDeltaMult.value = t
     }
 }

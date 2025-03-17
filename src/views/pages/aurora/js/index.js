@@ -30,7 +30,7 @@ export default class Index {
         this.scene.fog = new THREE.Fog(0xFF00FF, 40, 180);
 
         this.renderer = new THREE.WebGLRenderer({antialias: true, preserveDrawingBuffer: true});
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.target.appendChild(this.renderer.domElement);
 

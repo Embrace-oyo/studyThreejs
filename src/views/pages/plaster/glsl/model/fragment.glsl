@@ -22,9 +22,11 @@ varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPos;
 varying vec3 vEye;
-vec4 sRGBTransferOETF(in vec4 value){
+
+vec4 sRGBTransferOETFNew(in vec4 value){
     return vec4(mix(pow(value.rgb, vec3(0.41666))*1.055-vec3(0.055), value.rgb*12.92, vec3(lessThanEqual(value.rgb, vec3(0.0031308)))), value.a);
 }
+
 float circularIn(float t){
     return 1.0-sqrt(1.0-t*t);
 }
@@ -139,8 +141,8 @@ void main(){
     float fastScrollExtrude=fastScrollNoise.r*SCROLL_EXTRUDE_STRENGTH;
     extrude=mix(extrude, fastScrollExtrude, uFastScroll)*uOpacity;
     float gradient=mix(1.0, 0.5, length(uvScreen-vec2(0.0, 0.8)));
-    vec3 bake1=sRGBTransferOETF(texture2D(tBake1, vUv)).rgb;
-    vec3 bake2=sRGBTransferOETF(texture2D(tBake2, vUv)).rgb;
+    vec3 bake1=sRGBTransferOETFNew(texture2D(tBake1, vUv)).rgb;
+    vec3 bake2=sRGBTransferOETFNew(texture2D(tBake2, vUv)).rgb;
     float level0=bake2.b;
     float level1=bake2.g;
     float level2=bake2.r;
@@ -180,7 +182,4 @@ void main(){
     color=mix(whiteRender, blackRender, uSwitchColorTransition);
     gl_FragColor.rgb=color;
     gl_FragColor.a=alpha;
-
-//    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
 }
-

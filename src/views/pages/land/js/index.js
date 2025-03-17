@@ -25,8 +25,8 @@ export default class Land {
         this.target = config.target;
         this.callback = config.callback;
         this.devicePixelRatio = window.devicePixelRatio;
-        this.width = this.target.offsetWidth * this.devicePixelRatio;
-        this.height = this.target.offsetHeight * this.devicePixelRatio;
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
         this.aspect = this.width / this.height;
         this.resolution = new THREE.Vector2(this.width, this.height);
         this.renderer = new THREE.WebGLRenderer({
@@ -35,7 +35,7 @@ export default class Land {
             antialias: true,
             preserveDrawingBuffer: !0
         });
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        // this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.setSize(this.width, this.height);
         this.renderer.setClearColor(0x000000, 1.0);
         this.scene = new THREE.Scene();

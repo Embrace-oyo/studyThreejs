@@ -30,8 +30,8 @@ export default class Su7 {
         this.parent = config.parent;
         this.target = config.target;
         this.devicePixelRatio = window.devicePixelRatio;
-        this.width = this.target.offsetWidth * this.devicePixelRatio;
-        this.height = this.target.offsetHeight * this.devicePixelRatio;
+        this.width = this.target.offsetWidth;
+        this.height = this.target.offsetHeight;
         this.callback = config.callback;
         this.clock = new THREE.Clock();
         this.option = {

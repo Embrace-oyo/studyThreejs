@@ -17,14 +17,14 @@ void main(){
     float p12 = texture(iChannel0, q + e.zy).x;
 
     float d = 0.0;
-
+    float radius = 1.0;
     if (iMouse.z > 0.0){
-        d = smoothstep(4.5, 0.5, length(iMouse.xy - gl_FragCoord.xy));
+        d = smoothstep(radius + 6.5, radius - 0.5, length(iMouse.xy - gl_FragCoord.xy));
     } else {
         float t = iTime * 10.0;
         vec2 pos = fract(float(t) * vec2(0.456665, 0.708618)) * iResolution;
-        float amp = 1.0 - step(0.25, fract(t));
-        d = -amp * smoothstep(4.5, 0.5, length(pos - gl_FragCoord.xy));
+        float amp = 1.0 - step(0.55, fract(t));
+        d = -amp * smoothstep(radius + 6.5, radius - 0.5, length(pos - gl_FragCoord.xy));
     }
 
     d+= -(p11 - 0.5) * 2.0 + (p10 + p01 + p21 + p12 - 2.0);

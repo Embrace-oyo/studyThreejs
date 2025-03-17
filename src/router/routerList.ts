@@ -144,14 +144,14 @@ const exampleRouter = [
         },
         component: () => import('@/views/pages/ripples/index.vue')
     },
-    /*{
+    {
         path: 'plaster',
         name: '浮雕',
         meta: {
             img: ocean
         },
         component: () => import('@/views/pages/plaster/index.vue')
-    }*/
+    }
 
 ]
 
