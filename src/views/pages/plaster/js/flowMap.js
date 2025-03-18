@@ -10,18 +10,25 @@ import flowMapVertext from '@/views/pages/plaster/glsl/flowMap/vertex.glsl'
 import flowMapFragment from '@/views/pages/plaster/glsl/flowMap/fragment.glsl'
 
 export default class FlowMap {
-    constructor(renderer, tNoise, uTime) {
+    constructor(base, tNoise, uTime) {
 
         const r = this;
-        this.renderer = renderer
+        this.base = base;
+        this.renderer = this.base.renderer
         this.camera = new THREE.Camera();
         this.scene = new THREE.Scene();
+        // this.camera = this.base.camera;
+        // this.scene = this.base.scene;
         this.uniform = {
             value: null
         }
+        const m = {
+            type: /(iPad|iPhone|iPod)/g.test(navigator.userAgent) ? THREE.HalfFloatType : THREE.FloatType,
+            depthBuffer: false
+        };
         this.mask = {
-            read: null,
-            write: null,
+            read: new THREE.WebGLRenderTarget(256, 256, m),
+            write: new THREE.WebGLRenderTarget(256, 256, m),
             swap: () => {
                 const m = r.mask.read;
                 r.mask.read = r.mask.write
@@ -29,12 +36,6 @@ export default class FlowMap {
                 r.uniform.value = r.mask.read.texture
             }
         }
-        const m = {
-            type: /(iPad|iPhone|iPod)/g.test(navigator.userAgent) ? THREE.HalfFloatType : THREE.FloatType,
-            depthBuffer: false
-        };
-        this.mask.read = new THREE.WebGLRenderTarget(256, 256, m)
-        this.mask.write = new THREE.WebGLRenderTarget(256, 256, m)
         this.mask.swap()
         this.aspect = 1
         this.mouse = new THREE.Vector2()
@@ -46,7 +47,7 @@ export default class FlowMap {
         this.geometry.setAttribute("uv", new THREE.BufferAttribute(new Float32Array([0, 0, 2, 0, 0, 2]), 2))
         this.material = new THREE.RawShaderMaterial({
             vertexShader: flowMapVertext,
-            fragmentShader: flowMapVertext,
+            fragmentShader: flowMapFragment,
             uniforms: {
                 tMap: r.uniform,
                 uFalloff: {
@@ -86,6 +87,9 @@ export default class FlowMap {
         })
         this.mesh = new THREE.Mesh(this.geometry, this.material);
         this.mesh.material.needsUpdate = true;
+        this.scene.add(this.mesh);
+        this.tick = this.tick.bind(this);
+        this.base.tick.add(this.tick)
 
     }
 
@@ -104,10 +108,10 @@ export default class FlowMap {
     update(i = 0) {
         this.mesh.material.uniforms.uAspect.value = this.aspect
         this.mesh.material.uniforms.uOffset.value = i;
-        const e = this.renderer.getRenderTarget();
+        this.mesh.material.needsUpdate = true;
         this.renderer.setRenderTarget(this.mask.write)
         this.renderer.render(this.scene, this.camera)
-        this.renderer.setRenderTarget(e)
+        this.renderer.setRenderTarget(null)
         this.mask.swap()
     }
 

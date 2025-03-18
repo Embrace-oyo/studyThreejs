@@ -9,11 +9,14 @@
 // _createHomeReliefComponent
 // class Gu extends $(Z)
 // class ku {
+// class cu {
 
 
 import * as THREE from "three";
 import gsap from "gsap";
 import FlowMap from "@/views/pages/plaster/js/flowMap.js";
+import Mouse from '@/views/pages/plaster/js/mouse'
+import Tick from "@/views/pages/plaster/js/tick.js";
 
 import plasterVertex from '@/views/pages/plaster/glsl/plaster/vertex.glsl'
 import plasterFragment from '@/views/pages/plaster/glsl/plaster/fragment.glsl'
@@ -23,6 +26,38 @@ import modelFragment from '@/views/pages/plaster/glsl/model/fragment.glsl'
 
 const Ei = 9.995
 const $o = 1.33
+const Lc = new THREE.Vector3();
+const Oc = new THREE.Vector3();
+const ds = new THREE.Vector3();
+
+function mt(u, i = Oc) {
+    const {innerWidth: e, innerHeight: t} = {innerWidth, innerHeight}
+    const s = e / t;
+    i instanceof THREE.Vector3 ? ds.copy(i) : ds.set(...i);
+    const o = u.getWorldPosition(Lc).distanceTo(ds);
+    if (u.isOrthographicCamera) {
+        const n = Math.abs(u.right - u.left)
+        const a = Math.abs(u.top - u.bottom);
+        return {
+            width: n / u.zoom,
+            height: a / u.zoom,
+            factor: 1,
+            distance: o,
+            aspect: s
+        }
+    } else {
+        const n = u.fov * Math.PI / 180
+        const a = 2 * Math.tan(n / 2) * o
+        const r = a * (e / t);
+        return {
+            width: r,
+            height: a,
+            factor: e / r,
+            distance: o,
+            aspect: s
+        }
+    }
+}
 
 function re(t, l, a) {
     return (1 - a) * t + a * l
@@ -93,7 +128,6 @@ export default class BasRelief {
                 colorRange: 2
             }
         }
-        // this.view = t
         this.isPaused = !1
         this.viewport = null
         this._isMobile = false
@@ -107,7 +141,9 @@ export default class BasRelief {
         }
         this.scrollOffset = 0
         this.randomMouseMovementTimeline = null
-        // this.debug = this.createDebug(i)
+        this.tick = new Tick();
+        this.mouse = new Mouse(this);
+        this.createRenderTargets();
         this.createReliefScene()
         this.initReliefContent()
         this.onConfigUpdated();
@@ -118,6 +154,11 @@ export default class BasRelief {
             renderWidth: this.base.width,
             renderHeight: this.base.height
         })
+    }
+
+    createRenderTargets() {
+        this.renderTarget = new THREE.WebGLRenderTarget()
+        this.renderTarget.depthTexture = new THREE.DepthTexture()
     }
 
     createReliefScene() {
@@ -184,7 +225,7 @@ export default class BasRelief {
         }
         this.scrollLast = 0
         this.scrollDelta = 0
-        this.flowmap = new FlowMap(this.renderer, this.tMaskNoise, this.uTime)
+        this.flowmap = new FlowMap(this, this.tMaskNoise, this.uTime)
         this.tFlow = this.flowmap.uniform
     }
 
@@ -486,44 +527,6 @@ export default class BasRelief {
     }
 
     onWindowResize({innerWidth: i, innerHeight: e, renderWidth: t, renderHeight: s}) {
-        const Lc = new THREE.Vector3();
-        const Oc = new THREE.Vector3();
-        const ds = new THREE.Vector3();
-
-        function mt(u, i = Oc) {
-            const {innerWidth: e, innerHeight: t} = {innerWidth, innerHeight}
-            const s = e / t;
-            i instanceof THREE.Vector3 ? ds.copy(i) : ds.set(...i);
-            const o = u.getWorldPosition(Lc).distanceTo(ds);
-            if (u.isOrthographicCamera) {
-                const n = Math.abs(u.right - u.left)
-                const a = Math.abs(u.top - u.bottom);
-                return {
-                    width: n / u.zoom,
-                    height: a / u.zoom,
-                    factor: 1,
-                    distance: o,
-                    aspect: s
-                }
-            } else {
-                const n = u.fov * Math.PI / 180
-                const a = 2 * Math.tan(n / 2) * o
-                const r = a * (e / t);
-                return {
-                    width: r,
-                    height: a,
-                    factor: e / r,
-                    distance: o,
-                    aspect: s
-                }
-            }
-        }
-
-        function re(t, l, a) {
-            return (1 - a) * t + a * l
-        }
-
-
         const o = i / e
         const n = window.devicePixelRatio;
         this.uScreen.value.set(i * n, e * n)
@@ -531,7 +534,6 @@ export default class BasRelief {
         this.uDPR.value = n
         this.uAspect.value = o
         this.flowmap.aspect = o
-        Yt.resize()
         this.viewport = mt(this.camera)
         this.camera.aspect = o;
         const a = $o * (Ei - .1) / this.uAspect.value
@@ -540,40 +542,54 @@ export default class BasRelief {
         this.camera.fov = Math.min(this.config.camera.fov, l)
         this.camera.zoom = re(this.config.camera.slowModeZoom, this.config.camera.fastModeZoom, this.uFastScroll.value) * this._state.cameraZoom
         this.camera.updateProjectionMatrix()
+        this.renderTarget.setSize(i, e);
+        this.mouse.resize(i, e)
     }
 
-    update({delta: i, time: e}) {
-        if (this.isPaused)
-            return;
-        this.uTime.value += i,
-            this.scene.position.y = this.uScroll.value * -Ei,
-            this.uScreenScroll.value = this.scene.position.y * this.config.camera.fastModeZoom / this.viewport.height,
-            this.sections.forEach((n, a) => {
-                    const r = this.sections.length / this.sectionsPerLine * Ei
-                        , l = r * .5
-                        , h = n.position.y + this.scene.position.y;
-                    h < -l && (n.position.y += r),
-                    h > l && (n.position.y -= r)
-                }
-            ),
-            this.scrollDelta = this.uScreenScroll.value - this.scrollLast,
-            this.scrollDelta = Math.min(.2, Math.abs(this.scrollDelta)) * Math.sign(this.scrollDelta),
-            this.scrollLast = this.uScreenScroll.value,
-            this.flowmap.mouse.lerp(Yt.normalFlip, this.config.flowmap.mouseEase),
-            this.flowmap.velocity.lerp(Yt.velocity, Yt.velocity.length() ? .1 : .04),
-            this.flowmap.update(-this.scrollDelta),
-            this.uScrollSpeed.value += (this.scrollDelta * 5 - this.uScrollSpeed.value) * .04;
+    update(i, e) {
+        if (this.isPaused) return;
+
+        this.uTime.value += i
+        this.scene.position.y = this.uScroll.value * -Ei
+        this.uScreenScroll.value = this.scene.position.y * this.config.camera.fastModeZoom / this.viewport.height
+        this.sections.forEach((n, a) => {
+            const r = this.sections.length / this.sectionsPerLine * Ei
+            const l = r * .5
+            const h = n.position.y + this.scene.position.y;
+            h < -l && (n.position.y += r)
+            h > l && (n.position.y -= r)
+        })
+        this.scrollDelta = this.uScreenScroll.value - this.scrollLast
+        this.scrollDelta = Math.min(.2, Math.abs(this.scrollDelta)) * Math.sign(this.scrollDelta)
+        this.scrollLast = this.uScreenScroll.value
+        this.flowmap.mouse.lerp(this.mouse.normalFlip, this.config.flowmap.mouseEase)
+        this.flowmap.velocity.lerp(this.mouse.velocity, this.mouse.velocity.length() ? .1 : .04)
+        this.flowmap.update(-this.scrollDelta)
+        this.uScrollSpeed.value += (this.scrollDelta * 5 - this.uScrollSpeed.value) * .04;
         const t = $o * (Ei - .1) / this.uAspect.value
-            , s = this.config.camera.distance
-            , o = 2 * Math.atan(t / (2 * s)) * (180 / Math.PI);
-        this.camera.fov = Math.min(this.config.camera.fov, o),
-            this.camera.zoom = re(this.config.camera.slowModeZoom, this.config.camera.fastModeZoom, this.uFastScroll.value) * this._state.cameraZoom,
-            this.camera.updateProjectionMatrix()
+        const s = this.config.camera.distance
+        const o = 2 * Math.atan(t / (2 * s)) * (180 / Math.PI);
+        this.camera.fov = Math.min(this.config.camera.fov, o)
+        this.camera.zoom = re(this.config.camera.slowModeZoom, this.config.camera.fastModeZoom, this.uFastScroll.value) * this._state.cameraZoom
+        this.camera.updateProjectionMatrix()
+
+        this.sceneUpdate()
+
     }
 
-    mainUpdate() {
+    sceneUpdate() {
+        const o = true;
+        this.renderer.autoClear = true
+        this.renderer.setClearColor(16777215, 0)
+        this.renderer.setRenderTarget(this.renderTarget)
+        this.renderer.render(this.scene, this.camera)
+        this.renderer.autoClear = o
+        this.renderer.setRenderTarget(null)
+
+
         // 更新浮雕效果的深度纹理和普通纹理
-        this._components.homeRelief.tDepth.value = this._renderTarget.depthTexture;
-        this._components.homeRelief.tRelief.value = this._renderTarget.texture;
+        this.tDepth.value = this.renderTarget.depthTexture;
+        this.tRelief.value = this.renderTarget.texture;
+
     }
 }

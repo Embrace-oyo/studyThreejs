@@ -29,7 +29,7 @@ export default class Plaster {
             preserveDrawingBuffer: true
         })
         this.renderer.setSize(this.width, this.height);
-        this.renderer.autoClear = false;
+        this.renderer.toneMapping = THREE.LinearToneMapping;
         this.target.appendChild(this.renderer.domElement);
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0xf7f7f7);
@@ -62,7 +62,7 @@ export default class Plaster {
         // this.normal05 = this.ktx2Loader.load(filePath('ktx/normal_05.ktx2'));
         // this.normal06 = this.ktx2Loader.load(filePath('ktx/normal_06.ktx2'));
         // this.rocksNormal = this.ktx2Loader.load(filePath('ktx/rocks_normal.ktx2'));
-        // this.maskNoise2 = this.textureLoader.load(filePath('img/rgb-noise.jpg'));
+        this.maskNoise2 = this.textureLoader.load(filePath('img/rgb-noise.jpg'));
         this.manager.onLoad = () => {
             this.callback();
             this.basRelief = new BasRelief(this);
@@ -74,8 +74,7 @@ export default class Plaster {
     animation() {
         this.renderer.setAnimationLoop(() => this.animation());
         this.controls.update();
-
-
+        this.basRelief.update(this.clock.getDelta(), this.clock.getElapsedTime())
         this.renderer.render(this.scene, this.camera);
     }
 
