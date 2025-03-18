@@ -14,6 +14,7 @@ import land from '@/assets/listImg/岛屿.png'
 import ocean from '@/assets/listImg/海洋.png'
 import oil from '@/assets/listImg/油画.png'
 import ripples from '@/assets/listImg/涟漪.png'
+import plaster from '@/assets/listImg/浮雕.png'
 
 const exampleRouter = [
     {
@@ -148,7 +149,7 @@ const exampleRouter = [
         path: 'plaster',
         name: '浮雕',
         meta: {
-            img: ocean
+            img: plaster
         },
         component: () => import('@/views/pages/plaster/index.vue')
     }
