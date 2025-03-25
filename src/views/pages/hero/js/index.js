@@ -8,14 +8,14 @@
 // const properties = new Properties;
 
 import * as THREE from "three";
-import Properties from '@/views/pages/hero/js/properties'
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
+import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer.js";
+import {RenderPass} from "three/addons/postprocessing/RenderPass.js";
+import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
 
-function filePath(path) {
-    return new URL(`../assets/${path}`, import.meta.url).href
-}
+import Hero from '@/views/pages/hero/js/hero/hero'
 
-export default class Hero {
+export default class HeroMain {
     constructor(config) {
         this.parent = config.parent;
         this.target = config.target;
@@ -34,70 +34,82 @@ export default class Hero {
         this.renderer.setSize(this.width, this.height);
         this.scene = new THREE.Scene();
         this.target.appendChild(this.renderer.domElement);
-        this.camera = new THREE.PerspectiveCamera(75, this.aspect, 0.1, 50000);
-        this.camera.position.set(5, 5, 5);
+        this.camera = new THREE.PerspectiveCamera(45, this.aspect, 0.1, 50000);
+        this.camera.position.set(0, 0, 5);
         this.camera.lookAt(0, 0, 0)
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-        this.callback();
-        this.properties = new Properties();
-        const loader = new THREE.FileLoader()
-        loader.setResponseType('arraybuffer').load(filePath('buf/sunny.buf'), (arrayBuffer) => {
-            let geometry = this.onLoad(arrayBuffer);
-            console.log(geometry)
-            let material = new THREE.MeshBasicMaterial()
-            let mesh = new THREE.Mesh(geometry, material)
-            this.scene.add(mesh)
-            this.animation();
-        })
+        this.clock = new THREE.Clock();
+        this.debugInit();
+        this.commonInit();
+        this.assetsInit();
     }
 
-    onLoad(e) {
-        let t = new Uint32Array(e, 0, 1)[0],
-            r = JSON.parse(String.fromCharCode.apply(null, new Uint8Array(e, 4, t))), n = r.vertexCount,
-            a = r.indexCount, l = 4 + t, c = new THREE.BufferGeometry, u = r.attributes, f = !1, p = {};
-        for (let _ = 0, T = u.length; _ < T; _++) {
-            let M = u[_], S = M.id, b = S === "indices" ? a : n, C = M.componentSize, w = window[M.storageType],
-                R = new w(e, l, b * C), E = w.BYTES_PER_ELEMENT, I;
-            if (M.needsPack) {
-                let O = M.packedComponents, k = O.length, L = M.storageType.indexOf("Int") === 0, F = 1 << E * 8,
-                    se = L ? F * .5 : 0, V = 1 / F;
-                I = new Float32Array(b * C);
-                for (let Y = 0, D = 0; Y < b; Y++) for (let G = 0; G < k; G++) {
-                    let H = O[G];
-                    I[D] = (R[D] + se) * V * H.delta + H.from, D++
-                }
-            } else p[S] = l, I = R;
-            S === "normal" && (f = !0), S === "indices" ? c.setIndex(new THREE.BufferAttribute(I, 1)) : c.setAttribute(S, new THREE.BufferAttribute(I, C)), l += b * C * E
+    debugInit() {
+        const light = new THREE.DirectionalLight(0xffffff, 3);
+        light.position.set(1, 1, 1);
+        this.scene.add(new THREE.AmbientLight(0xcccccc));
+        this.scene.add(light);
+
+
+        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        const material = new THREE.MeshBasicMaterial({color: '#7455c9'});
+        this.cube = new THREE.Mesh(geometry, material);
+        this.scene.add(this.cube);
+    }
+
+    commonInit() {
+        this.commonUniforms = {
+            u_time: {value: 0},
+            u_resolution: {value: new THREE.Vector2(this.width, this.height)},
+            u_aspect: {value: 1},
         }
-        let g = r.meshType, v = [];
-        if (r.sceneData) {
-            let _ = r.sceneData, T = new THREE.Object3D, M = [],
-                S = g === "Mesh" ? 3 : g === "LineSegments" ? 2 : 1;
-            for (let b = 0, C = _.length; b < C; b++) {
-                let w = _[b], R;
-                if (w.vertexCount == 0) R = new THREE.Object3D; else {
-                    let E = new THREE.BufferGeometry, I = c.index, O = I.array, k = O.constructor,
-                        L = k.BYTES_PER_ELEMENT;
-                    E.setIndex(new THREE.BufferAttribute(new O.constructor(O.buffer, w.faceIndex * I.itemSize * L * S + (p.indices || 0), w.faceCount * I.itemSize * S), I.itemSize));
-                    for (let F = 0, se = E.index.array.length; F < se; F++) E.index.array[F] -= w.vertexIndex;
-                    for (let F in c.attributes) I = c.attributes[F], O = I.array, k = O.constructor, L = k.BYTES_PER_ELEMENT, E.setAttribute(F, new THREE.BufferAttribute(new O.constructor(O.buffer, w.vertexIndex * I.itemSize * L + (p[F] || 0), w.vertexCount * I.itemSize), I.itemSize));
-                    g === "Mesh" ? R = new THREE.Mesh(E, new THREE.MeshNormalMaterial({flatShading: !f})) : g === "LineSegments" ? R = new THREE.LineSegments(E, new THREE.LineBasicMaterial) : R = new THREE.Points(E, new THREE.PointsMaterial({
-                        sizeAttenuation: !1,
-                        size: 2
-                    })), M.push(R)
-                }
-                w.parentIndex > -1 ? v[w.parentIndex].add(R) : T.add(R), R.position.fromArray(w.position), R.quaternion.fromArray(w.quaternion), R.scale.fromArray(w.scale), R.name = w.name, R.userData.material = w.material, v[b] = R
-            }
-            c.userData.meshList = M, c.userData.sceneObject = T
+        this.introRatio = 0;
+        this.bgColorHex = new THREE.Color('#f0f1fa');
+        this.bgColor = new THREE.Color('#f0f1fa');
+        this.dateTime = performance.now()
+        this.time = 0;
+        this.startTime = 0;
+
+
+    }
+
+    composerInit() {
+        this.composer = new EffectComposer(this.renderer);
+        this.renderPass = new RenderPass(this.scene, this.camera);
+        this.outPass = new OutputPass();
+
+        this.composer.addPass(this.renderPass);
+        this.composer.addPass(this.hero.heroEfxPrevPass);
+        this.composer.addPass(this.hero.heroEfxPass);
+        this.composer.addPass(this.outPass);
+    }
+
+    async assetsInit() {
+        this.manager = new THREE.LoadingManager();
+        this.hero = new Hero(this);
+        this.manager.onLoad = () => {
+            this.callback();
+            this.hero.init();
+            this.composerInit();
+            this.animation();
         }
-        return c
     }
 
     animation() {
         this.renderer.setAnimationLoop(() => this.animation());
 
+        let o = performance.now()
+        let e = (o - this.dateTime) / 1e3;
+        this.dateTime = o
+        e = Math.min(e, 1 / 20)
+        this.startTime += e;
+        this.time += e;
+        this.commonUniforms.u_time.value += e;
 
-        this.renderer.render(this.scene, this.camera);
+        this.hero.syncProperties(e)
+        this.hero.update(e)
+
+        this.composer.render();
     }
 
     resize() {
@@ -108,6 +120,7 @@ export default class Hero {
             this.aspect = this.width / this.height;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(this.width, this.height);
+            this.hero.resize(this.width, this.height)
         })
     }
 
@@ -125,5 +138,6 @@ export default class Hero {
         });
         // renderer
         this.renderer.dispose();
+        if (this.composer) this.composer.dispose();
     }
 }

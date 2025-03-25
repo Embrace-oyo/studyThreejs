@@ -23,7 +23,7 @@ justThreeJs index.vue
 
 <script setup>
 import {onMounted, onUnmounted, ref} from "vue";
-import Hero from "@/views/pages/hero/js/index";
+import HeroMain from "@/views/pages/hero/js/index";
 
 const isLoad = ref(false)
 const number = ref(0)
@@ -33,7 +33,7 @@ const progressCallback = () => {
 }
 onMounted(() => {
 
-  world = new Hero({
+  world = new HeroMain({
     parent: document.querySelector('.hero'),
     target: document.querySelector('.canvas'),
     callback: progressCallback,

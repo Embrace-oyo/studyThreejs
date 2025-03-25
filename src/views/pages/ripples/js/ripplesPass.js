@@ -69,12 +69,6 @@ export default class RipplesPass extends Pass {
             fragmentShader: water,
         })
         this.fsQuad = new FullScreenQuad(null);
-
-        this.base.renderer.setRenderTarget(this.renderTargetA);
-        this.base.renderer.setClearColor(this.clearColor);
-        this.base.renderer.clear();
-        this.base.renderer.setRenderTarget(null);
-
     }
 
     render(renderer, writeBuffer, readBuffer) {
@@ -122,6 +116,5 @@ export default class RipplesPass extends Pass {
         this.ripplesMaterial.dispose();
         this.waterMaterial.dispose();
         this.fsQuad.dispose();
-
     }
 }
