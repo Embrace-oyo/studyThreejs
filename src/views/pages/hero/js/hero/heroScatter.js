@@ -24,10 +24,10 @@ export default class HeroScatter {
         this._brownianMotion1 = new BrownianMotion
     }
 
-    update(e) {
+    update() {
         let t = this.base.math.fit(this.base.introRatio, 0, .2, 2, .7);
         t = this.base.math.fit(this.base.introRatio, .7, .85, t, .4)
         this.shaderUniforms.u_lightScatterPowInv.value = t
-        this.shaderUniforms.u_lightScatterRatio.value = this.base.math.fit(this.base.introRatio, .7, .85, 1, 0, easeInCubic)
+        this.shaderUniforms.u_lightScatterRatio.value = this.base.math.fit(0, .7, .85, 1, 0, easeInCubic)
     }
 }

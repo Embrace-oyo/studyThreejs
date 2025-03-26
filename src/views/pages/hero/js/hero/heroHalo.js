@@ -33,6 +33,11 @@ export default class HeroHalo {
         this.mesh.renderOrder = 10
         this.container.add(this.mesh)
     }
+
     update(e) {
+    }
+
+    resize() {
+
     }
 }

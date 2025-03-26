@@ -29,24 +29,33 @@ export default class HeroLight {
     }
 
     update() {
-        this.renderer.setRenderTarget(this.shadowRenderTarget)
-        this.renderer.setClearColor(16777215, 1)
-        this.renderer.clear()
-        this.renderer.setRenderTarget(null)
-        this.fboHelper.setColorState(this.fboHelper.getColorState())
+        let t = this.renderer
+        let r = this.fboHelper.getColorState()
+        let n = t.getRenderTarget();
+        t.setRenderTarget(this.shadowRenderTarget)
+        t.setClearColor(16777215, 1)
+        t.clear()
+        t.setRenderTarget(n)
+        this.fboHelper.setColorState(r)
     }
 
     renderMesh(e) {
-        this.renderer.autoClearColor = !1
+        let t = this.renderer
+        let r = this.fboHelper.getColorState()
+        let n = t.getRenderTarget();
+        t.autoClearColor = !1
         this.fboHelper.renderMesh(e, this.shadowRenderTarget)
-        this.renderer.setRenderTarget(this.renderer.getRenderTarget())
-        this.fboHelper.setColorState(this.fboHelper.getColorState())
+        t.setRenderTarget(n)
+        this.fboHelper.setColorState(r)
     }
 
     postUpdate(e) {
+        let t = this.renderer
+        let r = this.fboHelper.getColorState()
+        let n = t.getRenderTarget();
         // properties.gl
-        this.renderer.autoClear = !1
-        this.renderer.setRenderTarget(this.renderer.getRenderTarget())
-        this.fboHelper.setColorState(this.fboHelper.getColorState())
+        t.autoClear = !1
+        t.setRenderTarget(n)
+        this.fboHelper.setColorState(r)
     }
 }

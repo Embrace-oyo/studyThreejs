@@ -86,6 +86,7 @@ export default class HeroFog {
     resize(e, t) {
         this.cacheRT.setSize(e, t)
     }
+
     update(e) {
     }
 }

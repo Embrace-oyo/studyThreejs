@@ -85,9 +85,9 @@ export default class HeroGround {
         this.base.fboHelper.renderMesh(this.mesh, this.currRenderTarget)
         r.setRenderTarget(a)
         this.base.fboHelper.setColorState(n)
-        this.base.heroParticlesSimulation.shaderUniforms.u_noiseStableFactor.value
+        // this.base.heroParticlesSimulation.shaderUniforms.u_noiseStableFactor.value
         this.groundMesh.material.uniforms.u_groundShadowTexture.value = this.currRenderTarget.texture
-        this.groundMesh.material.uniforms.u_bgColor.value.copy(this.base.bgColor)
+        this.groundMesh.material.uniforms.u_bgColor.value.copy(this.base.base.bgColor)
         this.groundMesh.material.uniforms.u_color.value.set("#fff")
     }
 }

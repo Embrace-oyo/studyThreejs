@@ -12,6 +12,7 @@ import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer.js";
 import {RenderPass} from "three/addons/postprocessing/RenderPass.js";
 import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
+import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 import Hero from '@/views/pages/hero/js/hero/hero'
 
@@ -20,28 +21,30 @@ export default class HeroMain {
         this.parent = config.parent;
         this.target = config.target;
         this.callback = config.callback;
-        this.devicePixelRatio = window.devicePixelRatio;
         this.width = this.target.offsetWidth;
         this.height = this.target.offsetHeight;
         this.aspect = this.width / this.height;
         this.resolution = new THREE.Vector2(this.width, this.height);
         this.renderer = new THREE.WebGLRenderer({
+            antialias: !1,
+            alpha: !1,
+            xrCompatible: !1,
             powerPreference: "high-performance",
-            alpha: true,
-            antialias: true,
+            premultipliedAlpha: !1,
             preserveDrawingBuffer: !0
         });
         this.renderer.setSize(this.width, this.height);
+        this.renderer.autoClear = true;
         this.scene = new THREE.Scene();
         this.target.appendChild(this.renderer.domElement);
-        this.camera = new THREE.PerspectiveCamera(45, this.aspect, 0.1, 50000);
-        this.camera.position.set(0, 0, 5);
-        this.camera.lookAt(0, 0, 0)
+        this.camera = new THREE.PerspectiveCamera(45, this.aspect, 0.1, 200);
+        this.camera.position.set(0, 10, -20);
+        this.camera.lookAt(0, 2, 0)
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.clock = new THREE.Clock();
-        this.debugInit();
         this.commonInit();
         this.assetsInit();
+        this.resize();
     }
 
     debugInit() {
@@ -79,6 +82,8 @@ export default class HeroMain {
         this.outPass = new OutputPass();
 
         this.composer.addPass(this.renderPass);
+        this.bloomPass = new UnrealBloomPass(new THREE.Vector2(this.width, this.height), 0.3, 0.4, 0.95);
+        this.composer.addPass(this.bloomPass);
         this.composer.addPass(this.hero.heroEfxPrevPass);
         this.composer.addPass(this.hero.heroEfxPass);
         this.composer.addPass(this.outPass);
@@ -102,12 +107,18 @@ export default class HeroMain {
         let e = (o - this.dateTime) / 1e3;
         this.dateTime = o
         e = Math.min(e, 1 / 20)
+        // e = 0.05;
         this.startTime += e;
-        this.time += e;
         this.commonUniforms.u_time.value += e;
+
+
+        // this.renderer.setClearColor(this.bgColor, 1)
+        // this.renderer.clear()
+
 
         this.hero.syncProperties(e)
         this.hero.update(e)
+
 
         this.composer.render();
     }
@@ -120,6 +131,7 @@ export default class HeroMain {
             this.aspect = this.width / this.height;
             this.camera.updateProjectionMatrix();
             this.renderer.setSize(this.width, this.height);
+            this.composer.setSize(this.width, this.height);
             this.hero.resize(this.width, this.height)
         })
     }

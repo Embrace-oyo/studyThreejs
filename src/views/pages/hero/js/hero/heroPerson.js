@@ -39,7 +39,6 @@ export default class HeroPerson {
         this.onTextureLoad();
         this.onModelLoad(this.base.personGeometry)
         this.onAnimationLoad(this.base.personIdleGeometry)
-
         this.shadowMesh = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1.5), new THREE.ShaderMaterial({
             uniforms: Object.assign({
                     u_texture: {value: this.shadowTexture},

@@ -101,6 +101,10 @@ export default class Hero extends THREE.Scene {
         this._q0 = new THREE.Quaternion
         this._q1 = new THREE.Quaternion;
         this.isDown = false;
+
+        this.introRatio = 0.388;
+        this.sceneRatio = 1;
+
         this.assetsLoad();
     }
 
@@ -142,6 +146,8 @@ export default class Hero extends THREE.Scene {
     }
 
     init() {
+        this.cameraSplinePositions = this.cameraSplineGeometry.attributes.position
+        this.cameraSplineOrientation = this.cameraSplineGeometry.attributes.orient
         this.math = new MathUtils;
         this.fboHelper = new FboHelper(this);
         this.textureHelper = new TextureHelper(this);
@@ -156,23 +162,25 @@ export default class Hero extends THREE.Scene {
         this.heroParticles = new HeroParticles(this);
         this.heroRocks = new HeroRocks(this);
         this.heroGround = new HeroGround(this);
-        this.heroLines = new HeroLines(this);
         this.heroPerson = new HeroPerson(this);
         this.heroFog = new HeroFog(this);
         this.heroHalo = new HeroHalo(this)
-        this.add(this.heroParticles.container)
+        this.heroLines = new HeroLines(this);
+
+
         this.sceneContainer.add(this.heroRocks.container)
         this.sceneContainer.add(this.heroPerson.container)
         this.sceneContainer.add(this.heroFog.container)
         this.add(this.sceneContainer)
+        this.add(this.heroParticles.container)
         this.add(this.heroGround.container)
         this.add(this.heroHalo.container)
-        this.hudContainer.add(this.heroLines.container)
-        this.add(this.hudContainer)
+
+
+        // this.hudContainer.add(this.heroLines.container)
+        // this.add(this.hudContainer)
         // aboutPageHeroEfxPrepass.scene.add(aboutHeroFaces.container)
         // aboutPageHeroEfxPrepass.scene.add(aboutHeroLetters.container)
-        this.cameraSplinePositions = this.cameraSplineGeometry.attributes.position
-        this.cameraSplineOrientation = this.cameraSplineGeometry.attributes.orient
 
         this.resize(this.width, this.height)
 
@@ -183,6 +191,7 @@ export default class Hero extends THREE.Scene {
         this.width = width;
         this.height = height;
         this.heroFog.resize(width, height)
+        this.heroHalo.resize(width, height)
     }
 
     syncProperties(e) {
@@ -223,40 +232,45 @@ export default class Hero extends THREE.Scene {
         this.introTime += t
         this.shaderUniforms.u_introTime.value = this.introTime
         this.shaderUniforms.u_introDeltaTime.value = t
-        this.heroScatter.update()
-        if (this.hudRatio < 1) {
-            this.heroParticlesSimulation.update(e)
-            this.heroLightField.update(t)
-            this.heroParticles.update(t)
-            this.heroParticles.container.visible = !0
-        } else {
-            this.heroParticles.container.visible = !1
-        }
-        if (this.sceneRatio > 0 && this.hudRatio < 1) {
-            this.heroLight.update(t)
-            this.heroRocks.update(t)
-            this.heroPerson.update(t)
-            this.heroFog.update(t)
-            this.heroHalo.update(t)
-            this.sceneContainer.visible = !0
-        } else {
-            this.sceneContainer.visible = !1
-        }
-        this.sceneRatio > 0 && this.heroGround.update(t)
-        if (this.hudRatio > 0) {
-            this.heroLines.update(e)
-            this.hudContainer.visible = !0
-        } else {
-            this.hudContainer.visible = !1
-        }
+        // this.heroScatter.update()
+        /* if (this.hudRatio < 1) {
+             this.heroParticlesSimulation.update(e)
+             this.heroLightField.update(t)
+             this.heroParticles.update(t)
+             this.heroParticles.container.visible = !0
+         } else {
+             this.heroParticles.container.visible = !1
+         }
+         if (this.sceneRatio > 0 && this.hudRatio < 1) {
+             this.heroLight.update(t)
+             this.heroRocks.update(t)
+             this.heroPerson.update(t)
+             this.heroFog.update(t)
+             this.heroHalo.update(t)
+             this.sceneContainer.visible = !0
+         } else {
+             this.sceneContainer.visible = !1
+         }
+         this.sceneRatio > 0 && this.heroGround.update(t)
+         this.hudRatio < 1 && this.heroLightField.postUpdate(e)
+         this.sceneRatio > 0 && this.hudRatio < 1 && this.heroLight.postUpdate(e)*/
 
-        // aboutHeroFaces.update(e)
-        // aboutHeroLetters.update(e)
-        this.heroEfxPrevPass.blurRatio = this.hudRatio
-        // this.heroEfxPrevPass.needsRenderScene = aboutHeroFaces.isActive
-        // this.heroEfxPass.hudRatio = aboutHeroFaces.showRatio
-        this.hudRatio < 1 && this.heroLightField.postUpdate(e)
-        this.sceneRatio > 0 && this.hudRatio < 1 && this.heroLight.postUpdate(e)
+        this.heroScatter.update()
+
+        this.heroLightField.update(t)
+        this.heroParticlesSimulation.update(e)
+        this.heroParticles.update(t)
+
+        this.heroLight.update(t)
+        this.heroRocks.update(t)
+        this.heroPerson.update(t)
+        this.heroFog.update(t)
+        this.heroHalo.update(t)
+
+        this.heroGround.update(t)
+
+        this.heroLightField.postUpdate(e)
+        this.heroLight.postUpdate(e)
     }
 
 

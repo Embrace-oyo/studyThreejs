@@ -142,7 +142,7 @@ export default class HeroRocks {
     }
 
     update(e) {
-        this.base.heroParticlesSimulation.shaderUniforms.u_noiseStableFactor.value
+        // this.base.heroParticlesSimulation.shaderUniforms.u_noiseStableFactor.value
         this.time += e
         this.shaderUniforms.u_time.value = this.time
         this.shaderUniforms.u_globalTime.value = this.base.time
