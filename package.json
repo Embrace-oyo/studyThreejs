@@ -19,6 +19,7 @@
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
     "easing-utils": "^1.0.0",
+    "events": "^3.3.0",
     "furina": "^1.0.3",
     "gsap": "^3.12.5",
     "imagesloaded": "^5.0.0",

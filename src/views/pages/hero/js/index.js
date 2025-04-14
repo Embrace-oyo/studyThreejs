@@ -11,8 +11,7 @@ import * as THREE from "three";
 import {OrbitControls} from "three/addons/controls/OrbitControls.js";
 import {EffectComposer} from "three/examples/jsm/postprocessing/EffectComposer.js";
 import {RenderPass} from "three/addons/postprocessing/RenderPass.js";
-import {OutputPass} from "three/addons/postprocessing/OutputPass.js";
-import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
+import {SMAAPass} from 'three/addons/postprocessing/SMAAPass.js';
 
 import Hero from '@/views/pages/hero/js/hero/hero'
 
@@ -26,9 +25,8 @@ export default class HeroMain {
         this.aspect = this.width / this.height;
         this.resolution = new THREE.Vector2(this.width, this.height);
         this.renderer = new THREE.WebGLRenderer({
-            antialias: !1,
+            antialias: true,
             alpha: !1,
-            xrCompatible: !1,
             powerPreference: "high-performance",
             premultipliedAlpha: !1,
             preserveDrawingBuffer: !0
@@ -37,9 +35,9 @@ export default class HeroMain {
         this.renderer.autoClear = true;
         this.scene = new THREE.Scene();
         this.target.appendChild(this.renderer.domElement);
-        this.camera = new THREE.PerspectiveCamera(45, this.aspect, 0.1, 200);
-        this.camera.position.set(0, 10, -20);
-        this.camera.lookAt(0, 2, 0)
+        this.camera = new THREE.PerspectiveCamera(75, this.aspect, 0.01, 200);
+        this.camera.position.set(-2, 5, -12);
+        this.camera.lookAt(0, 0, 0)
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.clock = new THREE.Clock();
         this.commonInit();
@@ -67,8 +65,11 @@ export default class HeroMain {
             u_aspect: {value: 1},
         }
         this.introRatio = 0;
-        this.bgColorHex = new THREE.Color('#f0f1fa');
-        this.bgColor = new THREE.Color('#f0f1fa');
+        this.offWhiteColorHex = '#f0f1fa'
+        this.blackColorHex = '#000000';
+        this.blueColorHex = '#1a2ffb'
+        this.bgColorHex = '#f0f1fa';
+        this.bgColor = new THREE.Color;
         this.dateTime = performance.now()
         this.time = 0;
         this.startTime = 0;
@@ -79,14 +80,13 @@ export default class HeroMain {
     composerInit() {
         this.composer = new EffectComposer(this.renderer);
         this.renderPass = new RenderPass(this.scene, this.camera);
-        this.outPass = new OutputPass();
-
         this.composer.addPass(this.renderPass);
-        this.bloomPass = new UnrealBloomPass(new THREE.Vector2(this.width, this.height), 0.3, 0.4, 0.95);
-        this.composer.addPass(this.bloomPass);
+        this.composer.addPass(this.hero.bloomPass);
         this.composer.addPass(this.hero.heroEfxPrevPass);
         this.composer.addPass(this.hero.heroEfxPass);
-        this.composer.addPass(this.outPass);
+        this.composer.addPass(new SMAAPass(this.width, this.height));
+        this.composer.addPass(this.hero.finalPass);
+        this.composer.setSize(this.width, this.height);
     }
 
     async assetsInit() {
@@ -107,18 +107,14 @@ export default class HeroMain {
         let e = (o - this.dateTime) / 1e3;
         this.dateTime = o
         e = Math.min(e, 1 / 20)
-        // e = 0.05;
         this.startTime += e;
         this.commonUniforms.u_time.value += e;
 
-
-        // this.renderer.setClearColor(this.bgColor, 1)
-        // this.renderer.clear()
-
+        this.renderer.setClearColor(this.bgColor, 1)
+        this.bgColor.setStyle(this.bgColorHex)
 
         this.hero.syncProperties(e)
         this.hero.update(e)
-
 
         this.composer.render();
     }

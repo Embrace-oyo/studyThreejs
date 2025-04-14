@@ -14,6 +14,8 @@ import {
     MathUtils,
     TextureHelper
 } from "@/views/pages/hero/js/util/common.js";
+import BloomPass from '@/views/pages/hero/js/util/bloomPass'
+import FinalPass from '@/views/pages/hero/js/util/finalPass'
 import HeroEfxPrevPass from "@/views/pages/hero/js/hero/heroEfxPrepass.js";
 import HeroEfxPass from "@/views/pages/hero/js/hero/heroEfxPass";
 import HeroLight from "@/views/pages/hero/js/hero/heroLight.js";
@@ -44,7 +46,13 @@ export default class Hero extends THREE.Scene {
         bloomRadius: .25,
         bloomThreshold: .8,
         bloomSmoothWidth: .3,
+        bloomSaturation: 1,
+        bloomHighPassMultiplier: 1,
+        haloWidth: .6,
+        haloRGBShift: .02,
         haloStrength: 0,
+        haloMaskInner: .3,
+        haloMaskOuter: .5,
         clearAlpha: 0,
         cameraLookStrength: .1,
         screenPaintOffsetRatio: 0,
@@ -102,7 +110,7 @@ export default class Hero extends THREE.Scene {
         this._q1 = new THREE.Quaternion;
         this.isDown = false;
 
-        this.introRatio = 0.388;
+        this.introRatio = 0.3;
         this.sceneRatio = 1;
 
         this.assetsLoad();
@@ -153,6 +161,18 @@ export default class Hero extends THREE.Scene {
         this.textureHelper = new TextureHelper(this);
         this.blur = new Blur(this);
         this.blueNoise = new BlueNoise(this);
+        this.finalPass = new FinalPass(this);
+        this.finalPass.vignetteFrom = 2
+        this.finalPass.vignetteTo = 5
+        this.finalPass.vignetteColor.setStyle('#000000')
+        this.finalPass.saturation = 1
+        this.finalPass.contrast = 0
+        this.finalPass.brightness = 1
+        this.finalPass.tintColor.setStyle('#000000')
+        this.finalPass.tintOpacity = 0
+        this.finalPass.bgColor.setStyle(this.base.bgColorHex)
+        this.finalPass.opacity = 1
+        this.bloomPass = new BloomPass(this)
         this.heroEfxPrevPass = new HeroEfxPrevPass(this);
         this.heroEfxPass = new HeroEfxPass(this);
         this.heroLight = new HeroLight(this);
@@ -203,14 +223,14 @@ export default class Hero extends THREE.Scene {
         this.sceneRatio = this.shaderUniforms.u_sceneRatio.value = this.math.fit(this.introRatio, .01, .1, 0, 1, easeOutCubic)
         this.sceneHideRatio = this.shaderUniforms.u_sceneHideRatio.value = this.math.fit(this.introRatio, .85, 1, 0, 1)
         this.shaderUniforms.u_hudRatio.value = this.hudRatio
-        this.properties.bloomAmount = 3
-        this.properties.bloomAmount = this.math.fit(this.introRatio, .1, .85, this.properties.bloomAmount, 1.5, easeOutSine)
-        this.properties.bloomAmount = this.math.fit(this.introRatio, .85, 1, this.properties.bloomAmount, 10)
-        this.properties.bloomAmount = this.math.fit(this.hudRatio, 0, .5, this.properties.bloomAmount, 12.5)
-        this.properties.haloStrength = .08
-        this.properties.haloStrength = this.math.fit(this.introRatio, .1, .4, this.properties.haloStrength, .15)
-        this.properties.haloStrength = this.math.fit(this.hudRatio, 0, .5, this.properties.haloStrength, 0)
-        this.properties.screenPaintDistortionRGBShift = this.math.mix(0, 0.5, this.outSectionRatio)
+        this.bloomPass.bloomAmount = 3
+        this.bloomPass.bloomAmount = this.math.fit(this.introRatio, .1, .85, this.bloomPass.bloomAmount, 1.5, easeOutSine)
+        this.bloomPass.bloomAmount = this.math.fit(this.introRatio, .85, 1, this.bloomPass.bloomAmount, 10)
+        this.bloomPass.bloomAmount = this.math.fit(this.hudRatio, 0, .5, this.bloomPass.bloomAmount, 12.5)
+        this.bloomPass.haloStrength = .08
+        this.bloomPass.haloStrength = this.math.fit(this.introRatio, .1, .4, this.bloomPass.haloStrength, .15)
+        this.bloomPass.haloStrength = this.math.fit(this.hudRatio, 0, .5, this.bloomPass.haloStrength, 0)
+        this.bloomPass.screenPaintDistortionRGBShift = this.math.mix(0, 0.5, this.outSectionRatio)
         this.properties.cameraLookStrength = this.math.fit(this.initialSplineRatio, 0, 1, .1, .035)
         this._v.fromArray(this.cameraSplinePositions.array, n * 3)
         this.properties.defaultCameraPosition.fromArray(this.cameraSplinePositions.array, r * 3)
@@ -232,45 +252,28 @@ export default class Hero extends THREE.Scene {
         this.introTime += t
         this.shaderUniforms.u_introTime.value = this.introTime
         this.shaderUniforms.u_introDeltaTime.value = t
-        // this.heroScatter.update()
-        /* if (this.hudRatio < 1) {
-             this.heroParticlesSimulation.update(e)
-             this.heroLightField.update(t)
-             this.heroParticles.update(t)
-             this.heroParticles.container.visible = !0
-         } else {
-             this.heroParticles.container.visible = !1
-         }
-         if (this.sceneRatio > 0 && this.hudRatio < 1) {
-             this.heroLight.update(t)
-             this.heroRocks.update(t)
-             this.heroPerson.update(t)
-             this.heroFog.update(t)
-             this.heroHalo.update(t)
-             this.sceneContainer.visible = !0
-         } else {
-             this.sceneContainer.visible = !1
-         }
-         this.sceneRatio > 0 && this.heroGround.update(t)
-         this.hudRatio < 1 && this.heroLightField.postUpdate(e)
-         this.sceneRatio > 0 && this.hudRatio < 1 && this.heroLight.postUpdate(e)*/
-
         this.heroScatter.update()
-
-        this.heroLightField.update(t)
-        this.heroParticlesSimulation.update(e)
-        this.heroParticles.update(t)
-
-        this.heroLight.update(t)
-        this.heroRocks.update(t)
-        this.heroPerson.update(t)
-        this.heroFog.update(t)
-        this.heroHalo.update(t)
-
-        this.heroGround.update(t)
-
-        this.heroLightField.postUpdate(e)
-        this.heroLight.postUpdate(e)
+        if (this.hudRatio < 1) {
+            this.heroParticlesSimulation.update(e)
+            this.heroLightField.update(t)
+            this.heroParticles.update(t)
+            this.heroParticles.container.visible = !0
+        } else {
+            this.heroParticles.container.visible = !1
+        }
+        if (this.sceneRatio > 0 && this.hudRatio < 1) {
+            this.heroLight.update(t)
+            this.heroRocks.update(t)
+            this.heroPerson.update(t)
+            this.heroFog.update(t)
+            this.heroHalo.update(t)
+            this.sceneContainer.visible = !0
+        } else {
+            this.sceneContainer.visible = !1
+        }
+        this.sceneRatio > 0 && this.heroGround.update(t)
+        this.hudRatio < 1 && this.heroLightField.postUpdate(e)
+        this.sceneRatio > 0 && this.hudRatio < 1 && this.heroLight.postUpdate(e)
     }
 
 

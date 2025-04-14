@@ -21,7 +21,6 @@ export default class HeroEfxPrevPass extends Pass {
     blurRatio = 0;
     scene = new THREE.Scene;
     camera = new THREE.Camera;
-    needsRenderScene = !0;
     renderOrder = 5;
 
     constructor(base) {
@@ -62,9 +61,6 @@ export default class HeroEfxPrevPass extends Pass {
         this.setSize(this.width, this.height);
     }
 
-    needsRender() {
-        return this.isActive
-    }
 
     setSize(width, height) {
         this.cacheRT.setSize(width, height)
@@ -87,41 +83,28 @@ export default class HeroEfxPrevPass extends Pass {
     }
 
     render(renderer, writeBuffer, readBuffer) {
-        this.fboHelper.copy(readBuffer, this.cacheRT);
-        // 动态切换材质策略
+        this.fboHelper.copy(readBuffer.texture, this.cacheRT)
         if (this.useMotionBlur) {
-            // 运动模糊模式
-            this.useMotionBlur = false;
-            this.material = this.motionBlurMaterial;
-            this.material.uniforms.u_blurRatio.value = this.motionBlurRatio;
+            this.useMotionBlur = !1
+            this.material = this.motionBlurMaterial
+            this.material.uniforms.u_blurRatio.value = this.motionBlurRatio
         } else {
-            // 根据模糊强度选择普通模糊/基础材质
-            this.material = this.blurRatio > 0 ? this.blurMaterial : this.material;
-            this.material.uniforms.u_blurRatio.value = this.blurRatio;
+            this.material = this.blurRatio > 0 ? this.blurMaterial : this.material
+            this.material.uniforms.u_blurRatio.value = this.blurRatio
         }
-        this.material.uniforms.u_texture.value = readBuffer.texture
-        // 场景合成渲染分支
         if (this.renderToScreen) {
-            // 设置输入纹理并执行后处理渲染
+            this.material.uniforms.u_texture.value = readBuffer.texture
             this.fboHelper.render(this.material, writeBuffer);
-
-            // 保存当前渲染状态
-            const colorState = this.fboHelper.getColorState();
-
-            // 配置叠加场景渲染
-            this.fboHelper.renderer.autoClear = false;
-            this.fboHelper.renderer.setRenderTarget(writeBuffer);
-
-            // 渲染附加3D场景内容
-            this.fboHelper.renderer.render(this.scene, this.camera);
-
-            // 恢复原始渲染状态
-            this.fboHelper.setColorState(colorState);
-
+            let r = this.fboHelper.getColorState();
+            this.fboHelper.renderer.autoClear = !1
+            this.fboHelper.renderer.setRenderTarget(writeBuffer)
+            this.fboHelper.renderer.render(this.scene, this.camera)
+            this.fboHelper.setColorState(r)
         } else {
-            // 基础渲染路径
-            this.fboHelper.render(this.material, writeBuffer)
+            this.material.uniforms.u_texture && (this.material.uniforms.u_texture.value = readBuffer.texture)
+            this.fboHelper.render(this.material, this.renderToScreen ? null : writeBuffer)
         }
+
     }
 
     dispose() {

@@ -15,6 +15,7 @@ import ocean from '@/assets/listImg/海洋.png'
 import oil from '@/assets/listImg/油画.png'
 import ripples from '@/assets/listImg/涟漪.png'
 import plaster from '@/assets/listImg/浮雕.png'
+import hero from '@/assets/listImg/宇航员.png'
 
 const exampleRouter = [
     {
@@ -157,9 +158,17 @@ const exampleRouter = [
         path: 'hero',
         name: '宇航员',
         meta: {
-            img: plaster
+            img: hero
         },
         component: () => import('@/views/pages/hero/index.vue')
+    },
+    {
+        path: 'flower',
+        name: '开花🌼',
+        meta: {
+            img: hero
+        },
+        component: () => import('@/views/pages/abeto/index.vue')
     }
 
 ]

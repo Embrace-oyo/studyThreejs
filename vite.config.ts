@@ -17,6 +17,12 @@ export default defineConfig({
         host: '0.0.0.0',
         port: 8181,
         https: false,
+        proxy: {
+            '/assets': {
+                target: 'https://abeto.com',
+                changeOrigin: true,
+            },
+        }
     },
     plugins: [
         vue(),
@@ -30,8 +36,8 @@ export default defineConfig({
             certDir: '/Users/.../.devServer/cert'
         })
     ],
-    assetsInclude:['**/*.hdr'],
-    css:{
+    assetsInclude: ['**/*.hdr'],
+    css: {
         postcss: {
             plugins: [
                 pxtorem({

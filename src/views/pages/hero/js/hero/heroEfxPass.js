@@ -12,27 +12,30 @@ import {Pass, FullScreenQuad} from 'three/addons/postprocessing/Pass.js';
 import fragment from '@/views/pages/hero/glsl/heroEfxPass/fragment.glsl'
 
 export default class HeroEfxPass extends Pass {
-
-    colorBurn = new THREE.Color("#000000");
-    colorDodge = new THREE.Color("#000000");
-    sceneColorBurn = new THREE.Color('#00f0ff')
-    sceneColorDodge = new THREE.Color('#005aff')
-    hudColorBurn = new THREE.Color("#79a8ff")
-    hudColorDodge = new THREE.Color("#a5ff44")
-    sceneColorBurnAlpha = 0.15
-    sceneColorDodgeAlpha = 0.12
-    hudColorBurnAlpha = 1
-    hudColorDodgeAlpha = 0.7
+    colorBurn = new THREE.Color("#000");
+    colorDodge = new THREE.Color("#000");
     hudRatio = 1;
     isActive = !0;
     renderOrder = 20;
+    randSimplex1Ds = [];
+    _sceneColorBurn = new THREE.Color("#00f0ff")
+    _sceneColorDodge = new THREE.Color("#005aff")
+    _sceneColorBurnAlpha = .15
+    _sceneColorDodgeAlpha = .12
+    _hudColorBurn = new THREE.Color("#79a8ff")
+    _hudColorDodge = new THREE.Color("#a5ff44")
+    _hudColorBurnAlpha = 1
+    _hudColorDodgeAlpha = .7;
 
     constructor(base) {
         super();
         this.base = base;
-        this.math = this.base.math;
-        this.fboHelper = this.base.fboHelper;
-        this.fsQuad = new FullScreenQuad(null);
+        this.fboHelper = base.fboHelper;
+        this.math = base.math;
+        this.init();
+    }
+
+    init() {
         this.material = this.fboHelper.createRawShaderMaterial({
             uniforms: {
                 u_texture: {value: null},
@@ -43,36 +46,23 @@ export default class HeroEfxPass extends Pass {
             },
             fragmentShader: fragment
         })
-        this.fsQuad.material = this.material;
     }
 
-    setSize(width, height) {
-
-    }
-
-    dispose() {
-        this.material.dispose();
-        this.fsQuad.dispose();
-    }
 
     render(renderer, writeBuffer, readBuffer) {
         let r = this.material.uniforms;
-        this.colorBurn.copy(this.sceneColorBurn).lerp(this.hudColorBurn, this.hudRatio)
-        this.colorDodge.copy(this.sceneColorDodge).lerp(this.hudColorDodge, this.hudRatio)
-        r.u_colorBurnAlpha.value = this.math.mix(this.sceneColorBurnAlpha, this.hudColorBurnAlpha, this.hudRatio * this.hudRatio)
-        r.u_colorDodgeAlpha.value = this.math.mix(this.sceneColorDodgeAlpha, this.hudColorDodgeAlpha, this.hudRatio * this.hudRatio)
-        this.material.uniforms.u_texture.value = readBuffer.texture;
+        this.colorBurn.copy(this._sceneColorBurn).lerp(this._hudColorBurn, this.hudRatio)
+        this.colorDodge.copy(this._sceneColorDodge).lerp(this._hudColorDodge, this.hudRatio)
+        r.u_colorBurnAlpha.value = this.math.mix(this._sceneColorBurnAlpha, this._hudColorBurnAlpha, this.hudRatio * this.hudRatio)
+        r.u_colorDodgeAlpha.value = this.math.mix(this._sceneColorDodgeAlpha, this._hudColorDodgeAlpha, this.hudRatio * this.hudRatio)
+        this.material.uniforms.u_texture && (this.material.uniforms.u_texture.value = readBuffer.texture)
+        this.fboHelper.render(this.material, this.renderToScreen ? null : writeBuffer)
+    }
 
+    setSize() {
+    }
 
-        if (this.renderToScreen) {
-            renderer.setRenderTarget(null);
-
-        } else {
-            renderer.setRenderTarget(writeBuffer);
-            if (this.clear) renderer.clear();
-        }
-
-        this.fsQuad.render(renderer)
+    dispose() {
 
     }
 }
