@@ -5,7 +5,6 @@
  * @created 2025/4/1 14:25:04
  */
 import * as THREE from "three";
-import {MathUtil} from "@/views/pages/abeto/js/utils/common.js";
 import vertex2 from "@/views/pages/abeto/glsl/needeles/vertex2.glsl";
 import fragment2 from "@/views/pages/abeto/glsl/needeles/fragment2.glsl";
 import vertex from "@/views/pages/abeto/glsl/needeles/vertex.glsl";
@@ -153,7 +152,7 @@ export default class NeedlesCreate {
                 uniforms: {
                     tTexture1: {value: null},
                     tTexture2: {value: null},
-                    tVel: this.base.mainScene.fluidSim.velUniform,
+                    tVel: this.base.fluidSim.velUniform,
                     uViewMatrix: {value: new THREE.Matrix4},
                     uModelMatrix: {value: new THREE.Matrix4},
                     uProjMatrix: {value: new THREE.Matrix4}
@@ -215,6 +214,6 @@ export default class NeedlesCreate {
         this.mesh.updateMatrixWorld()
         this.mesh.matrixAutoUpdate = !1
         this.mesh.frustumCulled = !1
-        this.base.mainScene.add(this.mesh);
+        this.base.scene.add(this.mesh);
     }
 }

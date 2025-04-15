@@ -36,6 +36,6 @@ export default class BackgroundCreate {
         this.mesh.renderOrder = 0
         this.mesh.updateMatrixWorld()
         this.mesh.matrixAutoUpdate = !1
-        this.base.mainScene.add(this.mesh)
+        this.base.scene.add(this.mesh)
     }
 }

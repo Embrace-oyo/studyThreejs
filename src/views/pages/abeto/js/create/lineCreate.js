@@ -20,7 +20,8 @@ class CustomMesh extends THREE.Mesh {
         this.name = this.linesCount > 1 ? "Meshlines" : "Meshline"
         this.frustumCulled = !1;
         const renderTargetType = this.base.base.renderer.webgl.capabilities.floatRenderTarget ? THREE.FloatType : THREE.HalfFloatType;
-        this.rt1 = new THREE.WebGLMultipleRenderTargets(this.base.base.utils.ceilPowerOfTwo(Math.max(2, this.base.points)), this.base.base.utils.ceilPowerOfTwo(Math.max(2, this.base.count)), this.base.textureData.textures || 1, {
+        const size = this.base.base.utils.ceilPowerOfTwo(Math.max(2, this.base.points));
+        this.rt1 = new THREE.WebGLMultipleRenderTargets(size, size, this.base.textureData.textures || 1, {
             wrapS: THREE.ClampToEdgeWrapping,
             wrapT: THREE.ClampToEdgeWrapping,
             minFilter: THREE.NearestFilter,
@@ -86,15 +87,14 @@ class CustomMesh extends THREE.Mesh {
     }
 }
 
-
 class PlaneProjector {
     constructor(base, {camera: e = null, normal: t = new THREE.Vector3(0, 0, -1), constant: n = 0} = {}) {
         this.base = base;
         this.raycaster = new THREE.Raycaster();
         this._camera = e
         this._plane = new THREE.Plane(t, n)
-
         this.Ai = new THREE.Vector3();
+        this.Im = new THREE.Vector3();
     }
 
     _unproject(e) {
@@ -130,8 +130,8 @@ class PlaneProjector {
 
     setPlaneFromCameraTargetAndDistance(e) {
         this.Ai.copy(this._camera.position).sub(this._camera.target).normalize()
-        this.raycaster.copy(this.Ai).negate().multiplyScalar(e).add(this._camera.position)
-        this._plane.setFromNormalAndCoplanarPoint(this.Ai, this.raycaster)
+        this.Im.copy(this.Ai).negate().multiplyScalar(e).add(this._camera.position)
+        this._plane.setFromNormalAndCoplanarPoint(this.Ai, this.Im)
         return this
     }
 
@@ -174,14 +174,14 @@ export default class LineCreate {
         this.base = base;
         this.options = {length: .5, ...t}
         this.count = 1;
-        this.point = 16
+        this.points = 16
         this.init()
     }
 
     init() {
         this.geometry = this.createPolylineGeometry({
             count: this.count,
-            points: this.point,
+            points: this.points,
             closed: false
         });
         this.material = new THREE.ShaderMaterial({
@@ -259,19 +259,24 @@ export default class LineCreate {
             s = !0
         })
         this.planeInteraction = new PlaneProjector(this)
-        this.base.mainScene.beforeRenderCbs.push(() => {
+        this.base.scene.beforeRenderCbs.push(() => {
             const r = this.mesh.computationMaterial.uniforms.uMousePos.value
-            const a = this.planeInteraction.setCamera(this.base.mainScene.camera).unprojectFinger(0);
+            const a = this.planeInteraction.setCamera(this.base.scene.camera).unprojectFinger(0);
             r.lerp(a, this.base.utils.lerpCoefFPS(.3))
             n += t.subVectors(r, e).length()
             n *= this.base.utils.frictionFPS(.8)
             n = this.base.utils.clamp(n, 0, 1)
             e.copy(r)
             this.mesh.material.uniforms.lineWidth.value = 9 / this.base.screen.h * this.base.utils.fit(n, .01, .001, 1, 0)
-            s ? (this.mesh.computationMaterial.uniforms.uSnap.value = 1, r.copy(a), s = !1) : this.mesh.computationMaterial.uniforms.uSnap.value = 0
+            if (s) {
+                this.mesh.computationMaterial.uniforms.uSnap.value = 1
+                r.copy(a)
+                s = !1
+            } else {
+                this.mesh.computationMaterial.uniforms.uSnap.value = 0
+            }
         })
-        this.base.mainScene.add(this.mesh)
-
+        this.base.scene.add(this.mesh)
     }
 
     createPolylineGeometry({points: pointCount, count: instanceCount, closed: isClosed}) {

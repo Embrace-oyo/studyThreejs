@@ -8,7 +8,7 @@ import * as THREE from "three";
 
 export default class FluidSimCreate {
     constructor(base) {
-        this.base = base.base;
+        this.base = base;
         this.isFluid = !0
         this._linearFilteringSupported = this.base.renderer.webgl.capabilities.floatLinearFiltering
         this._simRes = 128

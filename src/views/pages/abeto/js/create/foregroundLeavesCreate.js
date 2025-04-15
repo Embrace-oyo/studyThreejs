@@ -154,7 +154,7 @@ export default class ForegroundLeavesCreate {
                 uniforms: {
                     tTexture1: {value: null},
                     tTexture2: {value: null},
-                    tVel: this.base.mainScene.fluidSim.velUniform,
+                    tVel: this.base.fluidSim.velUniform,
                     uViewMatrix: {value: new THREE.Matrix4},
                     uModelMatrix: {value: new THREE.Matrix4},
                     uProjMatrix: {value: new THREE.Matrix4}
@@ -215,6 +215,6 @@ export default class ForegroundLeavesCreate {
         this.mesh.updateMatrixWorld()
         this.mesh.matrixAutoUpdate = !1
         this.mesh.frustumCulled = !1
-        this.base.mainScene.add(this.mesh)
+        this.base.scene.add(this.mesh)
     }
 }

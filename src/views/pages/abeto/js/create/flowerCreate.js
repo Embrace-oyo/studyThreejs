@@ -12,7 +12,7 @@ import fragment from '@/views/pages/abeto/glsl/flower/fragment.glsl'
 export default class FlowerCreate {
     constructor(base, t = {}) {
         this.base = base;
-        this.scene = this.base.mainScene;
+        this.scene = this.base.scene;
         this.baseTime = 0
         this.additionalTime = 0
         this.additionalTimeTarget = 0

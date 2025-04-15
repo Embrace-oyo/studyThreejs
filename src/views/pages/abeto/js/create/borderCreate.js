@@ -43,7 +43,7 @@ export default class BorderCreate {
         this.mesh.matrixAutoUpdate = !1
         this.resize({w: this.base.screen.width, h: this.base.screen.height})
         this.base.eventManage.on("resize", this.resize.bind(this))
-        this.base.mainScene.add(this.mesh)
+        this.base.scene.add(this.mesh)
 
     }
 
