@@ -30,7 +30,7 @@ export default defineConfig({
             certDir: '/Users/.../.devServer/cert'
         })
     ],
-    assetsInclude: ['**/*.hdr'],
+    assetsInclude: ['**/*.hdr', '**/*.drc'],
     css: {
         postcss: {
             plugins: [
