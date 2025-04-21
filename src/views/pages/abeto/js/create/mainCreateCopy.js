@@ -289,7 +289,7 @@ export default class MainCreate {
 
 
         this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
-        this.outPass = new OutputPass();
+        // this.outPass = new OutputPass();
 
 
         this.composer.addPass(this.renderPass)

@@ -289,7 +289,7 @@ export default class MainCreate {
 
 
         this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
-        this.outPass = new OutputPass();
+        // this.outPass = new OutputPass();
 
 
         this.composer.addPass(this.renderPass)
@@ -378,6 +378,7 @@ export default class MainCreate {
         this.eventManage.on("webgl_render", (delta) => {
             if (!this.active) return;
             this.renderer.info?.reset();
+            // this.renderer.webgl?.render(this.scene, this.camera);
             this.composer?.render(delta);
         });
         this.eventManage.on("webgl_render_active", (active) => {

@@ -253,10 +253,10 @@ class MeshInteractor {
         this._enabled = false;
         this._touchPressed = false;
 
-        ue.off(`${this._eventsID}_start`, this._onTouchStart, this);
-        ue.off(`${this._eventsID}_move`, this._onTouchMove, this);
-        ue.off(`${this._eventsID}_end`, this._onTouchEnd, this);
-        ue.off(`${this._eventsID}_click`, this._onTouchClick, this);
+        this.base.base.eventManage.off(`${this._eventsID}_start`, this._onTouchStart, this);
+        this.base.base.eventManage.off(`${this._eventsID}_move`, this._onTouchMove, this);
+        this.base.base.eventManage.off(`${this._eventsID}_end`, this._onTouchEnd, this);
+        this.base.base.eventManage.off(`${this._eventsID}_click`, this._onTouchClick, this);
 
         this._checkIntersections(EventType.TOUCH_END, []);
     }

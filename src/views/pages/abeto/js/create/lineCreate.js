@@ -11,7 +11,7 @@ import vertex from '@/views/pages/abeto/glsl/line/vertex.glsl'
 import fragment from '@/views/pages/abeto/glsl/line/fragment.glsl'
 
 
-class CustomMesh extends THREE.Mesh {
+class CustomLineMesh extends THREE.Mesh {
     constructor(base) {
         super(base.geometry, base.material);
         this.base = base;
@@ -246,7 +246,7 @@ export default class LineCreate {
                 `
             })
         }
-        this.mesh = new CustomMesh(this);
+        this.mesh = new CustomLineMesh(this);
         this.mesh.name = "line"
         this.mesh.renderOrder = 5
         this.mesh.updateMatrixWorld()
