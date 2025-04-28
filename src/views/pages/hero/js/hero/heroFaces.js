@@ -13,7 +13,7 @@ class AboutHeroFaces {
     hasStartedLoads = {};
     teamPosDataTextures = {};
     teamNShadeDataTextures = {};
-    sharedUniforms = {
+    shaderUniforms = {
         u_mouse: {value: new Vector3},
         u_glitchOffset: {value: 0},
         u_glitchStrength: {value: 0},
@@ -56,14 +56,14 @@ class AboutHeroFaces {
         for (let l = 0; l < MAX_FACE_NUM; l++) {
             const c = new ShaderMaterial({
                 uniforms: {
-                    u_time: properties.sharedUniforms.u_time,
-                    u_resolution: properties.sharedUniforms.u_resolution,
-                    u_mouse: this.sharedUniforms.u_mouse,
-                    u_glitchOffset: this.sharedUniforms.u_glitchOffset,
-                    u_glitchStrength: this.sharedUniforms.u_glitchStrength,
+                    u_time: properties.shaderUniforms.u_time,
+                    u_resolution: properties.shaderUniforms.u_resolution,
+                    u_mouse: this.shaderUniforms.u_mouse,
+                    u_glitchOffset: this.shaderUniforms.u_glitchOffset,
+                    u_glitchStrength: this.shaderUniforms.u_glitchStrength,
                     u_glitchThreshold: {value: 0},
                     u_activeRatio: {value: 0},
-                    u_showRatio: this.sharedUniforms.u_showRatio,
+                    u_showRatio: this.shaderUniforms.u_showRatio,
                     u_positionTexture: {value: null},
                     u_norShadeTexture: {value: null}
                 },
@@ -92,15 +92,15 @@ class AboutHeroFaces {
     update(e) {
         if (this.meshArray.length > 0) {
             let t = this.transitionRatio;
-            this.sharedUniforms.u_showRatio.value = this.showRatio;
+            this.shaderUniforms.u_showRatio.value = this.showRatio;
             let r = input.easedMouseDynamics.default.value;
             _v1$1.set(r.x, r.y, .5).unproject(cameraControls._camera).sub(cameraControls._camera.position).normalize(), _v1$1.multiplyScalar(75 / _v1$1.z).add(cameraControls._camera.position), _m.copy(this.faceContainer.matrixWorld).invert(), _v1$1.applyMatrix4(_m);
             let n = math.clamp(_v1$1.y * .03, -.05, .05), a = math.clamp(_v1$1.x * .03, -.05, .05);
-            _v1$1.applyMatrix4(this.faceContainer.matrixWorld), this.sharedUniforms.u_mouse.value.copy(_v1$1);
+            _v1$1.applyMatrix4(this.faceContainer.matrixWorld), this.shaderUniforms.u_mouse.value.copy(_v1$1);
             let l = this.meshArray[0];
             l.material.uniforms.u_positionTexture.value = this.teamPosDataTextures[this.currId], l.material.uniforms.u_norShadeTexture.value = this.teamNShadeDataTextures[this.currId], l.material.uniforms.u_activeRatio.value = 1 - t, l.material.uniforms.u_glitchThreshold.value = math.fit(l.material.uniforms.u_activeRatio.value, .4, 1, 0, .9), l.material.uniforms.u_activeRatio.value *= this.activeRatio, l.position.x = t * -1.5, l.position.z = -t * 2 - (1 - this.activeRatio) * 2, l.rotation.y = t * -.3 + a, l.rotation.x = t * .4 + n, l.visible = !0;
             let c = this.meshArray[1];
-            c.material.uniforms.u_positionTexture.value = this.teamPosDataTextures[this.nextId], c.material.uniforms.u_norShadeTexture.value = this.teamNShadeDataTextures[this.nextId], c.material.uniforms.u_activeRatio.value = t, c.material.uniforms.u_glitchThreshold.value = math.fit(c.material.uniforms.u_activeRatio.value, .4, 1, 0, .9), c.material.uniforms.u_activeRatio.value *= this.activeRatio, c.position.x = (t - 1) * -1.5, c.position.z = (t - 1) * 2 - (1 - this.activeRatio) * 2, c.rotation.y = (t - 1) * -.3 + a, c.rotation.x = (t - 1) * -.4 + n, c.visible = !0, this.sharedUniforms.u_glitchOffset.value = Math.random() * 1e3, this.sharedUniforms.u_glitchStrength.value = Math.random(), this.container.visible = this.isActive
+            c.material.uniforms.u_positionTexture.value = this.teamPosDataTextures[this.nextId], c.material.uniforms.u_norShadeTexture.value = this.teamNShadeDataTextures[this.nextId], c.material.uniforms.u_activeRatio.value = t, c.material.uniforms.u_glitchThreshold.value = math.fit(c.material.uniforms.u_activeRatio.value, .4, 1, 0, .9), c.material.uniforms.u_activeRatio.value *= this.activeRatio, c.position.x = (t - 1) * -1.5, c.position.z = (t - 1) * 2 - (1 - this.activeRatio) * 2, c.rotation.y = (t - 1) * -.3 + a, c.rotation.x = (t - 1) * -.4 + n, c.visible = !0, this.shaderUniforms.u_glitchOffset.value = Math.random() * 1e3, this.shaderUniforms.u_glitchStrength.value = Math.random(), this.container.visible = this.isActive
         }
     }
 }

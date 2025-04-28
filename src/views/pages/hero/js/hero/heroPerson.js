@@ -44,7 +44,7 @@ export default class HeroPerson {
                     u_texture: {value: this.shadowTexture},
                     u_lightMixer: this.shaderUniforms.u_lightMixer
                 },
-                this.base.blueNoise.sharedUniforms
+                this.base.blueNoise.shaderUniforms
             ),
             vertexShader: shadowVert,
             fragmentShader: shadowFrag,

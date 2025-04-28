@@ -47,7 +47,7 @@ export default class Properties {
         xrCompatible: !1,
         powerPreference: "high-performance"
     };
-    sharedUniforms = {
+    shaderUniforms = {
         u_aspect: {
             value: 1
         },

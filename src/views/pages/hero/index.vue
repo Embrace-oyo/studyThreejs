@@ -4,12 +4,6 @@ justThreeJs index.vue
 @description
 @created 2025/3/21 11:13:23
 -->
-<!--
-justThreeJs index.vue
-@author kongjianqiu
-@description
-@created 2025/3/5 09:21:41
--->
 <template>
   <div class="hero">
     <div class="loading" :class="{loadOk: isLoad}">

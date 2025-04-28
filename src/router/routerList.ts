@@ -170,6 +170,14 @@ const exampleRouter = [
             img: flower
         },
         component: () => import('@/views/pages/abeto/index.vue')
+    },
+    {
+        path: 'lusion',
+        name: 'lusion',
+        meta: {
+            img: flower
+        },
+        component: () => import('@/views/pages/lusion/index.vue')
     }
 
 ]
