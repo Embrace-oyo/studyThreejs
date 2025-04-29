@@ -1,0 +1,32 @@
+[
+	{
+		"id": "edan",
+		"name": "Edan Kwan",
+		"role": "Cofounder &<br> Creative Director"
+	},
+	{
+		"id": "ffi",
+		"name": "Ffion Morgan",
+		"role": "Cofounder &<br> Head of Operation"
+	},
+	{
+		"id": "marcolp",
+		"name": "Marco Ludovico Perego",
+		"role": "Creative Developer"
+	},
+	{
+		"id": "lorenzo",
+		"name": "Lorenzo Dossi",
+		"role": "Frontend Developer"
+	},
+	{
+		"id": "sophie",
+		"name": "Sophie Tomash",
+		"role": "Digital Designer"
+	},
+	{
+		"id": "sunny",
+		"name": "Sunny",
+		"role": "Executive Purr-ducer"
+	}
+]
