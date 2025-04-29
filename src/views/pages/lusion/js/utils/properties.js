@@ -5,7 +5,7 @@
  * @created 2025/4/23 09:16:25
  */
 import * as THREE from "three";
-import MinSignal from '@/views/pages/lusion/js/utils/quickLoader/min-signal'
+import MinSignal from '@/views/pages/lusion/js/utils/min-signal'
 
 export default class Properties {
     win = window;

@@ -89,7 +89,7 @@ class Ufx extends PostEffect {
     }
 }
 
-class preUfx extends Ufx {
+class PreUfx extends Ufx {
     renderOrder = 50
 
     constructor(base) {
@@ -107,4 +107,4 @@ class PostUfx extends Ufx {
     }
 }
 
-export {preUfx, PostUfx}
+export {PreUfx, PostUfx}

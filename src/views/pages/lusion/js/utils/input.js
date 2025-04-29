@@ -7,7 +7,7 @@
 
 import {Vector2} from 'three'
 import normalizeWheel from 'normalize-wheel';
-import MinSignal from '@/views/pages/lusion/js/utils/quickLoader/min-signal'
+import MinSignal from '@/views/pages/lusion/js/utils/min-signal'
 
 class SecondOrderDynamics {
     // 状态变量
