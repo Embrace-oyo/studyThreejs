@@ -156,14 +156,6 @@ const exampleRouter = [
         component: () => import('@/views/pages/plaster/index.vue')
     },
     {
-        path: 'hero',
-        name: '宇航员',
-        meta: {
-            img: hero
-        },
-        component: () => import('@/views/pages/hero/index.vue')
-    },
-    {
         path: 'flower',
         name: '开花🌼',
         meta: {
