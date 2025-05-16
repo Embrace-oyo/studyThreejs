@@ -18,6 +18,7 @@
     "axios": "^1.7.8",
     "cannon-es": "^0.20.0",
     "cannon-es-debugger": "^1.0.0",
+    "detect-ua": "^1.0.2",
     "easing-utils": "^1.0.0",
     "events": "^3.3.0",
     "furina": "^1.0.3",

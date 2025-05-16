@@ -22,7 +22,7 @@ import groundVert from '@/views/pages/lusion/glsl/about/groundVert.glsl'
 import groundFrag from '@/views/pages/lusion/glsl/about/groundFrag.glsl'
 
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
 
 export default class AboutHeroGround {
@@ -43,8 +43,8 @@ export default class AboutHeroGround {
     blurCacheRenderTarget = null;    // 备用模糊缓存（预留）
 
     constructor(base) {
-        this.base = base.base;
         this.parent = base;
+        this.base = base.base;
     }
 
     /**

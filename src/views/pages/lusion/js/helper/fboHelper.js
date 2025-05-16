@@ -67,10 +67,7 @@ export default class FboHelper {
         this._camera.position.z = 1;
 
         this.triGeom = new BufferGeometry();
-        this.triGeom.setAttribute(
-            "position",
-            new BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3)
-        );
+        this.triGeom.setAttribute("position", new BufferAttribute(new Float32Array([-1, -1, 0, 4, -1, 0, -1, 4, 0]), 3));
 
         this.quadGeom = new PlaneGeometry(2, 2);
         this._tri = new Mesh(this.triGeom);

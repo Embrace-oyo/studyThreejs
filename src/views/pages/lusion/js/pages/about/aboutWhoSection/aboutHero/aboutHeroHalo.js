@@ -10,9 +10,8 @@ import vert$4 from '@/views/pages/lusion/glsl/about/vert$4.glsl'
 import frag$7 from '@/views/pages/lusion/glsl/about/frag$7.glsl'
 
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
-
 
 export default class AboutHeroHalo {
     // 3D容器对象

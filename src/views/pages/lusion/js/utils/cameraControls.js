@@ -75,7 +75,6 @@ export default class CameraControls {
 
     update(deltaTime) {
         const t = this._camera;
-
         // 刷新默认位置
         this.DEFAULT_CAMERA_POSITION.copy(this.base.properties.defaultCameraPosition);
         this.DEFAULT_LOOKAT_POSITION.copy(this.base.properties.defaultLookAtPosition);
@@ -138,6 +137,7 @@ export default class CameraControls {
             this.base.properties.viewportWidth,
             this.base.properties.viewportHeight
         );
+
 
         t.fov = fovBefore;
         this.cameraDistance += zoomOffset;

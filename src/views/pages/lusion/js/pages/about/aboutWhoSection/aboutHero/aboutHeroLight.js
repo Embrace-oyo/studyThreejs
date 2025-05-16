@@ -30,6 +30,7 @@ export default class AboutHeroLight {
         }
     };
     constructor(base) {
+        this.parent = base;
         this.base = base.base;
     }
     /**
@@ -56,7 +57,6 @@ export default class AboutHeroLight {
         // 配置阴影纹理
         let shadowTexture = this.shaderUniforms.u_lightShadowTexture.value = this.shadowRenderTarget.texture;
         this.shadowRenderTarget.depthBuffer = true;
-
         // WebGL2优化: 使用单通道格式
         if (this.base.settings.USE_WEBGL2) {
             shadowTexture.format = THREE.RedFormat;

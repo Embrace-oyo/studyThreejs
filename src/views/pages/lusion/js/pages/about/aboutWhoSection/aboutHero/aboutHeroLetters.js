@@ -11,7 +11,7 @@ import vert$2 from '@/views/pages/lusion/glsl/about/vert$2.glsl'
 import frag$5 from '@/views/pages/lusion/glsl/about/frag$5.glsl'
 
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
 
 

@@ -8,23 +8,22 @@
 import * as THREE from "three";
 import Stage3D from "@/views/pages/lusion/js/utils/stage3D.js";
 import {easeOutCubic, easeOutSine, easeInOutSine} from 'easing-utils';
-import AboutHeroLight from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroLight.js";
-import AboutHeroParticlesSimulation
-    from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroParticlesSimulation.js";
-import AboutHeroParticles from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroParticles.js";
-import AboutHeroLightField from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroLightField.js";
-import AboutHeroScatter from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroScatter.js";
-import AboutHeroRocks from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroRocks";
-import AboutHeroGround from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroGround";
-import AboutHeroPerson from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroPerson";
-import AboutHeroFog from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroFog";
-import AboutHeroLines from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroLines";
-import AboutHeroHalo from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroHalo";
-import AboutHeroFaces from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroFaces";
-import AboutHeroLetters from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHeroLetters";
+import AboutHeroLight from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroLight.js";
+import AboutHeroParticlesSimulation from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroParticlesSimulation.js";
+import AboutHeroParticles from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroParticles.js";
+import AboutHeroLightField from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroLightField.js";
+import AboutHeroScatter from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroScatter.js";
+import AboutHeroRocks from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroRocks";
+import AboutHeroGround from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroGround";
+import AboutHeroPerson from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroPerson";
+import AboutHeroFog from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroFog";
+import AboutHeroLines from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroLines";
+import AboutHeroHalo from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroHalo";
+import AboutHeroFaces from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroFaces";
+import AboutHeroLetters from "@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHeroLetters";
 
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
 
 
@@ -77,11 +76,10 @@ export default class AboutHero extends Stage3D {
                 screenPaintDistortionRGBShift: 0.1
             }
         });
-        this.base = base;
+        this.base = base.base;
         this.light = new AboutHeroLight(this);
         this.lightField = new AboutHeroLightField(this);
         this.aboutHeroScatter = new AboutHeroScatter(this);
-
         this.sim = new AboutHeroParticlesSimulation(this)
         this.aboutHeroParticles = new AboutHeroParticles(this)
         this.aboutHeroRocks = new AboutHeroRocks(this);
@@ -163,7 +161,6 @@ export default class AboutHero extends Stage3D {
         this.base.taskManager.add(this);
         this.base.taskManager.add(this.base.aboutPageHeroEfxPrepass.scene);
 
-        this.base.taskManager.start();
 
 
     }
@@ -210,6 +207,7 @@ export default class AboutHero extends Stage3D {
         _v.fromArray(this.cameraSplinePositions.array, n * 3);
         this.properties.defaultCameraPosition.fromArray(this.cameraSplinePositions.array, r * 3);
         this.properties.defaultCameraPosition.lerp(_v, a);
+
 
         // 相机朝向插值
         _q0.fromArray(this.cameraSplineOrientation.array, r * 4);
@@ -274,7 +272,6 @@ export default class AboutHero extends Stage3D {
 
         this.base.aboutPageHeroEfxPrepass.blurRatio = this.hudRatio;
         this.base.aboutPageHeroEfxPrepass.needsRenderScene = this.aboutHeroFaces.isActive;
-        this.base.aboutPageHeroEfxPrepass.needsRenderScene = true;
         this.base.aboutPageHeroEfx.hudRatio = this.aboutHeroFaces.showRatio;
 
 

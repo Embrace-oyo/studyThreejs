@@ -44,21 +44,37 @@ class QuickLoader {
         return retrievedTypeObjList
     }
 
+    /**
+     * 添加资源项到加载器
+     * @param {string} url - 资源URL地址
+     * @param {Object} [cfg] - 配置选项
+     * @param {string} [cfg.type] - 资源类型
+     * @param {Function} [cfg.onLoad] - 加载完成回调
+     * @returns {ResourceItem} 返回资源项实例
+     */
     add(url, cfg) {
-        let item = this.addedItems[url]
+        // 检查是否已存在相同URL的资源项
+        let item = this.addedItems[url];
+        // 如果不存在则创建新资源项
         if (!item) {
-            item = this._createItem(url, (cfg && cfg.type) ? cfg.type : this.retrieve(url).type, cfg)
+            // 确定资源类型：优先使用配置中的类型，否则从已有资源中获取
+            const type = (cfg && cfg.type) ? cfg.type : this.retrieve(url).type;
+            item = this._createItem(url, type, cfg);
         }
 
-        if (cfg && cfg.onLoad) item.onLoaded.addOnce(cfg.onLoad)
+        // 注册加载完成回调
+        if (cfg && cfg.onLoad) {
+            item.onLoaded.addOnce(cfg.onLoad);
+        }
 
+        // 如果是新资源则添加到管理列表
         if (!this.itemUrls[url]) {
-            this.itemUrls[url] = item
-            this.itemList.push(item)
-            this.totalWeight += item.weight
+            this.itemUrls[url] = item;
+            this.itemList.push(item);
+            this.totalWeight += item.weight;  // 更新总权重
         }
 
-        return item
+        return item;
     }
 
     load(url, cfg) {

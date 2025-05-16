@@ -11,7 +11,7 @@ import vert$7 from '@/views/pages/lusion/glsl/about/vert$7.glsl'
 import frag$a from '@/views/pages/lusion/glsl/about/frag$a.glsl'
 
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
 
 let SEGMENT_COUNT = 3

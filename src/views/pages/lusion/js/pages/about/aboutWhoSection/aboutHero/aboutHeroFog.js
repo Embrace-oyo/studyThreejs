@@ -9,9 +9,8 @@ import * as THREE from "three";
 import vert$5 from '@/views/pages/lusion/glsl/about/vert$5.glsl'
 import frag$8 from '@/views/pages/lusion/glsl/about/frag$8.glsl'
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
-
 export default class AboutHeroFog {
     // 3D对象和属性
     container = new THREE.Object3D();  // 容器对象
@@ -166,5 +165,6 @@ export default class AboutHeroFog {
      */
     update(deltaTime) {
         // 可在此添加动画或动态效果
+        console.log(this.material.uniforms)
     }
 }

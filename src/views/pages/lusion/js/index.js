@@ -15,6 +15,8 @@ import EXRItem from "@/views/pages/lusion/js/quickLoader/exrItem.js";
 import TextureItem from "@/views/pages/lusion/js/quickLoader/textureItem.js";
 import ThreeLoaderItem from "@/views/pages/lusion/js/quickLoader/threeLoaderItem";
 import FontItem from "@/views/pages/lusion/js/quickLoader/fontItem";
+import TextItem from "@/views/pages/lusion/js/quickLoader/textItem";
+import JSONItem from "@/views/pages/lusion/js/quickLoader/jsonItem";
 import BufItem from "@/views/pages/lusion/js/quickLoader/bufItem";
 // utils
 import MathUtils from "@/views/pages/lusion/js/utils/math.js";
@@ -75,6 +77,8 @@ export default class Main {
         this.quickLoader.register(TextureItem)
         this.quickLoader.register(ThreeLoaderItem)
         this.quickLoader.register(FontItem)
+        this.quickLoader.register(TextItem)
+        this.quickLoader.register(JSONItem)
         this.quickLoader.register(BufItem)
     }
 

@@ -8,7 +8,6 @@ justThreeJs App.vue
   <router-view v-slot="{ Component }">
       <component
           :is="Component"
-          v-if="$route.meta.keepAlive"
           :key="$route.name"
       />
   </router-view>

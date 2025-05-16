@@ -11,7 +11,7 @@ import frag$9 from '@/views/pages/lusion/glsl/about/frag$9.glsl'
 import shadowVert from '@/views/pages/lusion/glsl/about/shadowVert.glsl'
 import shadowFrag from '@/views/pages/lusion/glsl/about/shadowFrag.glsl'
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
 
 let _v1$2 = new THREE.Vector3;

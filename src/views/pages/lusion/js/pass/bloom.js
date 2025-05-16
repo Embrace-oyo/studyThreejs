@@ -296,8 +296,7 @@ export default class Bloom extends PostEffect {
         this.highPassMaterial.uniforms.u_texelSize = e.shaderUniforms.u_texelSize;
         this.highPassMaterial.uniforms.u_aspect = e.shaderUniforms.u_aspect;
 
-        let a = this.haloStrength > 0,
-            l = n / Math.sqrt(r * r + n * n) * 2;
+        let a = this.haloStrength > 0, l = n / Math.sqrt(r * r + n * n) * 2;
 
         this.highPassMaterial.uniforms.u_aspect.value.set(r / n * l, l);
         l = n / Math.max(r, n);

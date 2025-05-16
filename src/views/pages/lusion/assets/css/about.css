@@ -264,7 +264,7 @@ a, a:active, a:hover, a:visited {
 
 @font-face {
     font-family: Aeonik;
-    src: url(../fonts/Aeonik-Regular.woff2) format("woff2"), url(../fonts/fonts/Aeonik-Regular.woff) format("woff");
+    src: url(@/views/pages/lusion/assets/fonts/Aeonik-Regular.woff2) format("woff2"), url(@/views/pages/lusion/assets/fonts/Aeonik-Regular.woff) format("woff");
     font-weight: 400;
     font-style: normal;
     font-display: block
@@ -272,7 +272,7 @@ a, a:active, a:hover, a:visited {
 
 @font-face {
     font-family: Aeonik;
-    src: url(../fonts/Aeonik-Medium.woff2) format("woff2"), url(../fonts/Aeonik-Medium.woff) format("woff");
+    src: url(@/views/pages/lusion/assets/fonts/Aeonik-Medium.woff2) format("woff2"), url(@/views/pages/lusion/assets/fonts/Aeonik-Medium.woff) format("woff");
     font-weight: 500;
     font-style: normal;
     font-display: block
@@ -280,7 +280,7 @@ a, a:active, a:hover, a:visited {
 
 @font-face {
     font-family: Aeonik;
-    src: url(../fonts/Aeonik-RegularItalic.woff2) format("woff2"), url(../fonts/Aeonik-RegularItalic.woff) format("woff");
+    src: url(@/views/pages/lusion/assets/fonts/Aeonik-RegularItalic.woff2) format("woff2"), url(@/views/pages/lusion/assets/fonts/Aeonik-RegularItalic.woff) format("woff");
     font-weight: 400;
     font-style: italic;
     font-display: block
@@ -288,7 +288,7 @@ a, a:active, a:hover, a:visited {
 
 @font-face {
     font-family: IBMPlexMono;
-    src: url(../fonts/IBMPlexMono-Regular.woff2) format("woff2"), url(../fonts/IBMPlexMono-Regular.woff) format("woff");
+    src: url(@/views/pages/lusion/assets/fonts/IBMPlexMono-Regular.woff2) format("woff2"), url(@/views/pages/lusion/assets/fonts/IBMPlexMono-Regular.woff) format("woff");
     font-weight: 400;
     font-style: normal;
     font-display: block
@@ -296,7 +296,7 @@ a, a:active, a:hover, a:visited {
 
 @font-face {
     font-family: IBMPlexMono;
-    src: url(../fonts/IBMPlexMono-Medium.woff2) format("woff2"), url(../fonts/IBMPlexMono-Medium.woff) format("woff");
+    src: url(@/views/pages/lusion/assets/fonts/IBMPlexMono-Medium.woff2) format("woff2"), url(@/views/pages/lusion/assets/fonts/IBMPlexMono-Medium.woff) format("woff");
     font-weight: 500;
     font-style: normal;
     font-display: block
@@ -304,7 +304,7 @@ a, a:active, a:hover, a:visited {
 
 @font-face {
     font-family: LusionMono;
-    src: url(../fonts/LusionMono.woff2) format("woff2"), url(../fonts/LusionMono.woff) format("woff");
+    src: url(@/views/pages/lusion/assets/fonts/LusionMono.woff2) format("woff2"), url(@/views/pages/lusion/assets/fonts/LusionMono.woff) format("woff");
     font-weight: 400;
     font-style: normal;
     font-display: block
@@ -402,7 +402,7 @@ html, body {
 }
 
 #canvas {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
@@ -425,12 +425,9 @@ html, body {
 }
 
 #ui {
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: 2;
+    position: fixed;
+    z-index: 1;
     width: 100%;
-    height: 100%;
     color: var(--color-black);
     -khtml-user-select: none;
     -moz-user-select: none;
@@ -487,14 +484,13 @@ a {
 }
 
 #transition-overlay {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     z-index: 100;
-    pointer-events: auto;
-    /*display: none;*/
+    pointer-events: auto
 }
 
 button:focus {
@@ -506,7 +502,7 @@ button:focus {
 }
 
 #preloader {
-    position: absolute;
+    position: fixed;
     left: 0;
     top: 0;
     width: 100%;
@@ -1315,13 +1311,12 @@ button.header-menu-link {
 
 #scroll-indicator {
     position: fixed;
-    z-index: 3;
     width: 6px;
     height: calc(var(--vh, 1vh) * 20);
     top: calc(var(--vh, 1vh) * 40);
     background-color: #0000001a;
     border-radius: 3px;
-    right: 64px
+    right: 16px
 }
 
 html.is-black-bg #scroll-indicator, html.is-blue-bg #scroll-indicator {
@@ -1470,7 +1465,7 @@ html.is-black-bg #scroll-indicator-bar, html.is-blue-bg #scroll-indicator-bar {
     height: .8em;
     top: .1em;
     left: -1em;
-    background-image: url(https://lusion.co/assets/images/icons/arrow-right.svg);
+    background-image: url(/assets/images/icons/arrow-right.svg);
     background-repeat: no-repeat;
     background-size: contain
 }
@@ -2667,7 +2662,7 @@ html.is-black-bg #home-goal {
     position: relative;
     display: block;
     color: var(--color-white);
-    width: 100%;
+    width: 100vw;
     padding: 0;
     padding-bottom: 950vw;
     font-size: clamp(.875rem, 1vw, 1.75rem)
@@ -2707,8 +2702,8 @@ html.is-black-bg #home-goal {
 .about-cross:before, .about-cross:after {
     position: absolute;
     content: "";
-    width: 16px;
-    height: 2px;
+    width: calc(.5 * var(--cross-size) * 0.2);
+    height: calc(.125 * var(--cross-size) * 0.2);
     margin-left: calc(var(--cross-size) / -2);
     margin-top: calc(var(--cross-size) / -2);
     background: #999
@@ -2736,7 +2731,7 @@ html.is-black-bg #home-goal {
 
 #about-who-subsection-container {
     position: relative;
-    width: 100%;
+    width: 350vw;
     height: calc(var(--vh, 1vh) * 100);
     will-change: transform
 }
@@ -2760,8 +2755,8 @@ html.is-black-bg #home-goal {
 
 #about-who-face-cursor {
     background: var(--color-blue);
-    width: 8.6rem;
-    height: 8.6rem;
+    width: 0.6rem;
+    height: 0.6rem;
     border-radius: 100%;
     position: absolute;
     top: calc(var(--base-padding-y) * -1);
@@ -2830,7 +2825,7 @@ html.is-black-bg #home-goal {
 #about-who-title-main-scroll {
     position: absolute;
     right: -.1em;
-    font-size: 1.75em;
+    font-size: 0.1rem;
     line-height: calc(var(--base-padding-y) * 1 - .2em);
     white-space: nowrap
 }
@@ -3065,7 +3060,7 @@ html.is-black-bg #home-goal {
 #about-who-team-left {
     position: relative;
     display: flex;
-    height: calc(100% - var(--header-size) * 3.1 - var(--base-padding-y));
+    height: 100%;
     width: 100%
 }
 
@@ -3133,7 +3128,7 @@ html.is-black-bg #home-goal {
     justify-content: space-between;
     align-items: center;
     font-family: IBMPlexMono;
-    font-size: .625em;
+    font-size: .125rem;
     width: 10em
 }
 
@@ -3196,7 +3191,7 @@ html.is-black-bg #home-goal {
 #about-who-team-info {
     position: relative;
     display: flex;
-    width: 12.5em;
+    width: 1.5rem;
     height: 5em
 }
 
@@ -3218,7 +3213,7 @@ html.is-black-bg #home-goal {
 #about-who-team-name {
     height: fit-content;
     white-space: nowrap;
-    font-size: 1em
+    font-size: 0.1rem
 }
 
 #about-who-team-name-icon {
@@ -3237,7 +3232,7 @@ html.is-black-bg #home-goal {
     transform: translateY(-50%);
     opacity: .5;
     white-space: nowrap;
-    font-size: .625em;
+    font-size: .1625rem;
     letter-spacing: .0975em;
     text-transform: uppercase;
     line-height: 1.4
@@ -4042,7 +4037,7 @@ html.is-black-bg #home-goal {
     width: 100%;
     backface-visibility: hidden;
     background: var(--color-white);
-    background-image: url(https://lusion.co/assets/images/cards/back.png);
+    background-image: url(/assets/images/cards/back.png);
     background-size: contain;
     border-radius: .8em;
     transform: rotateY(180deg)
@@ -5153,7 +5148,7 @@ html.is-white-bg .end-section-content-cross:before, html.is-white-bg .end-sectio
 .end-bottom-arrow {
     width: 1em;
     height: 1em;
-    background: url(https://lusion.co/assets/images/icons/arrow-down.svg);
+    background: url(/assets/images/icons/arrow-down.svg);
     background-size: cover;
     background-repeat: no-repeat;
     flex-shrink: 0;

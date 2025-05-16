@@ -15,7 +15,6 @@ import ocean from '@/assets/listImg/海洋.png'
 import oil from '@/assets/listImg/油画.png'
 import ripples from '@/assets/listImg/涟漪.png'
 import plaster from '@/assets/listImg/浮雕.png'
-import hero from '@/assets/listImg/宇航员.png'
 import flower from '@/assets/listImg/开花.png'
 
 const exampleRouter = [
@@ -163,14 +162,6 @@ const exampleRouter = [
         },
         component: () => import('@/views/pages/abeto/index.vue')
     },
-    {
-        path: 'lusion',
-        name: 'lusion',
-        meta: {
-            img: flower
-        },
-        component: () => import('@/views/pages/lusion/index.vue')
-    }
 
 ]
 

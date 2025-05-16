@@ -20,7 +20,7 @@ export default class AboutPage extends Page {
         this.base = base;
         // 设置结束视觉颜色为灰白色
         this.endVisualColor = this.base.properties.offWhiteColorHex;
-        this.aboutWhoSection = new AboutWhoSection(this.base);
+        this.aboutWhoSection = new AboutWhoSection(this);
     }
 
     // 预初始化方法

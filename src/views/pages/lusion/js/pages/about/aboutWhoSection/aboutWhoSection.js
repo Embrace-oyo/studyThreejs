@@ -5,7 +5,12 @@
  * @created 2025/4/29 09:29:33
  */
 import {easeInOutCubic} from 'easing-utils';
-import AboutHero from '@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero'
+import WhoSubsectionWeAre
+    from '@/views/pages/lusion/js/pages/about/aboutWhoSection/whoSubsectionWeAre/whoSubsectionWeAre'
+import WhoSubsectionDetails
+    from '@/views/pages/lusion/js/pages/about/aboutWhoSection/whoSubsectionDetails/whoSubsectionDetails'
+import WhoSubsectionTeam from '@/views/pages/lusion/js/pages/about/aboutWhoSection/whoSubsectionTeam/whoSubsectionTeam'
+import AboutHero from '@/views/pages/lusion/js/pages/about/aboutWhoSection/aboutHero/aboutHero'
 
 export default class AboutWhoSection {
     // DOM元素引用
@@ -33,8 +38,12 @@ export default class AboutWhoSection {
     THRESHOLDS = [];              // 桌面版阈值
     MOBILE_THRESHOLDS = [];       // 移动版阈值
     constructor(base) {
-        this.base = base;
-        this.aboutHero = new AboutHero(this.base);
+        this.base = base.base;
+        this.parent = base;
+        this.whoSubsectionWeAre = new WhoSubsectionWeAre(this);
+        this.whoSubsectionDetails = new WhoSubsectionDetails(this);
+        this.whoSubsectionTeam = new WhoSubsectionTeam(this);
+        this.aboutHero = new AboutHero(this);
     }
 
     // 预初始化方法
@@ -65,9 +74,9 @@ export default class AboutWhoSection {
         this.MOBILE_THRESHOLDS.push(mobileThreshold += this.RANGE_END_WAIT);
 
         // 初始化子部分
-        // whoSubsectionWeAre.preInit(container);  // "我们是谁"部分
-        // whoSubsectionDetails.preInit(container); // 详情部分
-        // whoSubsectionTeam.preInit(container);   // 团队部分
+        this.whoSubsectionWeAre.preInit(container);  // "我们是谁"部分
+        this.whoSubsectionDetails.preInit(container); // 详情部分
+        this.whoSubsectionTeam.preInit(container);   // 团队部分
 
         // 初始化英雄区域并添加到3D场景
         this.aboutHero.preInit();
@@ -76,9 +85,9 @@ export default class AboutWhoSection {
 
     // 初始化方法
     init() {
-        // whoSubsectionWeAre.init();
-        // whoSubsectionDetails.init();
-        // whoSubsectionTeam.init();
+        this.whoSubsectionWeAre.init();
+        this.whoSubsectionDetails.init();
+        this.whoSubsectionTeam.init();
         this.aboutHero.init();
     }
 
@@ -88,9 +97,9 @@ export default class AboutWhoSection {
         this.syncSubsectionContainerTransform();
 
         // 调整子部分大小
-        // whoSubsectionWeAre.resize(width, height);
-        // whoSubsectionDetails.resize(width, height);
-        // whoSubsectionTeam.resize(width, height);
+        this.whoSubsectionWeAre.resize(width, height);
+        this.whoSubsectionDetails.resize(width, height);
+        this.whoSubsectionTeam.resize(width, height);
 
         // 调整英雄区域大小
         this.aboutHero.resize(this.base.properties.width, this.base.properties.height);
@@ -99,10 +108,10 @@ export default class AboutWhoSection {
     // 显示方法
     show() {
         // 重置logo隐藏比例
-        // aboutWhoLogo.hideRatio = 0;
+        this.whoSubsectionWeAre.aboutWhoLogo.hideRatio = 0;
 
         // 通知团队部分显示
-        // whoSubsectionTeam.onPageShow();
+        this.whoSubsectionTeam.onPageShow();
     }
 
     // 获取移动比例(基于滚动位置)
@@ -207,16 +216,16 @@ export default class AboutWhoSection {
         this.syncSubsectionContainerTransform();
 
         // 预更新团队部分
-        // whoSubsectionTeam.preUpdate();
+        this.whoSubsectionTeam.preUpdate();
 
         if (isActive) {
             const pagePos = this.getScrollRatio() * this.PAGE_DISTANCE;
             const moveRatio = -range.screenY / viewportSize;
-
             // 设置英雄区域参数
             this.aboutHero.initialSplineRatio = this.base.math.fit(moveRatio, 0, thresholds[1], 0, 1);
             this.aboutHero.hudRatio = this.base.math.fit(moveRatio, thresholds[1], thresholds[1] + this.RANGE_PAGE_23 * 0.5, 0, 1);
             this.aboutHero.outSectionRatio = this.base.math.fit(moveRatio / thresholds[3], 0.9, 1, 0, 1);
+
 
             // 重置相机偏移
             this.aboutHero.properties.cameraViewportOffsetX = 0;
@@ -228,18 +237,19 @@ export default class AboutWhoSection {
             if (pagePos < this.PAGE_DISTANCE) {
                 // 第一部分
                 this.aboutHero.introRatio = moveRatio / (this.RANGE_START_WAIT + this.RANGE_PAGE_12);
-                // whoSubsectionWeAre.update(deltaTime, true, pagePos, moveRatio, this.subsectionContainerOffsetY);
+                this.whoSubsectionWeAre.update(deltaTime, true, pagePos, moveRatio, this.subsectionContainerOffsetY);
+
             } else {
                 // 其他部分
                 this.aboutHero.introRatio = 1;
-                // whoSubsectionWeAre.update(deltaTime, false, pagePos, moveRatio, this.subsectionContainerOffsetY);
+                this.whoSubsectionWeAre.update(deltaTime, false, pagePos, moveRatio, this.subsectionContainerOffsetY);
             }
 
             // 更新详情部分
             if (pagePos > 0 && pagePos < this.PAGE_DISTANCE * 2) {
-                // whoSubsectionDetails.update(deltaTime, true, pagePos - this.PAGE_DISTANCE, this.subsectionContainerOffsetY);
+                this.whoSubsectionDetails.update(deltaTime, true, pagePos - this.PAGE_DISTANCE, this.subsectionContainerOffsetY);
             } else {
-                // whoSubsectionDetails.update(deltaTime, false, pagePos - this.PAGE_DISTANCE, this.subsectionContainerOffsetY);
+                this.whoSubsectionDetails.update(deltaTime, false, pagePos - this.PAGE_DISTANCE, this.subsectionContainerOffsetY);
             }
 
             // 更新英雄区域滑动效果
@@ -256,28 +266,27 @@ export default class AboutWhoSection {
 
             // 计算滚动偏移
             const scrollOffset = Math.max(0, this.base.scrollManager.scrollPixel - range.top - this.scrollableSize);
-
             // 更新团队部分
             if (pagePos >= this.PAGE_DISTANCE) {
                 this.aboutHero.properties.cameraViewportOffsetY = scrollOffset;
                 this.aboutHero.scrollYRatio = scrollOffset / viewportSize;
-                /*whoSubsectionTeam.update(
+                this.whoSubsectionTeam.update(
                     deltaTime,
                     true,
                     pagePos - this.PAGE_DISTANCE * 2,
                     scrollOffset,
                     this.subsectionContainerOffsetY,
                     teamShowRatio
-                );*/
+                );
             } else {
-                /*whoSubsectionTeam.update(
+                this.whoSubsectionTeam.update(
                     deltaTime,
                     false,
                     pagePos - this.PAGE_DISTANCE * 2,
                     scrollOffset,
                     this.subsectionContainerOffsetY,
                     teamShowRatio
-                );*/
+                );
             }
 
             // 激活英雄区域
@@ -285,7 +294,7 @@ export default class AboutWhoSection {
         } else {
             // 非活跃状态
             this.aboutHero.isActive = false;
-            // whoSubsectionTeam.wasActive = false;
+            this.whoSubsectionTeam.wasActive = false;
         }
     }
 }

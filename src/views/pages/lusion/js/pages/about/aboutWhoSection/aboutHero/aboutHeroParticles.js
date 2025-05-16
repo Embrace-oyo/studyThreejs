@@ -14,7 +14,7 @@ import lightFieldVert from '@/views/pages/lusion/glsl/about/lightFieldVert.glsl'
 import lightFieldFrag from '@/views/pages/lusion/glsl/about/lightFieldFrag.glsl'
 
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
 
 export default class AboutHeroParticles {

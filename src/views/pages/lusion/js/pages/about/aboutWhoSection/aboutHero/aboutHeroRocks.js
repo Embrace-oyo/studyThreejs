@@ -24,7 +24,7 @@ import lightShadowMapFrag from '@/views/pages/lusion/glsl/about/lightShadowMapFr
 
 
 function filePath(path) {
-    return new URL(`../../../../assets/${path}`, import.meta.url).href
+    return new URL(`../../../../../assets/${path}`, import.meta.url).href
 }
 
 export default class AboutHeroRocks {
@@ -42,16 +42,16 @@ export default class AboutHeroRocks {
 
 
     constructor(base) {
-        this.base = base;
-        this.parent = base.base;
+        this.parent = base;
+        this.base = base.base;
         this.shaderUniforms = {
             u_texture: {value: null},                      // 动画纹理
             u_animationTextureSize: {value: new Vector2(this.ROCK_PIECE_COUNT, this.FRAME_COUNT)}, // 动画纹理尺寸
             u_time: {value: 0},                             // 局部时间
             u_globalTime: {value: 0},                       // 全局时间
             u_scale: {value: 0},                            // 缩放因子
-            u_lightPosition: this.base.light.shaderUniforms.u_lightPosition,   // 光照位置（外部传入）
-            u_noiseStableFactor: this.base.sim.shaderUniforms.u_noiseStableFactor // 噪声稳定系数（外部传入）
+            u_lightPosition: this.parent.light.shaderUniforms.u_lightPosition,   // 光照位置（外部传入）
+            u_noiseStableFactor: this.parent.sim.shaderUniforms.u_noiseStableFactor // 噪声稳定系数（外部传入）
         };
     }
 
@@ -60,13 +60,13 @@ export default class AboutHeroRocks {
      */
     preInit() {
         // 加载 rocks.webp，并处理成四通道混合纹理
-        this.parent.properties.loader.add(filePath("texture/rocks.webp"), {
+        this.base.properties.loader.add(filePath("texture/rocks.webp"), {
             type: "texture",
             onLoad: (texture) => {
-                const material = this.parent.fboHelper.createRawShaderMaterial({
+                const material = this.base.fboHelper.createRawShaderMaterial({
                     uniforms: {
                         u_texture: {value: texture},
-                        ...this.base.aboutHeroScatter.shaderUniforms
+                        ...this.parent.aboutHeroScatter.shaderUniforms
                     },
                     fragmentShader: `
                         uniform sampler2D u_texture;
@@ -83,11 +83,11 @@ export default class AboutHeroRocks {
                     `
                 });
 
-                const renderTarget = this.parent.fboHelper.createRenderTarget(512, 512);
+                const renderTarget = this.base.fboHelper.createRenderTarget(512, 512);
                 renderTarget.texture.minFilter = LinearMipmapLinearFilter;
                 renderTarget.texture.generateMipmaps = true;
 
-                this.parent.fboHelper.render(material, renderTarget);
+                this.base.fboHelper.render(material, renderTarget);
 
                 this.shaderUniforms.u_texture.value = renderTarget.texture;
 
@@ -114,9 +114,9 @@ export default class AboutHeroRocks {
                 },
                 ...this.meshAnimationUniformList[i],
                 ...this.shaderUniforms,
-                ...this.base.shaderUniforms,
-                ...this.base.light.shaderUniforms,
-                ...this.base.aboutHeroScatter.shaderUniforms
+                ...this.parent.shaderUniforms,
+                ...this.parent.light.shaderUniforms,
+                ...this.parent.aboutHeroScatter.shaderUniforms
             };
 
             // 生成实例的随机属性
@@ -138,13 +138,13 @@ export default class AboutHeroRocks {
             };
 
             // 加载模型和动画数据
-            this.parent.properties.loader.add(filePath(`buf/rock_${i}.buf`), {
+            this.base.properties.loader.add(filePath(`buf/rock_${i}.buf`), {
                 onLoad: this._onRockLoad.bind(this, i, false)
             });
-            this.parent.properties.loader.add(filePath(`buf/rock_${i}_low.buf`), {
+            this.base.properties.loader.add(filePath(`buf/rock_${i}_low.buf`), {
                 onLoad: this._onRockLoad.bind(this, i, true)
             });
-            this.parent.properties.loader.add(filePath(`buf/rock_animation_${i}.buf`), {
+            this.base.properties.loader.add(filePath(`buf/rock_animation_${i}.buf`), {
                 onLoad: this._onRockAnimationLoad.bind(this, i)
             });
         }
@@ -206,11 +206,11 @@ export default class AboutHeroRocks {
             posRandArray[k + 3] = randomSeed[i % this.ROCK_PIECE_COUNT];
         }
 
-        this.meshAnimationUniformList[index].u_posRandTexture.value = this.parent.fboHelper.createDataTexture(
+        this.meshAnimationUniformList[index].u_posRandTexture.value = this.base.fboHelper.createDataTexture(
             posRandArray, this.ROCK_PIECE_COUNT, this.FRAME_COUNT, true, true
         );
 
-        this.meshAnimationUniformList[index].u_orientTexture.value = this.parent.fboHelper.createDataTexture(
+        this.meshAnimationUniformList[index].u_orientTexture.value = this.base.fboHelper.createDataTexture(
             orientArray, this.ROCK_PIECE_COUNT, this.FRAME_COUNT, true, true
         );
     }
@@ -230,18 +230,18 @@ export default class AboutHeroRocks {
      * 更新动画
      */
     update(deltaTime) {
-        if (!this.parent.properties.hasInitialized) return;
+        if (!this.base.properties.hasInitialized) return;
 
         this.time += deltaTime;
         this.shaderUniforms.u_time.value = this.time;
-        this.shaderUniforms.u_globalTime.value = this.parent.properties.time;
-        this.shaderUniforms.u_scale.value = this.parent.math.fit(
-            this.base.introRatio, 0, 0.2, 0, 1
+        this.shaderUniforms.u_globalTime.value = this.base.properties.time;
+        this.shaderUniforms.u_scale.value = this.base.math.fit(
+            this.parent.introRatio, 0, 0.2, 0, 1
         );
 
         for (let i = 0; i < 4; i++) {
             if (this.shadowMeshList[i]) {
-                this.base.light.renderMesh(this.shadowMeshList[i]);
+                this.parent.light.renderMesh(this.shadowMeshList[i]);
             }
         }
     }
